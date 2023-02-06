@@ -39,7 +39,177 @@ from ppc.ppc_overview_script import Pipe
 #%%
 
 def test_logKpw_ref():
-    '''test against the excel'''
+    '''test the calculatiion of the reference logK value against the excel'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+    
+    answer_round = round(pipe1.pipe_permeability_dict['log_Kpw_ref'], 5)
+    logKpw_ref_answer = 1.64761000
+    try:
+        # assert output == output_phreatic
+        assert answer_round == logKpw_ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+    # else:
+    #     print("Success, no error!")
 
 def test_logDp_ref():
-    '''test against the excel'''
+    '''test the calculatiion of the reference logD value against the excel'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+    
+    answer_round = round(pipe1.pipe_permeability_dict['log_Dp_ref'], 5)
+    logKpw_ref_answer = -11.54717
+    try:
+        # assert output == output_phreatic
+        assert answer_round == logKpw_ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+
+def test_logKp_ref_temperature_correction():
+    '''test the calculatiion of the reference logK value, corrected for temperature
+      against the excel'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+    
+    answer_round = round(pipe1.pipe_permeability_dict['f_Ktemp'], 6)
+    logKpw_ref_answer = -0.071506
+    try:
+        # assert output == output_phreatic
+        assert answer_round == logKpw_ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")    
+
+def test_logDp_ref_temperature_correction():
+    '''test the calculatiion of the reference logD value, corrected for temperature
+      against the excel'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+    
+    answer_round = round(pipe1.pipe_permeability_dict['f_Dtemp'], 6)
+    logKpw_ref_answer = -0.305084
+    try:
+        # assert output == output_phreatic
+        assert answer_round == logKpw_ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")    
+
+def test_logKp_ref_other_correction():
+    '''test the calculatiion of the reference logK value, 
+    corrected for ?? @MartinvdS column AC
+      against the excel'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+    
+    answer_round = round(pipe1.pipe_permeability_dict['f_Kconc'], 6)
+    logKpw_ref_answer = -0.103871
+
+    try:
+        # assert output == output_phreatic
+        assert answer_round == logKpw_ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")    
+
+def test_logDp_ref_other_correction():
+    '''test the calculatiion of the reference logD value, 
+    corrected for ?? @MartinvdS column AC
+      against the excel'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+    
+    answer_round = round(pipe1.pipe_permeability_dict['f_Dconc'], 6)
+    logKpw_ref_answer = -0.391329
+
+    try:
+        # assert output == output_phreatic
+        assert answer_round == logKpw_ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")  
+
+def test_logKpw():
+    '''test the calculatiion of the reference logK value, 
+    corrected for ?? @MartinvdS column AC
+      against the excel'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+    
+    answer_round = round(pipe1.pipe_permeability_dict['log_Kpw'], 6)
+    logKpw_ref_answer = 1.472233
+
+    try:
+        # assert output == output_phreatic
+        assert answer_round == logKpw_ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")    
+
+def test_logDpw():
+    '''test the calculatiion of the reference logD value, 
+    corrected for ?? @MartinvdS column AC
+      against the excel'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+    
+    answer_round = round(pipe1.pipe_permeability_dict['log_Dp'], 6)
+    logKpw_ref_answer = -12.243587
+
+    try:
+        # assert output == output_phreatic
+        assert answer_round == logKpw_ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")  
