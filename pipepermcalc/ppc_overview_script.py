@@ -248,7 +248,16 @@ class Pipe:
                                    chemical_name=None,                                    
                                    concentration_groundwater=None,
                                    temperature_groundwater=None):
-        ''' specify the chemical, concentration and temperature in the groundwater'''
+        ''' specify the chemical, concentration and temperature in the groundwater
+        
+        Parameters
+        ----------
+        @ah_todo
+
+        Returns
+        -------
+        @ah_todo
+        '''
         
         self.concentration_groundwater = concentration_groundwater
         self.temperature_groundwater = temperature_groundwater
@@ -257,7 +266,15 @@ class Pipe:
 
     def phase_distribute(self,):
         ''' Something to distribute the concentration of the chemical of interest
-        to the gas/water/solid phases?'''
+        to the gas/water/solid phases?
+        Parameters
+        ----------
+        @ah_todo
+
+        Returns
+        -------
+        @ah_todo
+        '''
 
     def fetch_chemical_database(self,
                                 chemical_name=None,):
@@ -289,6 +306,7 @@ class Pipe:
                                 coefficient_symbol=None,
                                 pipe_material=None,):
         '''Calculate reference log coefficient plastic-water (log pw) 
+        From KWR 2016.056
 
         Parameters
         ----------
@@ -324,10 +342,11 @@ class Pipe:
 
         Parameters
         ----------
-
+        @ah_todo
 
         Returns
         -------
+        @ah_todo
 
         '''
         R = 0.008314 #universal gas constant
@@ -340,14 +359,16 @@ class Pipe:
                          pipe_permeability_dict=None, 
                         a_c=None,
                         Cref_Sw=None):
-        '''Correction factor, @ah rename this function when checked what it is
+        '''Correction factor, 
+        @ah_todo rename this function when checked what it is with @MartinvdS
 
         Parameters
         ----------
-
+        @ah_todo
 
         Returns
         -------
+        @ah_todo
         '''
 
         # from ppc_database material K27-29
@@ -382,6 +403,7 @@ class Pipe:
 
         Returns
         -------
+        @ah_todo
         '''
         
         reference_pipe_material_dict = self.reference_pipe_material_dict
@@ -445,8 +467,9 @@ class Pipe:
 
         pipe_permeability_dict['f_Dtemp'] = f_Dtemp    
         pipe_permeability_dict['f_Dconc'] = f_Dconc
-        pipe_permeability_dict['log_Dp'] = log_Dp
+        pipe_permeability_dict['log_Dp'] = log_Dp #m2/s
 
+        #Permeation coefficient for plastic-water (Ppw), unit: m2/day
         pipe_permeability_dict['Ppw'] = 24 * 60 * 60 * (10 ** log_Dp) * 10 ** log_Kpw
 
         self.pipe_permeability_dict = pipe_permeability_dict
