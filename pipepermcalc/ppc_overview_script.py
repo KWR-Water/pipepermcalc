@@ -178,11 +178,11 @@ class Pipe:
         material: enum?? @Bram -> set choice of materials
             e.g. PE40, PE80, PVC, EPDM, rubber etc.
         length: float
-            in m ?
+            in m ? @AH check units
         diameter: float
-            in m ?
+            in m ? @AH check units
         thickness: float
-            in m ?
+            in m ? @AH check units
         
         Returns
         -------
@@ -193,9 +193,8 @@ class Pipe:
         self.segment_list.append(name) 
 
         if self.count >1:
-            volume = math.pi * diameter / 2 * length
-            surface_area =  (2 * math.pi * (diameter / 2) * length
-                                + 2 * math.pi * (diameter / 2) ** 2)
+            volume = math.pi * (diameter / 2) ** 2 * length
+            surface_area =  (2 * math.pi * (diameter / 2) * length)
 
             total_length = length + self.pipe_dictionary['total_length']
             total_volume = volume + self.pipe_dictionary['total_volume']
@@ -222,9 +221,8 @@ class Pipe:
                 ,
             }
         else:
-            volume = math.pi * diameter / 2 * length
-            surface_area =  (2 * math.pi * (diameter / 2) * length
-                                + 2 * math.pi * (diameter / 2) ** 2)
+            volume = math.pi * (diameter / 2) ** 2 * length
+            surface_area =  (2 * math.pi * (diameter / 2) * length)
             
             pipe_dictionary = {
                     'number_segments': self.count,
@@ -246,9 +244,17 @@ class Pipe:
 # LEFT OFF HERE FINISHED THE DICTIONARIES, 
 # NEED TO GO OVER STRUCTURE WITH MARTIN/BRAM/LENNART
 
-    def set_groundwater_conditions(self,):
-        ''' specify the chemical and the concentration in the groundwater'''
-    
+    def set_groundwater_conditions(self,
+                                   chemical_name=None,                                    
+                                   concentration_groundwater=None,
+                                   temperature_groundwater=None):
+        ''' specify the chemical, concentration and temperature in the groundwater'''
+        
+        self.concentration_groundwater = concentration_groundwater
+        self.temperature_groundwater = temperature_groundwater
+        self.chemical_name = chemical_name
+        # AH_todo something here to indicate the groundwater conditions have been set?
+
     def phase_distribute(self,):
         ''' Something to distribute the concentration of the chemical of interest
         to the gas/water/solid phases?'''
@@ -268,7 +274,7 @@ class Pipe:
         pipe_permeability_dict: dictionary
             Dictionary of chemical information (solubility, Log Kow, Mwt etc)
         '''
-        ppc_database = read_csv(file_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
+        ppc_database = read_csv(file_path.parent / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
 
         df = ppc_database[ppc_database['Chemical_name'].str.contains(chemical_name)]
 
@@ -347,7 +353,7 @@ class Pipe:
         # from ppc_database material K27-29
         # a_c = 0.103965019849463
         # Cref_Sw = 1.000
-        Cg_Sw = pipe_permeability_dict['C_groundwater'] / pipe_permeability_dict['solubility']
+        Cg_Sw = pipe_permeability_dict['concentration_groundwater'] / pipe_permeability_dict['solubility']
         f_conc = a_c * (Cg_Sw - Cref_Sw)
         return f_conc
 
@@ -359,9 +365,7 @@ class Pipe:
 
     def calculate_pipe_K_D(self,
                         chemical_name=None, 
-                        pipe_material=None, 
-                        temperature_groundwater=None, 
-                        concentration_groundwater=None):
+                        pipe_material=None, ):
         ''' Fetch the pipe and chemical information corresponding to the given pipe 
         material and chemical choice 
 
@@ -384,8 +388,9 @@ class Pipe:
 
         pipe_permeability_dict = self.fetch_chemical_database(chemical_name=chemical_name)
 
-        pipe_permeability_dict['C_groundwater'] = concentration_groundwater
-        pipe_permeability_dict['temperature_groundwater'] = temperature_groundwater
+        #AH_todo add a check here to see if groundwater conditions have been set
+        pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
+        pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
 
         # calculate reference log K plastic-water (log kpw) 
         log_Kpw_ref = self.calculate_reference_value(reference_pipe_material_dict=self.reference_pipe_material_dict, 
@@ -396,7 +401,7 @@ class Pipe:
         pipe_permeability_dict['log_Kpw_ref'] = log_Kpw_ref
 
         f_Ktemp = self.correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
-                        temperature_groundwater=temperature_groundwater, 
+                        temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name = 'solubility',
                             a_dh = 7.92169801506708,
                             b_dh = -17.1875608983359,
@@ -424,7 +429,7 @@ class Pipe:
         pipe_permeability_dict['log_Dp_ref'] = log_Dp_ref
         
         f_Dtemp = self.correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
-                        temperature_groundwater=temperature_groundwater, 
+                        temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name ='molecular_weight', 
                             a_dh = 61.8565740136974,
                             b_dh = -78.9191401984509,
@@ -442,8 +447,10 @@ class Pipe:
         pipe_permeability_dict['f_Dconc'] = f_Dconc
         pipe_permeability_dict['log_Dp'] = log_Dp
 
-        return pipe_permeability_dict
+        pipe_permeability_dict['Ppw'] = 24 * 60 * 60 * (10 ** log_Dp) * 10 ** log_Kpw
 
+        self.pipe_permeability_dict = pipe_permeability_dict
+        return pipe_permeability_dict #@AH necessary to return this?
 
     def calculate_max_dw_concentration(self,):
         ''' Calculate the peak/max concentration in drinking water'''
