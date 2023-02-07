@@ -2,7 +2,7 @@
 # A. Hockin, January 2023
 # KWR 403230-003
 # Pipe permeation calculator
-# With Martin vd Schans, Bram
+# With Martin vd Schans, Bram Hillebrand, Lennart Brokx
 #
 # ------------------------------------------------------------------------------
 
@@ -29,17 +29,34 @@ from project_path import file_path
 
 from pipepermcalc.ppc_overview_script import * 
 
+# %%
+# PLACEHOLDER until the testing function works, ask @Bram
+from tests.testing import *
+
+test1 = test_logKpw_ref()
+test2 = test_logDp_ref()
+test3 = test_logKp_ref_temperature_correction()
+test4 = test_logDp_ref_temperature_correction()
+test5 = test_logKp_ref_other_correction()
+test6 = test_logDp_ref_other_correction()
+test7 = test_logKpw()
+test8 = test_logDpw()
+test9 = test_stagnation_factor()
+test10 = test_peak_without_stagnation()
+test11 = test_peak_with_stagnation()
+test12 = test_peak_soil_concentration()
+test13 = test_mean_soil_concentration()
+
+#%%
 pipe1 = Pipe()
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
 pipe1.calculate_pipe_K_D(
-                   chemical_name="Benzene", 
                    pipe_material= "PE40",
                     )
 pipe1.pipe_permeability_dict
 
-# pipe1 = Pipe()
 pipe1.add_segment(name='seg1',
                 material='PE40',
                 length=25,
@@ -59,16 +76,3 @@ pipe1.calculate_mean_dw_concentration(
 pipe1.pipe_permeability_dict
 
 #%%
-pipe1.add_segment(name='seg2',
-                material='PE80',
-                length=25,
-                diameter=1,
-                thickness=0.03,
-                flow_rate=0.5,
-                )
-# dict2 = pipe1.pipe_dictionary
-
-# pipe1.pipe_dictionary
-#%%
-
-# %%

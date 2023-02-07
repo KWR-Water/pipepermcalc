@@ -26,15 +26,9 @@ import datetime
 from datetime import timedelta
 
 from pathlib import Path
-# get directory of this file
-path = Path(__file__).parent #os.getcwd() #path of working directory
-# This is not working, why??
-# try:
-#     from project_path import module_path #the dot says look in the current folder, this project_path.py file must be in the folder here
-# except ModuleNotFoundError:
-#     from project_path import module_path
+from project_path import file_path
 
-from ppc.ppc_overview_script import Pipe 
+from pipepermcalc.ppc_overview_script import * 
 
 #%%
 
@@ -46,7 +40,6 @@ def test_logKpw_ref():
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['log_Kpw_ref'], 5)
@@ -66,7 +59,6 @@ def test_logDp_ref():
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['log_Dp_ref'], 5)
@@ -87,7 +79,6 @@ def test_logKp_ref_temperature_correction():
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['f_Ktemp'], 6)
@@ -108,7 +99,6 @@ def test_logDp_ref_temperature_correction():
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['f_Dtemp'], 6)
@@ -130,7 +120,6 @@ def test_logKp_ref_other_correction():
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['f_Kconc'], 6)
@@ -153,7 +142,6 @@ def test_logDp_ref_other_correction():
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['f_Dconc'], 6)
@@ -176,7 +164,6 @@ def test_logKpw():
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['log_Kpw'], 6)
@@ -199,7 +186,6 @@ def test_logDpw():
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['log_Dp'], 6)
@@ -220,7 +206,6 @@ def test_stagnation_factor():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
 
     pipe1.add_segment(name='seg1',
@@ -231,7 +216,7 @@ def test_stagnation_factor():
                     flow_rate=0.5,
                     )
 
-    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8)
+    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8,pipe_segment = 'seg1')
 
     answer_round = round(pipe1.pipe_permeability_dict['stagnation_factor'], 6)
     ref_answer = 1.387905
@@ -251,7 +236,6 @@ def test_peak_without_stagnation():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
 
     pipe1.add_segment(name='seg1',
@@ -265,7 +249,7 @@ def test_peak_without_stagnation():
     pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
                                     pipe_segment='seg1',)
 
-    answer_round = round(pipe1.pipe_permeability_dict['peak_without_stagnation'], 6)
+    answer_round = round(pipe1.pipe_permeability_dict['concentration_peak_without_stagnation'], 6)
     ref_answer = 0.081403
 
     try:
@@ -283,7 +267,6 @@ def test_peak_with_stagnation():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
 
     pipe1.add_segment(name='seg1',
@@ -316,7 +299,6 @@ def test_peak_soil_concentration():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
 
     pipe1.add_segment(name='seg1',
@@ -348,7 +330,6 @@ def test_mean_soil_concentration():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
-                    chemical_name="Benzene", 
                     pipe_material= "PE40",)
 
     pipe1.add_segment(name='seg1',
