@@ -168,7 +168,8 @@ class Pipe:
                     material=None,
                     length=None,
                     diameter=None,
-                    thickness=None,):
+                    thickness=None,
+                    flow_rate=None,):
         ''' Add a segment to the pipe
         
         Parameters
@@ -183,6 +184,8 @@ class Pipe:
             in m ? @AH check units
         thickness: float
             in m ? @AH check units
+        flow_rate: float
+            flow_rate through pipe, m3/day
         
         Returns
         -------
@@ -191,6 +194,8 @@ class Pipe:
         xx = 1
         self.count += 1 #count the number of segments created?
         self.segment_list.append(name) 
+
+        #ah_todo something to check the flow rate is the same input for each segment?
 
         if self.count >1:
             volume = math.pi * (diameter / 2) ** 2 * length
@@ -206,6 +211,8 @@ class Pipe:
                     'length': length,
                     'diameter': diameter,
                     'thickness': thickness,
+                    'volume': volume,
+                    'surface_area': surface_area,
                     },
                     }
 
@@ -217,6 +224,7 @@ class Pipe:
                     'total_length':total_length,
                     'total_volume':total_volume,
                     'total_inner_surface_area':total_surface_area,
+                    'flow_rate': flow_rate,
                     'segments': segment_dict
                 ,
             }
@@ -230,12 +238,16 @@ class Pipe:
                     'total_length':length,
                     'total_volume':volume,
                     'total_surface_area':surface_area,
+                    'flow_rate': flow_rate,
+
                 'segments': {
                     name : {
                     'material': material,
                     'length': length,
                     'diameter': diameter,
                     'thickness': thickness,
+                    'volume': volume,
+                    'surface_area': surface_area,
                     },
                 },
             }
@@ -386,7 +398,9 @@ class Pipe:
 
     def calculate_pipe_K_D(self,
                         chemical_name=None, 
-                        pipe_material=None, ):
+                        pipe_material=None, ): 
+                        #@MartinvdS, pipe_material is defined twice, here and 
+                        # in the add_segment function, how to avoid problems?
         ''' Fetch the pipe and chemical information corresponding to the given pipe 
         material and chemical choice 
 
@@ -473,11 +487,129 @@ class Pipe:
         pipe_permeability_dict['Ppw'] = 24 * 60 * 60 * (10 ** log_Dp) * 10 ** log_Kpw
 
         self.pipe_permeability_dict = pipe_permeability_dict
-        return pipe_permeability_dict #@AH necessary to return this?
 
-    def calculate_max_dw_concentration(self,):
-        ''' Calculate the peak/max concentration in drinking water'''
+    def calculate_max_dw_concentration(self, 
+                                    stagnation_time_hours = 8, 
+                                    pipe_segment=None, #@MartinvdS need to replace this
+                                    ):
+        ''' Calculate the peak/max concentration in drinking water
         
+        Parameters
+        ----------
+        stagnation_time_hours: float
+            time in hours, default 8 hours
+        @ah_todo
+
+        Returns
+        -------
+        stagnation_time_hours
+        flux_max_stagnation: float
+            Here (mg/d) is the maximum flux that may take place during this 
+            period to remain below the drinking water standard
+        flux_max_stagnation_per_m2
+        flux_max_per_day
+        flux_max_per_day_per_m2
+        stagnation_factor
+        concentration_peak_without_stagnation
+        concentration_mean
+        concentration_peak_after_stagnation
+
+        @ah_todo
+        '''
+
+        drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
+        stagnation_time = stagnation_time_hours / 24 # days
+        segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
+        segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
+        segment_thickness = self.pipe_dictionary['segments'][pipe_segment]['thickness'] 
+        assesment_factor_groundwater = 3 #ah_todo @MartinvdS how to replace this? in database?
+        assessment_factor_soil = 1 #ah_todo @MartinvdS how to replace this? in database?
+
+        #Risk limit value groundwater
+        # Stagnation period (default 8 hour) max
+        flux_max_stagnation = ( drinking_water_norm / 1000 * segment_volume /
+                        stagnation_time)
+        flux_max_stagnation_per_m2 = flux_max_stagnation / segment_surface_area
+        
+        stagnation_factor = 10 ** max((((self.pipe_permeability_dict['log_Dp'] + 12.5) / 2 + 
+                                self.pipe_permeability_dict['log_Kpw']) * 0.73611 + 
+                                -1.03574 ), 0)
+
+        concentration_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
+                                    segment_thickness / 
+                                    self.pipe_permeability_dict['Ppw'] * assesment_factor_groundwater)
+
+
+        concentration_peak_after_stagnation = stagnation_factor * concentration_peak_without_stagnation
+        #@MartinvdS - in excel (column BM) you round down, why?
+
+        #Risk limit value soil
+        if math.isnan(self.pipe_permeability_dict['distribution_coefficient']):
+            concentration_peak_soil = 'distribution_coefficient (Kd) unknown'
+        else:
+            concentration_peak_soil = (10 ** self.pipe_permeability_dict['distribution_coefficient'] * 
+                                        concentration_peak_after_stagnation * 
+                                        assessment_factor_soil / assesment_factor_groundwater)
+
+        self.pipe_permeability_dict['stagnation_time_hours'] = stagnation_time_hours
+        self.pipe_permeability_dict['flux_max_stagnation'] = flux_max_stagnation
+        self.pipe_permeability_dict['flux_max_stagnation_per_m2'] = flux_max_stagnation_per_m2
+        self.pipe_permeability_dict['stagnation_factor'] = stagnation_factor
+        self.pipe_permeability_dict['concentration_peak_without_stagnation'] = concentration_peak_without_stagnation
+        self.pipe_permeability_dict['concentration_peak_after_stagnation'] = concentration_peak_after_stagnation
+        self.pipe_permeability_dict['concentration_peak_soil'] = concentration_peak_soil
+
+    def calculate_mean_dw_concentration(self, 
+                                    pipe_segment=None, #@MartinvdS need to replace this
+                                    ):
+        ''' Calculate the peak/max concentration in drinking water
+        
+        Parameters
+        ----------
+        @ah_todo
+
+        Returns
+        -------
+        @ah_todo
+        '''
+        drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
+        segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
+        segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
+        segment_thickness = self.pipe_dictionary['segments'][pipe_segment]['thickness'] 
+        assesment_factor_groundwater = 3 #ah_todo @MartinvdS how to replace this? in database?
+        assessment_factor_soil = 1 #ah_todo @MartinvdS how to replace this? in database?
+
+        # 24 hour max flux
+        flux_max_per_day = drinking_water_norm / 1000 * self.pipe_dictionary['flow_rate']
+        flux_max_per_day_per_m2 = flux_max_per_day / segment_surface_area
+
+        concentration_mean = (flux_max_per_day_per_m2 * segment_thickness / 
+                                    self.pipe_permeability_dict['Ppw'] * 
+                                    assesment_factor_groundwater + drinking_water_norm / 1000)
+        
+        #Risk limit value soil
+        if math.isnan(self.pipe_permeability_dict['distribution_coefficient']):
+            concentration_mean_soil = 'distribution_coefficient (Kd) unknown'
+        else:
+            concentration_mean_soil = (10 ** self.pipe_permeability_dict['distribution_coefficient'] * 
+                                        concentration_mean * 
+                                        assessment_factor_soil / assesment_factor_groundwater)
+
+
+        self.pipe_permeability_dict['flux_max_per_day'] = flux_max_per_day
+        self.pipe_permeability_dict['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
+        self.pipe_permeability_dict['concentration_mean'] = concentration_mean
+        self.pipe_permeability_dict['concentration_mean_soil'] = concentration_mean_soil
+
+
+    def something_for_multiple_segments():
+        ''' function to calculate the peak/mean concentrations for multiple pipe 
+        segments '''
+
+        # for segments in self.pipe_dictionary['segment_list']:
+        #     pass
+            #calculate the peak/mean concentrations/volume and sum them?
+
     def print_pipe_segment_information(self,):
         ''' or override the "print" function '''
 

@@ -50,15 +50,13 @@ def test_logKpw_ref():
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['log_Kpw_ref'], 5)
-    logKpw_ref_answer = 1.64761000
+    ref_answer = 1.64761000
     try:
-        # assert output == output_phreatic
-        assert answer_round == logKpw_ref_answer
+        
+        assert answer_round == ref_answer
 
     except AssertionError:
         print("Assertion Exception Raised.")
-    # else:
-    #     print("Success, no error!")
 
 def test_logDp_ref():
     '''test the calculatiion of the reference logD value against the excel'''
@@ -72,10 +70,10 @@ def test_logDp_ref():
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['log_Dp_ref'], 5)
-    logKpw_ref_answer = -11.54717
+    ref_answer = -11.54717
     try:
-        # assert output == output_phreatic
-        assert answer_round == logKpw_ref_answer
+        
+        assert answer_round == ref_answer
 
     except AssertionError:
         print("Assertion Exception Raised.")
@@ -93,10 +91,10 @@ def test_logKp_ref_temperature_correction():
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['f_Ktemp'], 6)
-    logKpw_ref_answer = -0.071506
+    ref_answer = -0.071506
     try:
-        # assert output == output_phreatic
-        assert answer_round == logKpw_ref_answer
+        
+        assert answer_round == ref_answer
 
     except AssertionError:
         print("Assertion Exception Raised.")    
@@ -114,10 +112,10 @@ def test_logDp_ref_temperature_correction():
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['f_Dtemp'], 6)
-    logKpw_ref_answer = -0.305084
+    ref_answer = -0.305084
     try:
-        # assert output == output_phreatic
-        assert answer_round == logKpw_ref_answer
+        
+        assert answer_round == ref_answer
 
     except AssertionError:
         print("Assertion Exception Raised.")    
@@ -136,11 +134,11 @@ def test_logKp_ref_other_correction():
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['f_Kconc'], 6)
-    logKpw_ref_answer = -0.103871
+    ref_answer = -0.103871
 
     try:
-        # assert output == output_phreatic
-        assert answer_round == logKpw_ref_answer
+        
+        assert answer_round == ref_answer
 
     except AssertionError:
         print("Assertion Exception Raised.")    
@@ -159,11 +157,11 @@ def test_logDp_ref_other_correction():
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['f_Dconc'], 6)
-    logKpw_ref_answer = -0.391329
+    ref_answer = -0.391329
 
     try:
-        # assert output == output_phreatic
-        assert answer_round == logKpw_ref_answer
+        
+        assert answer_round == ref_answer
 
     except AssertionError:
         print("Assertion Exception Raised.")  
@@ -182,11 +180,11 @@ def test_logKpw():
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['log_Kpw'], 6)
-    logKpw_ref_answer = 1.472233
+    ref_answer = 1.472233
 
     try:
-        # assert output == output_phreatic
-        assert answer_round == logKpw_ref_answer
+        
+        assert answer_round == ref_answer
 
     except AssertionError:
         print("Assertion Exception Raised.")    
@@ -205,11 +203,171 @@ def test_logDpw():
                     pipe_material= "PE40",)
     
     answer_round = round(pipe1.pipe_permeability_dict['log_Dp'], 6)
-    logKpw_ref_answer = -12.243587
+    ref_answer = -12.243587
 
     try:
-        # assert output == output_phreatic
-        assert answer_round == logKpw_ref_answer
+        
+        assert answer_round == ref_answer
 
     except AssertionError:
         print("Assertion Exception Raised.")  
+
+def test_stagnation_factor():
+    '''test the calculatiion of the stagnation factor'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    diameter=0.0196,
+                    thickness=0.0027,
+                    flow_rate=0.5,
+                    )
+
+    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8)
+
+    answer_round = round(pipe1.pipe_permeability_dict['stagnation_factor'], 6)
+    ref_answer = 1.387905
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.") 
+
+def test_peak_without_stagnation():
+    '''test the calculatiion of the peak without stagnation'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    diameter=0.0196,
+                    thickness=0.0027,
+                    flow_rate=0.5,
+                    )
+
+    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
+                                    pipe_segment='seg1',)
+
+    answer_round = round(pipe1.pipe_permeability_dict['peak_without_stagnation'], 6)
+    ref_answer = 0.081403
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+
+def test_peak_with_stagnation():
+    '''test the calculatiion of the peak without stagnation'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    diameter=0.0196,
+                    thickness=0.0027,
+                    flow_rate=0.5,
+                    )
+
+    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
+                                    pipe_segment='seg1',)
+
+    answer_round = round(pipe1.pipe_permeability_dict['concentration_peak_after_stagnation'], 6)
+    ref_answer = 0.112980
+
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+
+def test_peak_soil_concentration():
+    '''test the calculatiion of the peak soil concentration'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    diameter=0.0196,
+                    thickness=0.0027,
+                    flow_rate=0.5,
+                    )
+
+    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
+                                    pipe_segment='seg1',)
+
+    answer_round = round(pipe1.pipe_permeability_dict['concentration_peak_soil'], 6)
+    ref_answer =   0.171964 
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+
+def test_mean_soil_concentration():
+    '''test the calculatiion of the mean soil concentration'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    pipe1.calculate_pipe_K_D(
+                    chemical_name="Benzene", 
+                    pipe_material= "PE40",)
+
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    diameter=0.0196,
+                    thickness=0.0027,
+                    flow_rate=0.5,
+                    )
+
+    pipe1.calculate_mean_dw_concentration(
+                                    pipe_segment='seg1', 
+                                    )
+    answer_round = round(pipe1.pipe_permeability_dict['concentration_mean_soil'], 5)
+    ref_answer =   2.73921
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
