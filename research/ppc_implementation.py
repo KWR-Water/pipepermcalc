@@ -52,11 +52,6 @@ pipe1 = Pipe()
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
-pipe1.calculate_pipe_K_D(
-                   pipe_material= "PE40",
-                    )
-pipe1.pipe_permeability_dict
-
 pipe1.add_segment(name='seg1',
                 material='PE40',
                 length=25,
@@ -64,15 +59,21 @@ pipe1.add_segment(name='seg1',
                 thickness=0.0027,
                 flow_rate=0.5,
                 )
-pipe1.pipe_dictionary
+pipe1.calculate_pipe_K_D(
+                   pipe_material= "PE40",
+                    )
+pipe1.pipe_permeability_dict
+
+
+# pipe1.pipe_dictionary
 
 pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
                                     pipe_segment='seg1', 
                                     )
-pipe1.calculate_mean_dw_concentration(
-                                    pipe_segment='seg1', 
-                                    )
+# pipe1.calculate_mean_dw_concentration(
+#                                     pipe_segment='seg1', 
+#                                     )
 
-pipe1.pipe_permeability_dict
+# pipe1.pipe_permeability_dict
 
 #%%

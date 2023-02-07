@@ -147,7 +147,6 @@ class Pipe:
             Mean drinking water concentration in a day (24 hours), g/m3
         concentration_mean_soil: float,      
             Mean soil concentration in a day (24 hours), mg/kg
-
     '''
 
     count = 0 # count of pipe segments
@@ -464,7 +463,8 @@ class Pipe:
     def calculate_pipe_K_D(self,
                         pipe_material=None, ): 
                         #@MartinvdS, pipe_material is defined twice, here and 
-                        # in the add_segment function, how to avoid problems?
+                        # in the add_segment function, should we change to 
+                        # define a segment to calculate instead? then we run it per segment...save to a dictionary
         '''
         Fetch the pipe and chemical information corresponding to the given pipe 
         material and chemical choice. Creates the pipe_permeability_dict, 
@@ -567,6 +567,8 @@ class Pipe:
         pipe_segment: string,
             Name of the pipe segment for which the concentrations are calculated
         '''
+
+        #@ah_todo @Bram @MartinvdS, call here the self.calculate_pipe_K_D() to run for each segment?
 
         drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
         stagnation_time = stagnation_time_hours / 24 # days
