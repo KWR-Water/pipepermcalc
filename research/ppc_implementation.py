@@ -27,7 +27,8 @@ from datetime import timedelta
 
 from project_path import file_path
 
-from pipepermcalc.ppc_overview_script import * 
+from pipepermcalc.pipe import * 
+# ah_todo need to add an additional import
 
 # %%
 # PLACEHOLDER until the testing function works, ask @Bram
@@ -59,10 +60,20 @@ pipe1.add_segment(name='seg1',
                 thickness=0.0027,
                 flow_rate=0.5,
                 )
+pipe1.add_segment(name='seg2',
+                material='PE80',
+                length=2,
+                diameter=0.0196,
+                thickness=0.0027,
+                flow_rate=0.5,
+                )
 pipe1.calculate_pipe_K_D(
                    pipe_material= "PE40",
                     )
-pipe1.pipe_permeability_dict
+# pipe1.pipe_dict['seg1']['K'] = 21 # ah_todo add this as example to read the docs in advanced user tutorial
+print(pipe1)
+
+#%%
 
 
 # pipe1.pipe_dictionary
@@ -77,3 +88,7 @@ pipe1.calculate_mean_dw_concentration(
 pipe1.pipe_permeability_dict
 
 #%%
+pipe1.calculate_pipe_K_D_per_segment()
+pipe1.pipe_permeability_dict
+
+# %%

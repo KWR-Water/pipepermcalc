@@ -28,7 +28,7 @@ Single pipe segment and chemical.
 
 .. ipython:: python
 
-   from pipepermcalc.ppc_overview_script import * 
+   from pipepermcalc.pipe import * 
 
 Step 1: Define a Pipe and set groundwater conditions
 ==============================================

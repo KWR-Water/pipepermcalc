@@ -28,7 +28,7 @@ from datetime import timedelta
 from pathlib import Path
 from project_path import file_path
 
-from pipepermcalc.ppc_overview_script import * 
+from pipepermcalc.pipe import * 
 
 #%%
 
