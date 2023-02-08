@@ -292,6 +292,7 @@ class Pipe:
         self.temperature_groundwater = temperature_groundwater
         self.chemical_name = chemical_name
         self._groundwater_conditions_set = True
+    
     def set_flow_rate(self, 
                       flow_rate=0.5): 
         ''' set this in function by itself
@@ -353,8 +354,7 @@ class Pipe:
         if self.count >1:
             volume = math.pi * (diameter / 2) ** 2 * length
             surface_area =  (2 * math.pi * (diameter / 2) * length)
-            # , confirm how the SA is calculated depending on the type of 
-            # pipe segment (e.g. Fig & Table 3-2) different directions
+            # a@MartinvdS check about the contact area used
 
             total_length = length + self.pipe_dictionary['total_length']
             total_volume = volume + self.pipe_dictionary['total_volume']
@@ -811,7 +811,7 @@ class Pipe:
         stagnation_time = stagnation_time_hours / 24 # days
         segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
         segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
-        segment_thickness = self.pipe_dictionary['segments'][pipe_segment]['thickness'] 
+        segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
         assesment_factor_groundwater = 3 # @ah_todo add to the init as a attribute, move this out
         assessment_factor_soil = 1 # @ah_todo 
 
@@ -827,7 +827,7 @@ class Pipe:
                                 -1.03574 ), 0)
 
         concentration_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
-                                    segment_thickness / 
+                                    segment_diffusion_path_length / 
                                     self.pipe_permeability_dict['permeation_coefficient'] * assesment_factor_groundwater)
 
 
@@ -866,14 +866,14 @@ class Pipe:
             Name of the pipe segment for which the concentrations are calculated
         '''
         # Check if the flow rate has been set, if not raise error
-        if self._groundwater_conditions_set is False: #ah_todo change from NONE to FALSE
+        if self._flow_rate_set is False: #ah_todo change from NONE to FALSE
             raise ValueError('Error, the flow rate in the pipe has not been set. \
                              To set flow rate use .set_flow_rate()')
         else: 
             drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
             segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
             segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
-            segment_thickness = self.pipe_dictionary['segments'][pipe_segment]['thickness'] 
+            segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
             assesment_factor_groundwater = 3 # @ah_todo @MartinvdS how to replace this? in database?
             assessment_factor_soil = 1 # @ah_todo @MartinvdS how to replace this? in database?
 
@@ -881,7 +881,7 @@ class Pipe:
             flux_max_per_day = drinking_water_norm / 1000 * self.flow_rate
             flux_max_per_day_per_m2 = flux_max_per_day / segment_surface_area
 
-            concentration_mean = (flux_max_per_day_per_m2 * segment_thickness / 
+            concentration_mean = (flux_max_per_day_per_m2 * segment_diffusion_path_length / 
                                         self.pipe_permeability_dict['permeation_coefficient'] * 
                                         assesment_factor_groundwater + drinking_water_norm / 1000)
             
