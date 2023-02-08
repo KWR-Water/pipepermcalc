@@ -161,8 +161,6 @@ class Pipe:
     '''
 
     count = 0 # count of pipe segments
-    #ah_todo add the a_dh, b_dh as constants for D and K
-
 
     def __init__(self, 
                 ):
@@ -182,7 +180,7 @@ class Pipe:
         self.assessment_factor_soil = 1
 
        
-    #ah_todo revert back to csv, seperate file @Bram will think about this
+    # @ah_todo revert back to csv, seperate file @Bram will think about this
     reference_pipe_material_dict = \
         {
         "PE40": {
@@ -311,111 +309,6 @@ class Pipe:
         self.flow_rate = flow_rate
         self._flow_rate_set = True
 
-    def add_segment(self,
-                    name=None,
-                    material=None,
-                    length=None,
-                    diameter=None,
-                    thickness=None,
-                    diffusion_path_length=None,
-                    # ah_todo add an optional diffusion_travel_path_length: this is perpendicular to the flow
-                    ):
-        
-        '''
-        Adds a segment to the pipe. Creates pipe_dictionary as attribute 
-        containing information on the different pipe segment materials and sizes. 
-
-        Parameters
-        ----------
-        name: string
-            name of the pipe segment
-        material: enum?? @Bram -> set choice of materials
-            e.g. PE40, PE80, PVC, EPDM, rubber etc.
-        length: float
-            Length of pipe segment, meters 
-        diameter: float
-            Diameter of pipe segment, meters
-        thickness: float
-            Thickness of pipe segment, meters
-        diffusion_path_length: float
-            In the case of permeation perpendicular to the flow direction, a 
-            diffusion path length is required to calculate the permeation 
-            through the pipe segment. For example in the case of a pipe 
-            coupling rings. If no value is given, diffusion is assumed 
-            perpendicular to the flow direction and the thickness is 
-            used to calculate the diffusion through the pipe segment. 
-            Unit meters.
-        '''
-
-        self.count += 1 #count the number of segments created
-        self.segment_list.append(name) 
-
-        if diffusion_path_length is None:
-            diffusion_path_length = thickness
-        else:
-            pass
-        #ah_todo check if diffusion_travel_path_length is None, if so == thickness
-
-        if self.count >1:
-            volume = math.pi * (diameter / 2) ** 2 * length
-            surface_area =  (2 * math.pi * (diameter / 2) * length)
-            # a@MartinvdS check about the contact area used
-
-            total_length = length + self.pipe_dictionary['total_length']
-            total_volume = volume + self.pipe_dictionary['total_volume']
-            total_surface_area = surface_area + self.pipe_dictionary['total_surface_area']
-
-            new_segment = {
-                    name : {
-                    'material': material,
-                    'length': length,
-                    'diameter': diameter,
-                    'thickness': thickness,
-                    'diffusion_path_length': diffusion_path_length,
-                    'volume': volume,
-                    'surface_area': surface_area,
-                    },
-                    }
-
-            segment_dict = self.pipe_dictionary['segments']
-            segment_dict.update(new_segment)
-            pipe_dictionary = {
-                    'number_segments': self.count,
-                    'segment_list': self.segment_list,
-                    'total_length':total_length,
-                    'total_volume':total_volume,
-                    'total_surface_area':total_surface_area,
-                    'segments': segment_dict
-                ,
-            }
-        else:
-            volume = math.pi * (diameter / 2) ** 2 * length
-            surface_area =  (2 * math.pi * (diameter / 2) * length)
-            
-            pipe_dictionary = {
-                    'number_segments': self.count,
-                    'segment_list': self.segment_list,
-                    'total_length':length,
-                    'total_volume':volume,
-                    'total_surface_area':surface_area,
-
-                'segments': {
-                    name : {
-                    'material': material,
-                    'length': length,
-                    'diameter': diameter,
-                    'thickness': thickness,
-                    'diffusion_path_length': diffusion_path_length,
-                    'volume': volume,
-                    'surface_area': surface_area,
-                    },
-                },
-            }
-            
-        self.pipe_dictionary = pipe_dictionary
-
-        # ah_todo add the calculation of the K, D values here
-
     def fetch_chemical_database(self,
                                 chemical_name=None,):
         ''' 
@@ -514,136 +407,7 @@ class Pipe:
         f_age = 0.000
         return f_age
     
-    def calculate_logK(self,
-                        pipe_material=None,):
-        ''' 
-        Calculate the LogK value for the pipe material, correct for temperature,
-        concentration and age. Assign the values to the pipe_permeability_dict
-        
-        See table 5-3 in KWR 2016.056 for explanation of calculations
-        
-        Parameters
-        ----------
-        pipe_material: string
-            Choice of pipe material: PE40, PE80, SBR, EPDM
-        '''
 
-        # calculate reference log K plastic-water (log kpw) 
-        a_ref = self.reference_pipe_material_dict[pipe_material]['ref_log_K_a'][self.pipe_permeability_dict['chemical_group_number']]
-        b_ref = self.reference_pipe_material_dict[pipe_material]['ref_log_K_b'][self.pipe_permeability_dict['chemical_group_number']]
-        log_Kpw_ref = a_ref * self.pipe_permeability_dict['log_octanol_water_partitioning_coefficient'] + b_ref
-        self.pipe_permeability_dict['log_Kpw_ref'] = log_Kpw_ref
-
-        # correct for temperature, concentration, age
-        f_Ktemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
-                        temperature_groundwater=self.temperature_groundwater, 
-                        coefficient_name = 'solubility',
-                            a_dh = self._partitioning_a_dh, #see table 5-6 in KWR 2016.056
-                            b_dh = self._partitioning_b_dh, #see table 5-6 in KWR 2016.056
-                        )
-
-        f_Kconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
-                                a_c = 0.103965019849463, #see equation 5-20 in KWR 2016.056
-                                Cref_Sw = 1.000) #see section 5.4.7 in KWR 2016.056
-        
-        f_Kage = self.correct_for_age()
-
-        # sum corrections for final Log k
-        log_Kpw = log_Kpw_ref + f_Ktemp + f_Kconc + f_Kage
-
-        self.pipe_permeability_dict['f_Ktemp'] = f_Ktemp   
-        self.pipe_permeability_dict['f_Kconc'] = f_Kconc
-        self.pipe_permeability_dict['log_Kpw'] = log_Kpw
-
-    def calculate_logD(self, 
-                       pipe_material=None,):
-        ''' 
-        Calculate the LogK value for the pipe material, correct for temperature,
-        concentration and age. Assign the values to the pipe_permeability_dict
-
-        See table 5-3 in KWR 2016.056 for explanation of calculations
-        
-        Parameters
-        ----------
-        pipe_material: string
-            Choice of pipe material: PE40, PE80, SBR, EPDM
-        '''
-        
-        # calculate reference log D plastic (log Dp) 
-        a_ref = self.reference_pipe_material_dict[pipe_material]['ref_log_D_a'][self.pipe_permeability_dict['chemical_group_number']]
-        b_ref = self.reference_pipe_material_dict[pipe_material]['ref_log_D_b'][self.pipe_permeability_dict['chemical_group_number']]
-        log_Dp_ref = a_ref * self.pipe_permeability_dict['molecular_weight'] + b_ref
-        self.pipe_permeability_dict['log_Dp_ref'] = log_Dp_ref
-
-        # correct for temperature, concentration, age
-        f_Dtemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
-                        temperature_groundwater=self.temperature_groundwater, 
-                        coefficient_name ='molecular_weight', 
-                            a_dh = self._diffusion_a_dh, #see table 5-6 in KWR 2016.056
-                            b_dh = self._diffusion_b_dh, #see table 5-6 in KWR 2016.056
-                        )
-
-        f_Dconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
-                                a_c = 0.784077209735583, #see equation 5-18 in KWR 2016.056
-                                Cref_Sw = 0.5) #see section 5.4.6 in KWR 2016.056
-        
-        f_Dage = self.correct_for_age()
-
-        # sum corrections for final Log D
-        log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
-
-        self.pipe_permeability_dict['f_Dtemp'] = f_Dtemp    
-        self.pipe_permeability_dict['f_Dconc'] = f_Dconc
-        self.pipe_permeability_dict['log_Dp'] = log_Dp #m2/s
-
-    def calculate_pipe_K_D(self,
-                        pipe_material=None, ): 
-                        # pipe_material is defined twice, here and 
-                        # in the add_segment function, should we change to 
-                        # define a segment to calculate instead? then we run it 
-                        # per segment...save to a dictionary
-        '''
-        Fetch the pipe and chemical information corresponding to the given pipe 
-        material and chemical choice. Creates the pipe_permeability_dict, 
-        which consists of chemical and permeability related coefficients.
-
-        See table 5-3 in KWR 2016.056 for explanation of calculations
-
-        Parameters
-        ----------
-        pipe_material: string
-            Choice of pipe material: PE40, PE80, SBR, EPDM
-        temperature_groundwater: float
-            Temperature of groundwater, in degrees Celcius
-        concentration_groundwater: float
-            concentration of given chemical in groundwater, in mg/L
-        '''
-
-        # Check if the groundwater conditions have been set, if not raise error
-        if self._groundwater_conditions_set is False: #ah_todo change from NONE to FALSE
-            raise ValueError('Error, groundwater conditions have not been set. \
-                             To set groundwater conditions use .set_groundwater_conditions()')
-        else:           
-            self.pipe_permeability_dict = self.fetch_chemical_database(chemical_name=self.chemical_name)
-
-            self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
-            self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
-            
-            #@ah_todo suggest to replace this with loop to go through different pipe segments and 
-            # save the permeability information in nested dictionaries
-
-            # calculate log K plastic-water (log kpw) 
-            self.calculate_logK(pipe_material=pipe_material)
-
-            # calculate log D plastic (log Dp) 
-            self.calculate_logD(pipe_material=pipe_material)
-
-            #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-            self.pipe_permeability_dict['permeation_coefficient'] = (24 * 60 * 60 * 
-                                        (10 ** self.pipe_permeability_dict['log_Dp']) 
-                                        * 10 ** self.pipe_permeability_dict['log_Kpw'])
-
-    ### Per segment
     def _calculate_logK(self,
                         pipe_material=None,
                         segment_dict=None,):
@@ -668,12 +432,12 @@ class Pipe:
         f_Ktemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
                         temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name = 'solubility',
-                            a_dh = 7.92169801506708, #see table 5-6 in KWR 2016.056
-                            b_dh = -17.1875608983359, #see table 5-6 in KWR 2016.056
+                            a_dh = self._partitioning_a_dh, #see table 5-6 in KWR 2016.056
+                            b_dh = self._partitioning_b_dh, #see table 5-6 in KWR 2016.056
                         )
 
         f_Kconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
-                                a_c = 0.103965019849463, #see equation 5-20 in KWR 2016.056
+                                a_c = 0.103965019849463, #@ah_todo move these in the init, see equation 5-20 in KWR 2016.056
                                 Cref_Sw = 1.000) #see section 5.4.7 in KWR 2016.056
         
         f_Kage = self.correct_for_age()
@@ -712,12 +476,12 @@ class Pipe:
         f_Dtemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
                         temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name ='molecular_weight', 
-                            a_dh = 61.8565740136974, #see table 5-6 in KWR 2016.056
-                            b_dh = -78.9191401984509, #see table 5-6 in KWR 2016.056
+                            a_dh = self._diffusion_a_dh, #see table 5-6 in KWR 2016.056
+                            b_dh = self._diffusion_b_dh, #see table 5-6 in KWR 2016.056
                         )
 
         f_Dconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
-                                a_c = 0.784077209735583, #see equation 5-18 in KWR 2016.056
+                                a_c = 0.784077209735583, #@ah_todo move these in the init, see equation 5-18 in KWR 2016.056
                                 Cref_Sw = 0.5) #see section 5.4.6 in KWR 2016.056
         
         f_Dage = self.correct_for_age()
@@ -732,7 +496,9 @@ class Pipe:
 
         return segment_dict
 
-    def calculate_pipe_K_D_per_segment(self,): 
+    def _calculate_pipe_K_D(self,
+                            pipe_material=None, 
+                            segment_name=None): 
         '''
         Fetch the pipe and chemical information corresponding to the given pipe 
         material and chemical choice. Creates the pipe_permeability_dict, 
@@ -756,40 +522,140 @@ class Pipe:
             raise ValueError('Error, groundwater conditions have not been set. \
                              To set groundwater conditions use .set_groundwater_conditions()')
         else:           
-            self.pipe_permeability_dict = self.fetch_chemical_database(chemical_name=self.chemical_name)
 
-            self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
-            self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
-            
-            #@ah_todo suggest to replace this with loop to go through different pipe segments and 
-            # save the permeability information in nested dictionaries
-            
-            self.pipe_permeability_dict['segments'] = {}
+            if self.count <= 1:
+                self.pipe_permeability_dict = self.fetch_chemical_database(chemical_name=self.chemical_name)
 
-            for segment_name in self.pipe_dictionary['segment_list']:
-                self.pipe_permeability_dict['segments'][segment_name] = {}
-
-            for segment_name in self.pipe_dictionary['segment_list']:
-                
-                segment_dict = {}
-
+                self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
+                self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
                 pipe_material = self.pipe_dictionary['segments'][segment_name]['material']
-
-                # calculate log K plastic-water (log kpw) 
-                segment_dict.update(self._calculate_logK(pipe_material=pipe_material, 
-                                     segment_dict=segment_dict))
-
-                # calculate log D plastic (log Dp) 
-                segment_dict.update(self._calculate_logD(pipe_material=pipe_material,
-                                                         segment_dict=segment_dict))
-
-                #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-                segment_dict['permeation_coefficient'] = (24 * 60 * 60 * 
-                                            (10 ** segment_dict['log_Dp']) 
-                                            * 10 ** segment_dict['log_Kpw'])
                 
-                self.pipe_permeability_dict['segments'][segment_name] = segment_dict
-    ###
+                self.pipe_permeability_dict['segments'] = {}
+
+            else:
+                pass
+            
+            segment_dict = {}
+
+            # calculate log K plastic-water (log kpw) 
+            segment_dict.update(self._calculate_logK(pipe_material=pipe_material, 
+                                    segment_dict=segment_dict))
+
+            # calculate log D plastic (log Dp) 
+            segment_dict.update(self._calculate_logD(pipe_material=pipe_material,
+                                                        segment_dict=segment_dict))
+
+            #Permeation coefficient for plastic-water (Ppw), unit: m2/day
+            segment_dict['permeation_coefficient'] = (24 * 60 * 60 * 
+                                        (10 ** segment_dict['log_Dp']) 
+                                        * 10 ** segment_dict['log_Kpw'])
+            
+            self.pipe_permeability_dict['segments'][segment_name] = segment_dict
+
+
+    def add_segment(self,
+                    name=None,
+                    material=None,
+                    length=None,
+                    diameter=None,
+                    thickness=None,
+                    diffusion_path_length=None,
+                    ):
+        
+        '''
+        Adds a segment to the pipe. Creates pipe_dictionary as attribute 
+        containing information on the different pipe segment materials and sizes. 
+
+        Parameters
+        ----------
+        name: string
+            name of the pipe segment
+        material: enum?? @Bram -> set choice of materials
+            e.g. PE40, PE80, PVC, EPDM, rubber etc.
+        length: float
+            Length of pipe segment, meters 
+        diameter: float
+            Diameter of pipe segment, meters
+        thickness: float
+            Thickness of pipe segment, meters
+        diffusion_path_length: float
+            In the case of permeation perpendicular to the flow direction, a 
+            diffusion path length is required to calculate the permeation 
+            through the pipe segment. For example in the case of a pipe 
+            coupling rings. If no value is given, diffusion is assumed 
+            perpendicular to the flow direction and the thickness is 
+            used to calculate the diffusion through the pipe segment. 
+            Unit meters.
+        '''
+
+        self.count += 1 #count the number of segments created
+        self.segment_list.append(name) 
+
+        if diffusion_path_length is None:
+            diffusion_path_length = thickness
+        else:
+            pass
+
+        if self.count >1:
+            volume = math.pi * (diameter / 2) ** 2 * length
+            surface_area =  (2 * math.pi * (diameter / 2) * length)
+            # @MartinvdS check about the contact area used, 
+            # see sheet 'dimensies tertiare structuur', column K
+
+            total_length = length + self.pipe_dictionary['total_length']
+            total_volume = volume + self.pipe_dictionary['total_volume']
+            total_surface_area = surface_area + self.pipe_dictionary['total_surface_area']
+
+            new_segment = {
+                    name : {
+                    'material': material,
+                    'length': length,
+                    'diameter': diameter,
+                    'thickness': thickness,
+                    'diffusion_path_length': diffusion_path_length,
+                    'volume': volume,
+                    'surface_area': surface_area,
+                    },
+                    }
+
+            segment_dict = self.pipe_dictionary['segments']
+            segment_dict.update(new_segment)
+            pipe_dictionary = {
+                    'number_segments': self.count,
+                    'segment_list': self.segment_list,
+                    'total_length':total_length,
+                    'total_volume':total_volume,
+                    'total_surface_area':total_surface_area,
+                    'segments': segment_dict
+                ,
+            }
+        else:
+            volume = math.pi * (diameter / 2) ** 2 * length
+            surface_area =  (2 * math.pi * (diameter / 2) * length)
+            
+            pipe_dictionary = {
+                    'number_segments': self.count,
+                    'segment_list': self.segment_list,
+                    'total_length':length,
+                    'total_volume':volume,
+                    'total_surface_area':surface_area,
+
+                'segments': {
+                    name : {
+                    'material': material,
+                    'length': length,
+                    'diameter': diameter,
+                    'thickness': thickness,
+                    'diffusion_path_length': diffusion_path_length,
+                    'volume': volume,
+                    'surface_area': surface_area,
+                    },
+                },
+            }
+            
+        self.pipe_dictionary = pipe_dictionary
+        
+        self._calculate_pipe_K_D(pipe_material=material, segment_name = name)
 
     def calculate_max_dw_concentration(self, 
                                     pipe_segment,
