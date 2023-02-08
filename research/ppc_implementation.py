@@ -70,10 +70,10 @@ pipe1.pipe_permeability_dict
 pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
                                     pipe_segment='seg1', 
                                     )
-# pipe1.calculate_mean_dw_concentration(
-#                                     pipe_segment='seg1', 
-#                                     )
+pipe1.calculate_mean_dw_concentration(
+                                    pipe_segment='seg1', 
+                                    )
 
-# pipe1.pipe_permeability_dict
+pipe1.pipe_permeability_dict
 
 #%%

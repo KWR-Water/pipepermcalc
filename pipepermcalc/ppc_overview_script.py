@@ -459,12 +459,95 @@ class Pipe:
 
         f_age = 0.000
         return f_age
+    
+    def calculate_logK(self,
+                        pipe_material=None,):
+        ''' 
+        Calculate the LogK value for the pipe material, correct for temperature,
+        concentration and age. Assign the values to the pipe_permeability_dict
+        
+        See table 5-3 in KWR 2016.056 for explanation of calculations
+        
+        Parameters
+        ----------
+        pipe_material: string
+            Choice of pipe material: PE40, PE80, SBR, EPDM
+        '''
+
+        # calculate reference log K plastic-water (log kpw) 
+        a_ref = self.reference_pipe_material_dict[pipe_material]['ref_log_K_a'][self.pipe_permeability_dict['chemical_group_number']]
+        b_ref = self.reference_pipe_material_dict[pipe_material]['ref_log_K_b'][self.pipe_permeability_dict['chemical_group_number']]
+        log_Kpw_ref = a_ref * self.pipe_permeability_dict['log_octanol_water_partitioning_coefficient'] + b_ref
+        self.pipe_permeability_dict['log_Kpw_ref'] = log_Kpw_ref
+
+        # correct for temperature, concentration, age
+        f_Ktemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
+                        temperature_groundwater=self.temperature_groundwater, 
+                        coefficient_name = 'solubility',
+                            a_dh = 7.92169801506708, #see table 5-6 in KWR 2016.056
+                            b_dh = -17.1875608983359, #see table 5-6 in KWR 2016.056
+                        )
+
+        f_Kconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
+                                a_c = 0.103965019849463, #see equation 5-20 in KWR 2016.056
+                                Cref_Sw = 1.000) #see section 5.4.7 in KWR 2016.056
+        
+        f_Kage = self.correct_for_age()
+
+        # sum corrections for final Log k
+        log_Kpw = log_Kpw_ref + f_Ktemp + f_Kconc + f_Kage
+
+        self.pipe_permeability_dict['f_Ktemp'] = f_Ktemp   
+        self.pipe_permeability_dict['f_Kconc'] = f_Kconc
+        self.pipe_permeability_dict['log_Kpw'] = log_Kpw
+
+    def calculate_logD(self, 
+                       pipe_material=None,):
+        ''' 
+        Calculate the LogK value for the pipe material, correct for temperature,
+        concentration and age. Assign the values to the pipe_permeability_dict
+
+        See table 5-3 in KWR 2016.056 for explanation of calculations
+        
+        Parameters
+        ----------
+        pipe_material: string
+            Choice of pipe material: PE40, PE80, SBR, EPDM
+        '''
+        
+        # calculate reference log D plastic (log Dp) 
+        a_ref = self.reference_pipe_material_dict[pipe_material]['ref_log_D_a'][self.pipe_permeability_dict['chemical_group_number']]
+        b_ref = self.reference_pipe_material_dict[pipe_material]['ref_log_D_b'][self.pipe_permeability_dict['chemical_group_number']]
+        log_Dp_ref = a_ref * self.pipe_permeability_dict['molecular_weight'] + b_ref
+        self.pipe_permeability_dict['log_Dp_ref'] = log_Dp_ref
+
+        # correct for temperature, concentration, age
+        f_Dtemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
+                        temperature_groundwater=self.temperature_groundwater, 
+                        coefficient_name ='molecular_weight', 
+                            a_dh = 61.8565740136974, #see table 5-6 in KWR 2016.056
+                            b_dh = -78.9191401984509, #see table 5-6 in KWR 2016.056
+                        )
+
+        f_Dconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
+                                a_c = 0.784077209735583, #see equation 5-18 in KWR 2016.056
+                                Cref_Sw = 0.5) #see section 5.4.6 in KWR 2016.056
+        
+        f_Dage = self.correct_for_age()
+
+        # sum corrections for final Log D
+        log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
+
+        self.pipe_permeability_dict['f_Dtemp'] = f_Dtemp    
+        self.pipe_permeability_dict['f_Dconc'] = f_Dconc
+        self.pipe_permeability_dict['log_Dp'] = log_Dp #m2/s
 
     def calculate_pipe_K_D(self,
                         pipe_material=None, ): 
                         #@MartinvdS, pipe_material is defined twice, here and 
                         # in the add_segment function, should we change to 
-                        # define a segment to calculate instead? then we run it per segment...save to a dictionary
+                        # define a segment to calculate instead? then we run it 
+                        # per segment...save to a dictionary
         '''
         Fetch the pipe and chemical information corresponding to the given pipe 
         material and chemical choice. Creates the pipe_permeability_dict, 
@@ -487,67 +570,24 @@ class Pipe:
             raise ValueError('Error, groundwater conditions have not been set. \
                              To set groundwater conditions use .set_groundwater_conditions()')
         else:           
-            reference_pipe_material_dict = self.reference_pipe_material_dict
-
             pipe_permeability_dict = self.fetch_chemical_database(chemical_name=self.chemical_name)
+            self.pipe_permeability_dict = pipe_permeability_dict
 
             pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
             pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
-
-            # calculate reference log K plastic-water (log kpw) 
-            a_ref = reference_pipe_material_dict[pipe_material]['ref_log_K_a'][pipe_permeability_dict['chemical_group_number']]
-            b_ref = reference_pipe_material_dict[pipe_material]['ref_log_K_b'][pipe_permeability_dict['chemical_group_number']]
-            log_Kpw_ref = a_ref * pipe_permeability_dict['log_octanol_water_partitioning_coefficient'] + b_ref
-            pipe_permeability_dict['log_Kpw_ref'] = log_Kpw_ref
-
-            f_Ktemp = self.correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
-                            temperature_groundwater=self.temperature_groundwater, 
-                            coefficient_name = 'solubility',
-                                a_dh = 7.92169801506708, #see table 5-6 in KWR 2016.056
-                                b_dh = -17.1875608983359, #see table 5-6 in KWR 2016.056
-                            )
-
-            f_Kconc = self.other_correction(pipe_permeability_dict=pipe_permeability_dict,
-                                    a_c = 0.103965019849463, #see equation 5-20 in KWR 2016.056
-                                    Cref_Sw = 1.000) #see section 5.4.7 in KWR 2016.056
             
-            f_Kage = self.correct_for_age()
+            # calculate log K plastic-water (log kpw) 
+            self.calculate_logK(pipe_material=pipe_material)
 
-            log_Kpw = log_Kpw_ref + f_Ktemp + f_Kconc + f_Kage
-
-            pipe_permeability_dict['f_Ktemp'] = f_Ktemp   
-            pipe_permeability_dict['f_Kconc'] = f_Kconc
-            pipe_permeability_dict['log_Kpw'] = log_Kpw
-
-            # calculate reference log D plastic-water (log Dpw) 
-            a_ref = reference_pipe_material_dict[pipe_material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
-            b_ref = reference_pipe_material_dict[pipe_material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
-            log_Dp_ref = a_ref * pipe_permeability_dict['molecular_weight'] + b_ref
-            pipe_permeability_dict['log_Dp_ref'] = log_Dp_ref
-            
-            f_Dtemp = self.correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
-                            temperature_groundwater=self.temperature_groundwater, 
-                            coefficient_name ='molecular_weight', 
-                                a_dh = 61.8565740136974, #see table 5-6 in KWR 2016.056
-                                b_dh = -78.9191401984509, #see table 5-6 in KWR 2016.056
-                            )
-
-            f_Dconc = self.other_correction(pipe_permeability_dict=pipe_permeability_dict,
-                                    a_c = 0.784077209735583, #see equation 5-18 in KWR 2016.056
-                                    Cref_Sw = 0.5) #see section 5.4.6 in KWR 2016.056
-            
-            f_Dage = self.correct_for_age()
-
-            log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
-
-            pipe_permeability_dict['f_Dtemp'] = f_Dtemp    
-            pipe_permeability_dict['f_Dconc'] = f_Dconc
-            pipe_permeability_dict['log_Dp'] = log_Dp #m2/s
+            # calculate log D plastic (log Dp) 
+            self.calculate_logD(pipe_material=pipe_material)
 
             #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-            pipe_permeability_dict['permeation_coefficient'] = 24 * 60 * 60 * (10 ** log_Dp) * 10 ** log_Kpw
+            pipe_permeability_dict['permeation_coefficient'] = (24 * 60 * 60 * 
+                                        (10 ** pipe_permeability_dict['log_Dp']) 
+                                        * 10 ** pipe_permeability_dict['log_Kpw'])
 
-            self.pipe_permeability_dict = pipe_permeability_dict
+            
 
     def calculate_max_dw_concentration(self, 
                                     pipe_segment,
@@ -658,13 +698,13 @@ class Pipe:
     # AH_todo FUNCTIONS COMPLETE UNTIL HERE
 
     def something_for_multiple_segments():
-        # @MartinvdS how to do this?
+        # @MartinvdS how do we want to impliment this?
         ''' Function to calculate the peak/mean concentrations for multiple pipe 
         segments '''
 
         # for segments in self.pipe_dictionary['segment_list']:
-        #     pass
-            #calculate the peak/mean concentrations/volume and sum them?
+        # calculate the K/D for each segment, store in dictionary
+        # calculate the peak/mean concentrations/volume and sum them?
 
     def print_pipe_segment_information(self,):
         ''' or override the "print" function '''
