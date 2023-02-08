@@ -207,13 +207,14 @@ def test_stagnation_factor():
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
                     pipe_material= "PE40",)
-
+    
+    pipe1.set_flow_rate(flow_rate=0.5)
+    
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
                     diameter=0.0196,
                     thickness=0.0027,
-                    flow_rate=0.5,
                     )
 
     pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8,pipe_segment = 'seg1')
@@ -237,13 +238,14 @@ def test_peak_without_stagnation():
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
                     pipe_material= "PE40",)
-
+    
+    pipe1.set_flow_rate(flow_rate=0.5)
+    
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
                     diameter=0.0196,
                     thickness=0.0027,
-                    flow_rate=0.5,
                     )
 
     pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
@@ -268,13 +270,14 @@ def test_peak_with_stagnation():
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
                     pipe_material= "PE40",)
+    
+    pipe1.set_flow_rate(flow_rate=0.5)
 
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
                     diameter=0.0196,
                     thickness=0.0027,
-                    flow_rate=0.5,
                     )
 
     pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
@@ -300,13 +303,14 @@ def test_peak_soil_concentration():
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
                     pipe_material= "PE40",)
+    
+    pipe1.set_flow_rate(flow_rate=0.5)
 
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
                     diameter=0.0196,
                     thickness=0.0027,
-                    flow_rate=0.5,
                     )
 
     pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
@@ -331,13 +335,14 @@ def test_mean_soil_concentration():
                                     concentration_groundwater = 1.8)
     pipe1.calculate_pipe_K_D(
                     pipe_material= "PE40",)
+    
+    pipe1.set_flow_rate(flow_rate=0.5)
 
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
                     diameter=0.0196,
                     thickness=0.0027,
-                    flow_rate=0.5,
                     )
 
     pipe1.calculate_mean_dw_concentration(

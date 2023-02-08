@@ -40,6 +40,13 @@ class Pipe:
     count: integer
         Count of the number of segments created for the pipe
 
+    partitioning_a_dh: float
+        Coefficient for correcting the partitioning or diffusion coefficient
+
+    partitioning_b_dh = -17.1875608983359, #see table 5-6 in KWR 2016.056
+    diffusion_a_dh = 61.8565740136974, #see table 5-6 in KWR 2016.056
+    diffusion_b_dh = -78.9191401984509, #see table 5-6 in KWR 2016.056
+
     reference_pipe_material_dict: dictionary 
         Reference dictionary with regression values (slope=a-value, intercept=b-value)
         for the partitioning (K) and diffusion (D) coefficient for the available 
@@ -62,7 +69,7 @@ class Pipe:
         total_surface_area: float,
             sum of the surface area of the pipe segments
         flow_rate: float,
-            flow rate in the pipe, m3/day @MartinvdS confirm: is this the daily household use?
+            flow rate in the pipe, m3/day 
         segments: dictionary
             dictionary of the individual pipe segments, containing the 
             segment material, segment length (m), diameter (m), thickness (m), 
@@ -135,7 +142,8 @@ class Pipe:
             (24 hours) to remain below the drinking water standard, g/day
         
         stagnation_factor: float,
-            @MartinvdS what is this again?
+            Correction for the decrease in the concentratino gradient near the 
+            inner wall of the pipe during stagnation (e.g. no flow at at night)
 
         concentration_peak_without_stagnation: float,
             Peak drinking water concentration without stagnation, g/m3
@@ -152,6 +160,7 @@ class Pipe:
     count = 0 # count of pipe segments
     #ah_todo add the a_dh, b_dh as constants for D and K
 
+
     def __init__(self, 
                 ):
         '''
@@ -159,7 +168,14 @@ class Pipe:
         '''       
         segment_list = [] # list of pipe segment names
         self.segment_list = segment_list
-        self._groundwater_conditions_set = None
+        self._groundwater_conditions_set = False
+        self._flow_rate_set = False
+
+        self._partitioning_a_dh = 7.92169801506708 #see table 5-6 in KWR 2016.056
+        self._partitioning_b_dh = -17.1875608983359 #see table 5-6 in KWR 2016.056
+        self._diffusion_a_dh = 61.8565740136974 #see table 5-6 in KWR 2016.056
+        self._diffusion_b_dh = -78.9191401984509 #see table 5-6 in KWR 2016.056
+
        
     #ah_todo revert back to csv, seperate file @Bram will think about this
     reference_pipe_material_dict = \
@@ -254,105 +270,6 @@ class Pipe:
         },      
         }
 
-    def set_flow_rate(): #ah_todo @Martin ask if this is really household
-        ''' set this in function by itself
-        , also add check, same as groundwater conditions'''
-        
-    def add_segment(self,
-                    name=None,
-                    material=None,
-                    length=None,
-                    diameter=None,
-                    thickness=None,
-                    flow_rate=None,
-                    # ah_todo add an optional diffusion_travel_path_length: this is perpendicular to the flow
-                    ):
-        
-        '''
-        Adds a segment to the pipe. Creates pipe_dictionary as attribute 
-        containing information on the different pipe segment materials and sizes. 
-
-        Parameters
-        ----------
-        name: string
-            name of the pipe segment
-        material: enum?? @Bram -> set choice of materials
-            e.g. PE40, PE80, PVC, EPDM, rubber etc.
-        length: float
-            in m @AH_todo check units with @MartinvdS
-        diameter: float
-            in m @AH_todo check units
-        thickness: float
-            in m @AH_todo check units
-        flow_rate: float
-            flow_rate through pipe, m3/day       
-        '''
-
-        self.count += 1 #count the number of segments created
-        self.segment_list.append(name) 
-
-        #ah_todo check if diffusion_travel_path_length is None, if so == thickness
-
-        if self.count >1:
-            volume = math.pi * (diameter / 2) ** 2 * length
-            surface_area =  (2 * math.pi * (diameter / 2) * length)
-            # @Martin, confirm how the SA is calculated depending on the type of 
-            # pipe segment (e.g. Fig & Table 3-2) different directions
-
-            total_length = length + self.pipe_dictionary['total_length']
-            total_volume = volume + self.pipe_dictionary['total_volume']
-            total_surface_area = surface_area + self.pipe_dictionary['total_surface_area']
-
-            new_segment = {
-                    name : {
-                    'material': material,
-                    'length': length,
-                    'diameter': diameter,
-                    'thickness': thickness,
-                    'volume': volume,
-                    'surface_area': surface_area,
-                    },
-                    }
-
-            segment_dict = self.pipe_dictionary['segments']
-            segment_dict.update(new_segment)
-            pipe_dictionary = {
-                    'number_segments': self.count,
-                    'segment_list': self.segment_list,
-                    'total_length':total_length,
-                    'total_volume':total_volume,
-                    'total_surface_area':total_surface_area,
-                    'flow_rate': flow_rate,
-                    'segments': segment_dict
-                ,
-            }
-        else:
-            volume = math.pi * (diameter / 2) ** 2 * length
-            surface_area =  (2 * math.pi * (diameter / 2) * length)
-            
-            pipe_dictionary = {
-                    'number_segments': self.count,
-                    'segment_list': self.segment_list,
-                    'total_length':length,
-                    'total_volume':volume,
-                    'total_surface_area':surface_area,
-                    'flow_rate': flow_rate,
-
-                'segments': {
-                    name : {
-                    'material': material,
-                    'length': length,
-                    'diameter': diameter,
-                    'thickness': thickness,
-                    'volume': volume,
-                    'surface_area': surface_area,
-                    },
-                },
-            }
-        self.pipe_dictionary = pipe_dictionary
-
-        # ah_todo add the calculation of the K, D values here
-
     def set_groundwater_conditions(self,
                                    chemical_name=None,                                    
                                    concentration_groundwater=None,
@@ -375,6 +292,124 @@ class Pipe:
         self.temperature_groundwater = temperature_groundwater
         self.chemical_name = chemical_name
         self._groundwater_conditions_set = True
+    def set_flow_rate(self, 
+                      flow_rate=0.5): 
+        ''' set this in function by itself
+        , also add check, same as groundwater conditions
+        
+        Parameters
+        ----------        
+        flow_rate: float
+            flow_rate through pipe. Defaul of 0.5 m3/day.
+        '''
+        self.flow_rate = flow_rate
+        self._flow_rate_set = True
+
+    def add_segment(self,
+                    name=None,
+                    material=None,
+                    length=None,
+                    diameter=None,
+                    thickness=None,
+                    diffusion_path_length=None,
+                    # ah_todo add an optional diffusion_travel_path_length: this is perpendicular to the flow
+                    ):
+        
+        '''
+        Adds a segment to the pipe. Creates pipe_dictionary as attribute 
+        containing information on the different pipe segment materials and sizes. 
+
+        Parameters
+        ----------
+        name: string
+            name of the pipe segment
+        material: enum?? @Bram -> set choice of materials
+            e.g. PE40, PE80, PVC, EPDM, rubber etc.
+        length: float
+            Length of pipe segment, meters 
+        diameter: float
+            Diameter of pipe segment, meters
+        thickness: float
+            Thickness of pipe segment, meters
+        diffusion_path_length: float
+            In the case of permeation perpendicular to the flow direction, a 
+            diffusion path length is required to calculate the permeation 
+            through the pipe segment. For example in the case of a pipe 
+            coupling rings. If no value is given, diffusion is assumed 
+            perpendicular to the flow direction and the thickness is 
+            used to calculate the diffusion through the pipe segment. 
+            Unit meters.
+        '''
+
+        self.count += 1 #count the number of segments created
+        self.segment_list.append(name) 
+
+        if diffusion_path_length is None:
+            diffusion_path_length = thickness
+        else:
+            pass
+        #ah_todo check if diffusion_travel_path_length is None, if so == thickness
+
+        if self.count >1:
+            volume = math.pi * (diameter / 2) ** 2 * length
+            surface_area =  (2 * math.pi * (diameter / 2) * length)
+            # , confirm how the SA is calculated depending on the type of 
+            # pipe segment (e.g. Fig & Table 3-2) different directions
+
+            total_length = length + self.pipe_dictionary['total_length']
+            total_volume = volume + self.pipe_dictionary['total_volume']
+            total_surface_area = surface_area + self.pipe_dictionary['total_surface_area']
+
+            new_segment = {
+                    name : {
+                    'material': material,
+                    'length': length,
+                    'diameter': diameter,
+                    'thickness': thickness,
+                    'diffusion_path_length': diffusion_path_length,
+                    'volume': volume,
+                    'surface_area': surface_area,
+                    },
+                    }
+
+            segment_dict = self.pipe_dictionary['segments']
+            segment_dict.update(new_segment)
+            pipe_dictionary = {
+                    'number_segments': self.count,
+                    'segment_list': self.segment_list,
+                    'total_length':total_length,
+                    'total_volume':total_volume,
+                    'total_surface_area':total_surface_area,
+                    'segments': segment_dict
+                ,
+            }
+        else:
+            volume = math.pi * (diameter / 2) ** 2 * length
+            surface_area =  (2 * math.pi * (diameter / 2) * length)
+            
+            pipe_dictionary = {
+                    'number_segments': self.count,
+                    'segment_list': self.segment_list,
+                    'total_length':length,
+                    'total_volume':volume,
+                    'total_surface_area':surface_area,
+
+                'segments': {
+                    name : {
+                    'material': material,
+                    'length': length,
+                    'diameter': diameter,
+                    'thickness': thickness,
+                    'diffusion_path_length': diffusion_path_length,
+                    'volume': volume,
+                    'surface_area': surface_area,
+                    },
+                },
+            }
+            
+        self.pipe_dictionary = pipe_dictionary
+
+        # ah_todo add the calculation of the K, D values here
 
     def fetch_chemical_database(self,
                                 chemical_name=None,):
@@ -498,8 +533,8 @@ class Pipe:
         f_Ktemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
                         temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name = 'solubility',
-                            a_dh = 7.92169801506708, #see table 5-6 in KWR 2016.056
-                            b_dh = -17.1875608983359, #see table 5-6 in KWR 2016.056
+                            a_dh = self._partitioning_a_dh, #see table 5-6 in KWR 2016.056
+                            b_dh = self._partitioning_b_dh, #see table 5-6 in KWR 2016.056
                         )
 
         f_Kconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
@@ -539,8 +574,8 @@ class Pipe:
         f_Dtemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
                         temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name ='molecular_weight', 
-                            a_dh = 61.8565740136974, #see table 5-6 in KWR 2016.056
-                            b_dh = -78.9191401984509, #see table 5-6 in KWR 2016.056
+                            a_dh = self._diffusion_a_dh, #see table 5-6 in KWR 2016.056
+                            b_dh = self._diffusion_b_dh, #see table 5-6 in KWR 2016.056
                         )
 
         f_Dconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
@@ -558,7 +593,7 @@ class Pipe:
 
     def calculate_pipe_K_D(self,
                         pipe_material=None, ): 
-                        #@MartinvdS, pipe_material is defined twice, here and 
+                        # pipe_material is defined twice, here and 
                         # in the add_segment function, should we change to 
                         # define a segment to calculate instead? then we run it 
                         # per segment...save to a dictionary
@@ -580,7 +615,7 @@ class Pipe:
         '''
 
         # Check if the groundwater conditions have been set, if not raise error
-        if self._groundwater_conditions_set is None: #ah_todo change from NONE to FALSE
+        if self._groundwater_conditions_set is False: #ah_todo change from NONE to FALSE
             raise ValueError('Error, groundwater conditions have not been set. \
                              To set groundwater conditions use .set_groundwater_conditions()')
         else:           
@@ -754,7 +789,7 @@ class Pipe:
     def calculate_max_dw_concentration(self, 
                                     pipe_segment,
                                     stagnation_time_hours = 8,  
-                                    #@MartinvdS need to think about how to do 
+                                    # need to think about how to do 
                                     #this on multiple segments, for not only per segment
                                     ):
         '''
@@ -797,7 +832,6 @@ class Pipe:
 
 
         concentration_peak_after_stagnation = stagnation_factor * concentration_peak_without_stagnation
-        #@MartinvdS - in excel (column BM) you round down, why?
 
         #Risk limit value soil, first check if there is a distribution coefficient known
         if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
@@ -831,39 +865,44 @@ class Pipe:
         pipe_segment: string,
             Name of the pipe segment for which the concentrations are calculated
         '''
-        
-        drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
-        segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
-        segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
-        segment_thickness = self.pipe_dictionary['segments'][pipe_segment]['thickness'] 
-        assesment_factor_groundwater = 3 # @ah_todo @MartinvdS how to replace this? in database?
-        assessment_factor_soil = 1 # @ah_todo @MartinvdS how to replace this? in database?
+        # Check if the flow rate has been set, if not raise error
+        if self._groundwater_conditions_set is False: #ah_todo change from NONE to FALSE
+            raise ValueError('Error, the flow rate in the pipe has not been set. \
+                             To set flow rate use .set_flow_rate()')
+        else: 
+            drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
+            segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
+            segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
+            segment_thickness = self.pipe_dictionary['segments'][pipe_segment]['thickness'] 
+            assesment_factor_groundwater = 3 # @ah_todo @MartinvdS how to replace this? in database?
+            assessment_factor_soil = 1 # @ah_todo @MartinvdS how to replace this? in database?
 
-        # 24 hour max flux
-        flux_max_per_day = drinking_water_norm / 1000 * self.pipe_dictionary['flow_rate']
-        flux_max_per_day_per_m2 = flux_max_per_day / segment_surface_area
+            # 24 hour max flux
+            flux_max_per_day = drinking_water_norm / 1000 * self.flow_rate
+            flux_max_per_day_per_m2 = flux_max_per_day / segment_surface_area
 
-        concentration_mean = (flux_max_per_day_per_m2 * segment_thickness / 
-                                    self.pipe_permeability_dict['permeation_coefficient'] * 
-                                    assesment_factor_groundwater + drinking_water_norm / 1000)
-        
-        #Risk limit value soil, first check if there is a distribution coefficient known
-        if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
-            concentration_mean_soil = 'log_distribution_coefficient (Kd) unknown'
-        else:
-            concentration_mean_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
-                                        concentration_mean * 
-                                        assessment_factor_soil / assesment_factor_groundwater)
+            concentration_mean = (flux_max_per_day_per_m2 * segment_thickness / 
+                                        self.pipe_permeability_dict['permeation_coefficient'] * 
+                                        assesment_factor_groundwater + drinking_water_norm / 1000)
+            
+            #Risk limit value soil, first check if there is a distribution coefficient known
+            if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
+                concentration_mean_soil = 'log_distribution_coefficient (Kd) unknown'
+            else:
+                concentration_mean_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
+                                            concentration_mean * 
+                                            assessment_factor_soil / assesment_factor_groundwater)
 
-        self.pipe_permeability_dict['flux_max_per_day'] = flux_max_per_day
-        self.pipe_permeability_dict['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
-        self.pipe_permeability_dict['concentration_mean'] = concentration_mean
-        self.pipe_permeability_dict['concentration_mean_soil'] = concentration_mean_soil
+            self.pipe_permeability_dict['flux_max_per_day'] = flux_max_per_day
+            self.pipe_permeability_dict['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
+            self.pipe_permeability_dict['concentration_mean'] = concentration_mean
+            self.pipe_permeability_dict['concentration_mean_soil'] = concentration_mean_soil
 
     # AH_todo FUNCTIONS COMPLETE UNTIL HERE
 
     def something_for_multiple_segments():
-        # @MartinvdS how do we want to impliment this?
+        # loop to calculate the concentration in drinking water for multiple 
+        # segments given a groundwater concentration 
         '''
         Function to calculate the peak/mean concentrations for multiple pipe 
         segments '''
