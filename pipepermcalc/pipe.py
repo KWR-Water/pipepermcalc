@@ -43,9 +43,12 @@ class Pipe:
     partitioning_a_dh: float
         Coefficient for correcting the partitioning or diffusion coefficient
 
+    @ah_todo finish these definitions
     partitioning_b_dh = -17.1875608983359, #see table 5-6 in KWR 2016.056
     diffusion_a_dh = 61.8565740136974, #see table 5-6 in KWR 2016.056
     diffusion_b_dh = -78.9191401984509, #see table 5-6 in KWR 2016.056
+    assessment_factor_groundwater
+    assessment_factor_soil
 
     reference_pipe_material_dict: dictionary 
         Reference dictionary with regression values (slope=a-value, intercept=b-value)
@@ -175,6 +178,8 @@ class Pipe:
         self._partitioning_b_dh = -17.1875608983359 #see table 5-6 in KWR 2016.056
         self._diffusion_a_dh = 61.8565740136974 #see table 5-6 in KWR 2016.056
         self._diffusion_b_dh = -78.9191401984509 #see table 5-6 in KWR 2016.056
+        self.assessment_factor_groundwater = 3 
+        self.assessment_factor_soil = 1
 
        
     #ah_todo revert back to csv, seperate file @Bram will think about this
@@ -812,9 +817,6 @@ class Pipe:
         segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
         segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
-        assesment_factor_groundwater = 3 # @ah_todo add to the init as a attribute, move this out
-        assessment_factor_soil = 1 # @ah_todo 
-
         #ah_todo check if user has input a diffusion_travel_path_length, otherwise use the thickness
 
         #Risk limit value groundwater
@@ -828,7 +830,8 @@ class Pipe:
 
         concentration_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
                                     segment_diffusion_path_length / 
-                                    self.pipe_permeability_dict['permeation_coefficient'] * assesment_factor_groundwater)
+                                    self.pipe_permeability_dict['permeation_coefficient'] 
+                                    * self.assessment_factor_groundwater)
 
 
         concentration_peak_after_stagnation = stagnation_factor * concentration_peak_without_stagnation
@@ -839,7 +842,7 @@ class Pipe:
         else:
             concentration_peak_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
                                         concentration_peak_after_stagnation * 
-                                        assessment_factor_soil / assesment_factor_groundwater)
+                                        self.assessment_factor_soil / self.assessment_factor_groundwater)
 
         self.pipe_permeability_dict['stagnation_time_hours'] = stagnation_time_hours
         self.pipe_permeability_dict['flux_max_stagnation'] = flux_max_stagnation
@@ -866,7 +869,7 @@ class Pipe:
             Name of the pipe segment for which the concentrations are calculated
         '''
         # Check if the flow rate has been set, if not raise error
-        if self._flow_rate_set is False: #ah_todo change from NONE to FALSE
+        if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
                              To set flow rate use .set_flow_rate()')
         else: 
@@ -874,8 +877,6 @@ class Pipe:
             segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
             segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
             segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
-            assesment_factor_groundwater = 3 # @ah_todo @MartinvdS how to replace this? in database?
-            assessment_factor_soil = 1 # @ah_todo @MartinvdS how to replace this? in database?
 
             # 24 hour max flux
             flux_max_per_day = drinking_water_norm / 1000 * self.flow_rate
@@ -883,7 +884,7 @@ class Pipe:
 
             concentration_mean = (flux_max_per_day_per_m2 * segment_diffusion_path_length / 
                                         self.pipe_permeability_dict['permeation_coefficient'] * 
-                                        assesment_factor_groundwater + drinking_water_norm / 1000)
+                                        self.assessment_factor_groundwater + drinking_water_norm / 1000)
             
             #Risk limit value soil, first check if there is a distribution coefficient known
             if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
@@ -891,7 +892,7 @@ class Pipe:
             else:
                 concentration_mean_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
                                             concentration_mean * 
-                                            assessment_factor_soil / assesment_factor_groundwater)
+                                            self.assessment_factor_soil / self.assessment_factor_groundwater)
 
             self.pipe_permeability_dict['flux_max_per_day'] = flux_max_per_day
             self.pipe_permeability_dict['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
