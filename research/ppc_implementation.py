@@ -42,10 +42,10 @@ test5 = test_logKp_ref_other_correction()
 test6 = test_logDp_ref_other_correction()
 test7 = test_logKpw()
 test8 = test_logDpw()
-# test9 = test_stagnation_factor()
-# test10 = test_peak_without_stagnation()
-# test11 = test_peak_with_stagnation()
-# test12 = test_peak_soil_concentration()
+test9 = test_stagnation_factor()
+test10 = test_peak_without_stagnation()
+test11 = test_peak_with_stagnation()
+test12 = test_peak_soil_concentration()
 # test13 = test_mean_soil_concentration()
 
 #%%
@@ -69,11 +69,8 @@ pipe1.add_segment(name='seg2',
 
 # pipe1.set_flow_rate(flow_rate=0.5)
 
-# pipe1.pipe_dict['seg1']['K'] = 21 # ah_todo add this as example to read the docs in advanced user tutorial
-# print(pipe1)
-# pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
-#                                     pipe_segment='seg1', 
-#                                     )
+pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8, 
+                                    )
 # pipe1.calculate_mean_dw_concentration(
 #                                     pipe_segment='seg1', 
 #                                     )

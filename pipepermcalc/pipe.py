@@ -47,8 +47,8 @@ class Pipe:
     partitioning_b_dh = -17.1875608983359, #see table 5-6 in KWR 2016.056
     diffusion_a_dh = 61.8565740136974, #see table 5-6 in KWR 2016.056
     diffusion_b_dh = -78.9191401984509, #see table 5-6 in KWR 2016.056
-    assessment_factor_groundwater
-    assessment_factor_soil
+    assessment_factor_groundwater = 3
+    assessment_factor_soil =1
 
     reference_pipe_material_dict: dictionary 
         Reference dictionary with regression values (slope=a-value, intercept=b-value)
@@ -273,6 +273,7 @@ class Pipe:
         },      
         }
 
+
     def set_groundwater_conditions(self,
                                    chemical_name=None,                                    
                                    concentration_groundwater=None,
@@ -296,6 +297,7 @@ class Pipe:
         self.chemical_name = chemical_name
         self._groundwater_conditions_set = True
     
+
     def set_flow_rate(self, 
                       flow_rate=0.5): 
         ''' set this in function by itself
@@ -308,6 +310,7 @@ class Pipe:
         '''
         self.flow_rate = flow_rate
         self._flow_rate_set = True
+
 
     def fetch_chemical_database(self,
                                 chemical_name=None,):
@@ -330,6 +333,7 @@ class Pipe:
         chemical_dict = df.to_dict('records')[0]
 
         return chemical_dict
+
 
     def correct_for_temperature(self, #ah_todo make private
                                 pipe_permeability_dict=None, 
@@ -369,6 +373,7 @@ class Pipe:
         f_temp = dh / (R * math.log(10)) * (1 / (reference_temperature + 273) - 1 / (temperature_groundwater + 273))
         return f_temp
 
+
     def other_correction(self,
                          pipe_permeability_dict=None, 
                         a_c=None,
@@ -397,6 +402,7 @@ class Pipe:
         Cg_Sw = pipe_permeability_dict['concentration_groundwater'] / pipe_permeability_dict['solubility']
         f_conc = a_c * (Cg_Sw - Cref_Sw)
         return f_conc
+
 
     def correct_for_age(self,):
         '''
@@ -495,6 +501,7 @@ class Pipe:
         segment_dict['log_Dp'] = log_Dp #m2/s
 
         return segment_dict
+
 
     def _calculate_pipe_K_D(self,
                             pipe_material=None, 
@@ -657,9 +664,9 @@ class Pipe:
         
         self._calculate_pipe_K_D(pipe_material=material, segment_name = name)
 
-    def calculate_max_dw_concentration(self, 
-                                    pipe_segment,
-                                    stagnation_time_hours = 8,  
+    def _calculate_peak_dw_concentration_per_segment(self, 
+                                    pipe_segment=None,
+                                    stagnation_time_hours = None,  
                                     # need to think about how to do 
                                     #this on multiple segments, for not only per segment
                                     ):
@@ -676,7 +683,7 @@ class Pipe:
         pipe_segment: string,
             Name of the pipe segment for which the concentrations are calculated
         '''
-        # pipe1.pipe_dict['seg1']['K'] = 21 # ah_todo add this as example to read the docs in advanced user tutorial
+        # pipe1.pipe_permeability_dict['seg1']['K'] = 21 # ah_todo add this as example to read the docs in advanced user tutorial
 
         drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
         stagnation_time = stagnation_time_hours / 24 # days
@@ -690,13 +697,13 @@ class Pipe:
                         stagnation_time)
         flux_max_stagnation_per_m2 = flux_max_stagnation / segment_surface_area
         
-        stagnation_factor = 10 ** max((((self.pipe_permeability_dict['log_Dp'] + 12.5) / 2 + 
-                                self.pipe_permeability_dict['log_Kpw']) * 0.73611 + 
+        stagnation_factor = 10 ** max((((self.pipe_permeability_dict['segments'][pipe_segment]['log_Dp'] + 12.5) / 2 + 
+                                self.pipe_permeability_dict['segments'][pipe_segment]['log_Kpw']) * 0.73611 + 
                                 -1.03574 ), 0)
 
         concentration_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
                                     segment_diffusion_path_length / 
-                                    self.pipe_permeability_dict['permeation_coefficient'] 
+                                    self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] 
                                     * self.assessment_factor_groundwater)
 
 
@@ -710,13 +717,28 @@ class Pipe:
                                         concentration_peak_after_stagnation * 
                                         self.assessment_factor_soil / self.assessment_factor_groundwater)
 
-        self.pipe_permeability_dict['stagnation_time_hours'] = stagnation_time_hours
-        self.pipe_permeability_dict['flux_max_stagnation'] = flux_max_stagnation
-        self.pipe_permeability_dict['flux_max_stagnation_per_m2'] = flux_max_stagnation_per_m2
-        self.pipe_permeability_dict['stagnation_factor'] = stagnation_factor
-        self.pipe_permeability_dict['concentration_peak_without_stagnation'] = concentration_peak_without_stagnation
-        self.pipe_permeability_dict['concentration_peak_after_stagnation'] = concentration_peak_after_stagnation
-        self.pipe_permeability_dict['concentration_peak_soil'] = concentration_peak_soil
+        self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_time_hours'] = stagnation_time_hours
+        self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation'] = flux_max_stagnation
+        self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation_per_m2'] = flux_max_stagnation_per_m2
+        self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
+        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_without_stagnation'] = concentration_peak_without_stagnation
+        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_after_stagnation'] = concentration_peak_after_stagnation
+        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_soil'] = concentration_peak_soil
+
+    def calculate_peak_dw_concentration(self, 
+                                    stagnation_time_hours = 8,  
+                                    ):
+        '''
+        '''
+        for pipe_segment in self.pipe_dictionary['segment_list']:
+            self._calculate_peak_dw_concentration_per_segment(pipe_segment=pipe_segment,
+                                    stagnation_time_hours = stagnation_time_hours,  
+                                    # need to think about how to do 
+                                    #this on multiple segments, for not only per segment
+                                    )
+
+# LEFT OFF HERE, need to convertfunction: calculate_mean_dw_concentration to loop over segments, 
+# like function _calculate_peak_dw_concentration_per_segment
 
     def calculate_mean_dw_concentration(self, 
                                     pipe_segment, 

@@ -247,7 +247,7 @@ def test_stagnation_factor():
                     thickness=0.0027,
                     )
 
-    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8,pipe_segment = 'seg1')
+    pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8)
 
     answer_round = round(pipe1.pipe_permeability_dict['segments']['seg1']['stagnation_factor'], 6)
     ref_answer = 1.387905
@@ -276,8 +276,7 @@ def test_peak_without_stagnation():
                     thickness=0.0027,
                     )
 
-    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
-                                    pipe_segment='seg1',)
+    pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8, )
 
     answer_round = round(pipe1.pipe_permeability_dict['segments']['seg1']['concentration_peak_without_stagnation'], 6)
     ref_answer = 0.081403
@@ -306,8 +305,7 @@ def test_peak_with_stagnation():
                     thickness=0.0027,
                     )
 
-    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
-                                    pipe_segment='seg1',)
+    pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8,)
 
     answer_round = round(pipe1.pipe_permeability_dict['segments']['seg1']['concentration_peak_after_stagnation'], 6)
     ref_answer = 0.112980
@@ -337,8 +335,7 @@ def test_peak_soil_concentration():
                     thickness=0.0027,
                     )
 
-    pipe1.calculate_max_dw_concentration(stagnation_time_hours = 8, 
-                                    pipe_segment='seg1',)
+    pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8,)
 
     answer_round = round(pipe1.pipe_permeability_dict['segments']['seg1']['concentration_peak_soil'], 6)
     ref_answer =   0.171964 
@@ -367,9 +364,7 @@ def test_mean_soil_concentration():
                     thickness=0.0027,
                     )
 
-    pipe1.calculate_mean_dw_concentration(
-                                    pipe_segment='seg1', 
-                                    )
+    pipe1.calculate_mean_dw_concentration(pipe_segment='seg1',)
     answer_round = round(pipe1.pipe_permeability_dict['segments']['seg1']['concentration_mean_soil'], 5)
     ref_answer =   2.73921
 
