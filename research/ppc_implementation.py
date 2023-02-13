@@ -46,7 +46,7 @@ test9 = test_stagnation_factor()
 test10 = test_peak_without_stagnation()
 test11 = test_peak_with_stagnation()
 test12 = test_peak_soil_concentration()
-# test13 = test_mean_soil_concentration()
+test13 = test_mean_soil_concentration()
 
 #%%
 pipe1 = Pipe()
@@ -67,28 +67,20 @@ pipe1.add_segment(name='seg2',
                 diffusion_path_length=0.001
                 )
 
-# pipe1.set_flow_rate(flow_rate=0.5)
+pipe1.set_flow_rate(flow_rate=0.5)
 
-pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8, 
+pipe1.calculate_peak_allowable_gw_concentration(stagnation_time_hours = 8, 
                                     )
-# pipe1.calculate_mean_dw_concentration(
-#                                     pipe_segment='seg1', 
-#                                     )
+pipe1.calculate_mean_allowable_gw_concentration()
 
 pipe1.pipe_permeability_dict
 # pipe1.pipe_dictionary
 
 #%%
 
-
 # pipe1.pipe_dictionary
 
-
-
 pipe1.pipe_permeability_dict
 
-#%%
-pipe1.calculate_pipe_K_D_per_segment()
-pipe1.pipe_permeability_dict
 
 # %%

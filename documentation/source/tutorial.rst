@@ -87,7 +87,7 @@ To calculate the peak drinking water concentration in a pipe segment, a stagnati
 
 .. ipython:: python
 
-    pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8, 
+    pipe1.calculate_peak_allowable_gw_concentration(stagnation_time_hours = 8, 
                                     pipe_segment='seg1')
 
 
