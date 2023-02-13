@@ -142,22 +142,30 @@ class Pipe:
             water standard, g/day
         flux_max_per_day_per_m2: float,
             Maximum flux per square meter (surface area) of pipe in one day 
-            (24 hours) to remain below the drinking water standard, g/day
-        
+            (24 hours) to remain below the drinking water standard, g/day        
         stagnation_factor: float,
             Correction for the decrease in the concentratino gradient near the 
             inner wall of the pipe during stagnation (e.g. no flow at at night)
-
         concentration_peak_without_stagnation: float,
-            Peak drinking water concentration without stagnation, g/m3
+            Concentration in groundwater which, wihtout a stagnation period, 
+            would not result in a peak concentration in drinking water exceeding 
+            the drinking water norm, g/m3
         concentration_peak_after_stagnation: float, 
-            Peak drinking water concentration after a given stagnation period, g/m3
+            Concentration in groundwater which, after a stagnation period, 
+            would not result in a peak concentration in drinking water exceeding 
+            the drinking water norm, g/m3
         concentration_peak_soil: float,
-            Peak soil concentration after a given stagnation period, mg/kg
+            Concentration in soil which, after a stagnation period, 
+            would not result in a peak concentration in drinking water exceeding 
+            the drinking water norm, mg/kg
         concentration_mean: float,
-            Mean drinking water concentration in a day (24 hours), g/m3
+            Mean concentration in groundwater which would would not result in 
+            a mean daily (24 horus) concentration in drinking water exceeding 
+            the drinking water norm, g/m3
         concentration_mean_soil: float,      
-            Mean soil concentration in a day (24 hours), mg/kg
+            Mean concentration in soil which would would not result in 
+            a mean daily (24 horus) concentration in drinking water exceeding 
+            the drinking water norm, mg/kg
     '''
 
     count = 0 # count of pipe segments
@@ -733,17 +741,15 @@ class Pipe:
         for pipe_segment in self.pipe_dictionary['segment_list']:
             self._calculate_peak_dw_concentration_per_segment(pipe_segment=pipe_segment,
                                     stagnation_time_hours = stagnation_time_hours,  
-                                    # need to think about how to do 
-                                    #this on multiple segments, for not only per segment
                                     )
 
-# LEFT OFF HERE, need to convertfunction: calculate_mean_dw_concentration to loop over segments, 
+# LEFT OFF HERE, need to convert function: calculate_mean_dw_concentration to loop over segments, 
 # like function _calculate_peak_dw_concentration_per_segment
+# also change definitions 
 
     def calculate_mean_dw_concentration(self, 
                                     pipe_segment, 
-                                    #@MartinvdS need to think about how to do 
-                                    #this on multiple segments, for now only per segment
+                                    # convert to loop over multiple sections @ah_todo
                                     ):
         '''
         Calculates the mean 24 hour concentration in drinking water. Mean 
