@@ -320,7 +320,7 @@ class Pipe:
         self._flow_rate_set = True
 
 
-    def fetch_chemical_database(self,
+    def _fetch_chemical_database(self,
                                 chemical_name=None,):
         ''' 
         Fetch the pipe and chemical information corresponding to the given 
@@ -343,7 +343,7 @@ class Pipe:
         return chemical_dict
 
 
-    def correct_for_temperature(self, #ah_todo make private
+    def _correct_for_temperature(self, #ah_todo make private
                                 pipe_permeability_dict=None, 
                         temperature_groundwater=None,
                         coefficient_name=None, 
@@ -382,7 +382,7 @@ class Pipe:
         return f_temp
 
 
-    def other_correction(self,
+    def _concentration_correction(self,
                          pipe_permeability_dict=None, 
                         a_c=None,
                         Cref_Sw=None):
@@ -412,11 +412,9 @@ class Pipe:
         return f_conc
 
 
-    def correct_for_age(self,):
+    def _correct_for_age(self,):
         '''
-        Age correction @ah_todo check this with @MartinvdS, there is no age 
-        correction in excel (column AU/AF), so for now a placeholder function 
-        if we ever wanted to add this later '''
+        Age correction, none implemented yet'''
 
         f_age = 0.000
         return f_age
@@ -443,18 +441,18 @@ class Pipe:
         log_Kpw_ref = a_ref * self.pipe_permeability_dict['log_octanol_water_partitioning_coefficient'] + b_ref
 
         # correct for temperature, concentration, age
-        f_Ktemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
+        f_Ktemp = self._correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
                         temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name = 'solubility',
                             a_dh = self._partitioning_a_dh, #see table 5-6 in KWR 2016.056
                             b_dh = self._partitioning_b_dh, #see table 5-6 in KWR 2016.056
                         )
 
-        f_Kconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
+        f_Kconc = self._concentration_correction(pipe_permeability_dict=self.pipe_permeability_dict,
                                 a_c = 0.103965019849463, #@ah_todo move these in the init, see equation 5-20 in KWR 2016.056
                                 Cref_Sw = 1.000) #see section 5.4.7 in KWR 2016.056
         
-        f_Kage = self.correct_for_age()
+        f_Kage = self._correct_for_age()
 
         # sum corrections for final Log k
         log_Kpw = log_Kpw_ref + f_Ktemp + f_Kconc + f_Kage
@@ -487,18 +485,18 @@ class Pipe:
         log_Dp_ref = a_ref * self.pipe_permeability_dict['molecular_weight'] + b_ref
 
         # correct for temperature, concentration, age
-        f_Dtemp = self.correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
+        f_Dtemp = self._correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
                         temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name ='molecular_weight', 
                             a_dh = self._diffusion_a_dh, #see table 5-6 in KWR 2016.056
                             b_dh = self._diffusion_b_dh, #see table 5-6 in KWR 2016.056
                         )
 
-        f_Dconc = self.other_correction(pipe_permeability_dict=self.pipe_permeability_dict,
+        f_Dconc = self._concentration_correction(pipe_permeability_dict=self.pipe_permeability_dict,
                                 a_c = 0.784077209735583, #@ah_todo move these in the init, see equation 5-18 in KWR 2016.056
                                 Cref_Sw = 0.5) #see section 5.4.6 in KWR 2016.056
         
-        f_Dage = self.correct_for_age()
+        f_Dage = self._correct_for_age()
 
         # sum corrections for final Log D
         log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
@@ -539,7 +537,7 @@ class Pipe:
         else:           
 
             if self.count <= 1:
-                self.pipe_permeability_dict = self.fetch_chemical_database(chemical_name=self.chemical_name)
+                self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name)
 
                 self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
                 self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
@@ -672,17 +670,20 @@ class Pipe:
         
         self._calculate_pipe_K_D(pipe_material=material, segment_name = name)
 
-    def _calculate_peak_dw_concentration_per_segment(self, 
+    def _calculate_peak_allowable_gw_concentration_per_segment(self, 
                                     pipe_segment=None,
                                     stagnation_time_hours = None,  
                                     # need to think about how to do 
                                     #this on multiple segments, for not only per segment
                                     ):
         '''
-        Calculates the peak (maximum) concentration in drinking water for a given 
-        stagnation period, default of 8 hours. Peak concentrations in drinking 
-        water and soil added to the pipe_permeability_dict. If the distribution coefficient it unknown for a given 
-        chemical, no soil concentration is calculated.
+        Calculates the peak (maximum) concentration in groundwater water for a 
+        given a stagnation period, that would not result in a peak concentration 
+        in drinking water exceeding the drinking water norm for a single pipe segment.
+        Stagnation period default of 8 hours. Peak concentrations in groundwater 
+        water and soil added to the pipe_permeability_dict. If the distribution 
+        coefficient it unknown for a given chemical, no soil concentration is 
+        calculated.
         
         Parameters
         ----------
@@ -691,7 +692,8 @@ class Pipe:
         pipe_segment: string,
             Name of the pipe segment for which the concentrations are calculated
         '''
-        # pipe1.pipe_permeability_dict['seg1']['K'] = 21 # ah_todo add this as example to read the docs in advanced user tutorial
+        # ah_todo add this as example to read the docs in advanced user tutorial
+        # pipe1.pipe_permeability_dict['seg1']['K'] = 21
 
         drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
         stagnation_time = stagnation_time_hours / 24 # days
@@ -733,18 +735,33 @@ class Pipe:
         self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_after_stagnation'] = concentration_peak_after_stagnation
         self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_soil'] = concentration_peak_soil
 
-    def calculate_peak_dw_concentration(self, 
+    def calculate_peak_allowable_gw_concentration(self, 
                                     stagnation_time_hours = 8,  
                                     ):
         '''
+        Calculates the peak (maximum) concentration in groundwater water for a 
+        given a stagnation period that would not result in a peak concentration 
+        in drinking water exceeding the drinking water norm for each pipe segment.
+        Stagnation period default of 8 hours. Peak concentrations in groundwater 
+        water and soil added to the pipe_permeability_dict. If the distribution 
+        coefficient it unknown for a given chemical, no soil concentration is 
+        calculated.
+        
+        Parameters
+        ----------
+        stagnation_time_hours: float
+            time in hours, default 8 hours
+        pipe_segment: string,
+            Name of the pipe segment for which the concentrations are calculated
+
         '''
         for pipe_segment in self.pipe_dictionary['segment_list']:
-            self._calculate_peak_dw_concentration_per_segment(pipe_segment=pipe_segment,
+            self._calculate_peak_allowable_gw_concentration_per_segment(pipe_segment=pipe_segment,
                                     stagnation_time_hours = stagnation_time_hours,  
                                     )
 
 # LEFT OFF HERE, need to convert function: calculate_mean_dw_concentration to loop over segments, 
-# like function _calculate_peak_dw_concentration_per_segment
+# like function _calculate_peak_allowable_gw_concentration_per_segment
 # also change definitions 
 
     def calculate_mean_dw_concentration(self, 
