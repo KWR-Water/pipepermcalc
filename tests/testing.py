@@ -373,3 +373,76 @@ def test_mean_soil_concentration():
 
     except AssertionError:
         print("Assertion Exception Raised.")
+
+def test_updating_partitioning_coefficient():
+    ''' Test the update function for the partitioning coefficient '''
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    diameter=0.0196,
+                    thickness=0.0027,
+                    )
+
+    pipe1._update_partitioning_coefficient(new_log_Kpw= 0.9116730996845103, 
+                                        segment_name='seg1')
+
+    answer_round = round(pipe1.pipe_permeability_dict['segments']['seg1']['log_Kpw'], 6)
+    ref_answer =   0.911673
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+
+    answer_round = pipe1.pipe_permeability_dict['segments']['seg1']['permeation_coefficient']
+    ref_answer =   4.023463562623052e-07
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+
+def test_updating_diffusion_coefficient():
+    ''' Test the update function for the diffusion coefficient '''
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    diameter=0.0196,
+                    thickness=0.0027,
+                    )
+
+    pipe1._update_diffusion_coefficient(new_log_Dp= -12.743586769549616, 
+                                        segment_name='seg1')
+
+    answer_round = pipe1.pipe_permeability_dict['segments']['seg1']['log_Dp']
+    ref_answer =   -12.743586769549616
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+
+    answer_round = pipe1.pipe_permeability_dict['segments']['seg1']['permeation_coefficient']
+    ref_answer =   4.6255147758415636e-07
+
+    try:
+        
+        assert answer_round == ref_answer
+
+    except AssertionError:
+        print("Assertion Exception Raised.")
+

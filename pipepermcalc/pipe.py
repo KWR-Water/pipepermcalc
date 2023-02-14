@@ -599,6 +599,53 @@ class Pipe:
             
             self.pipe_permeability_dict['segments'][segment_name] = segment_dict
 
+    #@MartinvdS added this function since the permeation_coefficient also needs 
+    # to be updated, otherwise the Log Kpw is only ~half used
+    def _update_partitioning_coefficient(self, 
+                                        new_log_Kpw=None, 
+                                        segment_name=None):
+        ''' Function to update the partitioning coefficient and the associated 
+        permeation coefficient
+
+        Parameters
+        ----------
+        new_log_Kpw:float
+            New value for the partitioning coefficient for the given pipe segment
+        segment_name: string
+            name of the pipe segment        
+        '''
+
+        self.pipe_permeability_dict['segments'][segment_name]['log_Kpw'] = new_log_Kpw
+
+        #Permeation coefficient for plastic-water (Ppw), unit: m2/day
+        self.pipe_permeability_dict['segments'][segment_name]['permeation_coefficient'] = (24 * 60 * 60 * 
+                                    (10 ** self.pipe_permeability_dict['segments'][segment_name]['log_Dp']) 
+                                    * 10 ** self.pipe_permeability_dict['segments'][segment_name]['log_Kpw'])
+       
+        
+    def _update_diffusion_coefficient(self, 
+                                        new_log_Dp=None, 
+                                        segment_name=None):
+        ''' Function to update the diffusion coefficient and the associated 
+        permeation coefficient
+
+        Parameters
+        ----------
+        new_log_Dp:float
+            New value for the diffusion coefficient for the given pipe segment
+        segment_name: string
+            name of the pipe segment        
+        '''
+
+        self.pipe_permeability_dict['segments'][segment_name]['log_Dp'] = new_log_Dp
+
+        #Permeation coefficient for plastic-water (Ppw), unit: m2/day
+        self.pipe_permeability_dict['segments'][segment_name]['permeation_coefficient'] = (24 * 60 * 60 * 
+                                    (10 ** self.pipe_permeability_dict['segments'][segment_name]['log_Dp']) 
+                                    * 10 ** self.pipe_permeability_dict['segments'][segment_name]['log_Kpw'])
+
+
+
 
     def add_segment(self,
                     name=None,
@@ -865,17 +912,6 @@ class Pipe:
             self._calculate_mean_allowable_gw_concentration_per_segment(pipe_segment=pipe_segment,)
 
     # AH_todo FUNCTIONS COMPLETE UNTIL HERE
-
-    def something_for_multiple_segments():
-        # loop to calculate the concentration in drinking water for multiple 
-        # segments given a groundwater concentration 
-        '''
-        Function to calculate the peak/mean concentrations for multiple pipe 
-        segments '''
-
-        # for segments in self.pipe_dictionary['segment_list']:
-        # calculate the K/D for each segment, store in dictionary
-        # calculate the peak/mean concentrations/volume and sum them?
 
     def __str__(self,):
         ''' or override the "print" function '''
