@@ -41,14 +41,44 @@ class Pipe:
         Count of the number of segments created for the pipe
 
     partitioning_a_dh: float
-        Coefficient for correcting the partitioning or diffusion coefficient
-
-    @ah_todo finish these definitions
-    partitioning_b_dh = -17.1875608983359, #see table 5-6 in KWR 2016.056
-    diffusion_a_dh = 61.8565740136974, #see table 5-6 in KWR 2016.056
-    diffusion_b_dh = -78.9191401984509, #see table 5-6 in KWR 2016.056
-    assessment_factor_groundwater = 3
-    assessment_factor_soil =1
+        Coefficient for correcting the partitioning coefficient for temperature. 
+        From regression analysis, a is the slope, see table 5-6 in 
+        KWR 2016.056. Constant equal to 7.92169801506708. 
+    partitioning_b_dh: float,
+        Coefficient for correcting the partitioning coefficient for temperature. 
+        From regression analysis, b is the intercept, see table 5-6 in 
+        KWR 2016.056. Constant equal to -17.1875608983359. 
+    diffusion_a_dh: float 
+        Coefficient for correcting the diffusion coefficient for temperature. 
+        From regression analysis, a is the slope, see table 5-6 in 
+        KWR 2016.056. Constant equal to 61.8565740136974. 
+    diffusion_b_dh: float,
+        Coefficient for correcting the diffusion coefficient for temperature. 
+        From regression analysis, b is the intercept, see table 5-6 in 
+        KWR 2016.056. Constant equal to -78.9191401984509. 
+    assessment_factor_groundwater: integer, 
+        Factor used to correct calculations for observations in actual pipe 
+        permeation. Permeation of PE house connections in groundwater = 3, 
+        other pipe materials = 1.
+    assessment_factor_soil: integer,
+        Factor used to correct calculations for observations in actual pipe 
+        permeation. All pipe materials = 1.
+    partitioning_a_c: float,
+        Constant used in the correction for the partitioning coefficent due to 
+        the influence of temperature. See equation 5-20 in KWR 2016.056, for 
+        partitioning a_c = 0.103965019849463.
+    partitioning_Cref_Sw: float,
+        Reference concentration used in the correction for the partitioning 
+        coefficent due to the influence of temperature. Ssee section 5.4.7 in 
+        KWR 2016.056. For partitioning, Cref_SW = 1.0.
+    diffusion_a_c: float,
+        Constant used in the correction for the diffusion coefficent due to 
+        the influence of temperature. See equation 5-18 in KWR 2016.056, for 
+        diffusion a_c = 0.784077209735583.
+    diffusion_Cref_Sw: float,
+        Reference concentration used in the correction for the diffusion 
+        coefficent due to the influence of temperature. Ssee section 5.4.6 in 
+        KWR 2016.056. For partitioning, Cref_SW = 0.5.
 
     reference_pipe_material_dict: dictionary 
         Reference dictionary with regression values (slope=a-value, intercept=b-value)
@@ -186,6 +216,10 @@ class Pipe:
         self._diffusion_b_dh = -78.9191401984509 #see table 5-6 in KWR 2016.056
         self.assessment_factor_groundwater = 3 
         self.assessment_factor_soil = 1
+        self.partitioning_a_c = 0.103965019849463 #see equation 5-20 in KWR 2016.056
+        self.partitioning_Cref_Sw = 1.000 #see section 5.4.7 in KWR 2016.056
+        self.diffusion_a_c = 0.784077209735583 #see equation 5-18 in KWR 2016.056
+        self.diffusion_Cref_Sw = 0.5 #see section 5.4.6 in KWR 2016.056
 
        
     # @ah_todo revert back to csv, seperate file @Bram will think about this
@@ -343,13 +377,13 @@ class Pipe:
         return chemical_dict
 
 
-    def _correct_for_temperature(self, #ah_todo make private
+    def _correct_for_temperature(self,
                                 pipe_permeability_dict=None, 
-                        temperature_groundwater=None,
-                        coefficient_name=None, 
-                        a_dh=None,
-                        b_dh=None,
-                        ):
+                                temperature_groundwater=None,
+                                coefficient_name=None, 
+                                a_dh=None,
+                                b_dh=None,
+                                ):
         '''
         Temperature correction for the partitioning and diffusion coefficients, 
         
@@ -444,13 +478,13 @@ class Pipe:
         f_Ktemp = self._correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
                         temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name = 'solubility',
-                            a_dh = self._partitioning_a_dh, #see table 5-6 in KWR 2016.056
-                            b_dh = self._partitioning_b_dh, #see table 5-6 in KWR 2016.056
+                            a_dh = self._partitioning_a_dh, 
+                            b_dh = self._partitioning_b_dh, 
                         )
 
         f_Kconc = self._concentration_correction(pipe_permeability_dict=self.pipe_permeability_dict,
-                                a_c = 0.103965019849463, #@ah_todo move these in the init, see equation 5-20 in KWR 2016.056
-                                Cref_Sw = 1.000) #see section 5.4.7 in KWR 2016.056
+                                a_c = self.partitioning_a_c,
+                                Cref_Sw = self.partitioning_Cref_Sw) 
         
         f_Kage = self._correct_for_age()
 
@@ -488,13 +522,13 @@ class Pipe:
         f_Dtemp = self._correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
                         temperature_groundwater=self.temperature_groundwater, 
                         coefficient_name ='molecular_weight', 
-                            a_dh = self._diffusion_a_dh, #see table 5-6 in KWR 2016.056
-                            b_dh = self._diffusion_b_dh, #see table 5-6 in KWR 2016.056
+                            a_dh = self._diffusion_a_dh, 
+                            b_dh = self._diffusion_b_dh, 
                         )
 
         f_Dconc = self._concentration_correction(pipe_permeability_dict=self.pipe_permeability_dict,
-                                a_c = 0.784077209735583, #@ah_todo move these in the init, see equation 5-18 in KWR 2016.056
-                                Cref_Sw = 0.5) #see section 5.4.6 in KWR 2016.056
+                                a_c = self.diffusion_a_c , 
+                                Cref_Sw = self.diffusion_Cref_Sw) 
         
         f_Dage = self._correct_for_age()
 
@@ -589,6 +623,14 @@ class Pipe:
             Length of pipe segment, meters 
         diameter: float
             Diameter of pipe segment, meters
+            
+            @MartinvdS is this the inner or the outer diameter? 
+
+            @Martin, why in excel is the thickness of the material (column H, 
+            sheet "dimensies...") the thickness of "both" sides of the material (2 * thickness)
+            Also why is the inner diameter used to calculate the dienstkraan 
+            and koppelstuk, shouldn't it be the outer diameter?
+
         thickness: float
             Thickness of pipe segment, meters
         diffusion_path_length: float
@@ -609,11 +651,12 @@ class Pipe:
         else:
             pass
 
+        volume = math.pi * (diameter / 2) ** 2 * length
+        surface_area =  (math.pi * diameter * length)
+        # @MartinvdS check about the contact area used, 
+        # see sheet 'dimensies tertiare structuur', column K
+
         if self.count >1:
-            volume = math.pi * (diameter / 2) ** 2 * length
-            surface_area =  (2 * math.pi * (diameter / 2) * length)
-            # @MartinvdS check about the contact area used, 
-            # see sheet 'dimensies tertiare structuur', column K
 
             total_length = length + self.pipe_dictionary['total_length']
             total_volume = volume + self.pipe_dictionary['total_volume']
@@ -643,8 +686,6 @@ class Pipe:
                 ,
             }
         else:
-            volume = math.pi * (diameter / 2) ** 2 * length
-            surface_area =  (2 * math.pi * (diameter / 2) * length)
             
             pipe_dictionary = {
                     'number_segments': self.count,
@@ -700,7 +741,6 @@ class Pipe:
         segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
         segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['surface_area']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
-        #ah_todo check if user has input a diffusion_travel_path_length, otherwise use the thickness
 
         #Risk limit value groundwater
         flux_max_stagnation = ( drinking_water_norm / 1000 * segment_volume /
@@ -719,7 +759,7 @@ class Pipe:
 
         concentration_peak_after_stagnation = stagnation_factor * concentration_peak_without_stagnation
 
-        #Risk limit value soil, first check if there is a distribution coefficient known
+        #Risk limit value soil, first check if a distribution coefficient is known
         if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
             concentration_peak_soil = 'log_distribution_coefficient (Kd) unknown'
         else:
@@ -766,7 +806,6 @@ class Pipe:
 
     def _calculate_mean_allowable_gw_concentration_per_segment(self, 
                                     pipe_segment, 
-                                    # convert to loop over multiple sections @ah_todo
                                     ):
         '''
         Calculates the mean 24 hour concentration in groundwater which would not 
