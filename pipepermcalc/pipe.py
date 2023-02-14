@@ -105,7 +105,7 @@ class Pipe:
             flow rate in the pipe, m3/day 
         segments: dictionary
             dictionary of the individual pipe segments, containing the 
-            segment material, segment length (m), outer outer_diameter (m), thickness (m), 
+            segment material, segment length (m), inner_diameter (m), thickness (m), 
             volume (m3) and surface area (m2)
     
     pipe_permeability_dict: dictionary
@@ -648,7 +648,7 @@ class Pipe:
                     name=None,
                     material=None,
                     length=None,
-                    outer_diameter=None,
+                    inner_diameter=None,
                     thickness=None,
                     diffusion_path_length=None,
                     ):
@@ -665,15 +665,13 @@ class Pipe:
             e.g. PE40, PE80, PVC, EPDM, rubber etc.
         length: float
             Length of pipe segment, meters 
-        outer_diameter: float
-            Outer outer_diameter of pipe segment, meters
+        inner_diameter: float
+            Inner diameter of pipe segment, meters
             
-            @MartinvdS is this the inner or the outer outer_diameter? 
-
             @Martin, why in excel is the thickness of the material (column H, 
             sheet "dimensies...") the thickness of "both" sides of the material (2 * thickness)
-            Also why is the inner outer_diameter used to calculate the dienstkraan 
-            and koppelstuk, shouldn't it be the outer outer_diameter?
+            Also why is the inner diameter used to calculate the dienstkraan 
+            and koppelstuk, shouldn't it be the outer diameter?
 
         thickness: float
             Thickness of pipe segment, meters
@@ -695,7 +693,8 @@ class Pipe:
         else:
             pass
 
-        inner_diameter = outer_diameter - thickness
+        # inner_diameter = outer_diameter - thickness
+        outer_diameter = inner_diameter + thickness
         volume = math.pi * (inner_diameter / 2) ** 2 * length
         outer_surface_area = (math.pi * outer_diameter * length)
         inner_surface_area = (math.pi * inner_diameter * length)
@@ -762,6 +761,28 @@ class Pipe:
         
         self._calculate_pipe_K_D(pipe_material=material, segment_name = name)
 
+    def _calculate_stagnation_factor(self, 
+                                     pipe_segment=None):
+        ''' Calculates the stagnation factor given a pipe segment
+        
+        Parameters
+        ----------
+        pipe_segment: string
+            name of the pipe segment        
+        
+        Returns
+        ----------
+        stagnation_factor: string
+            Correction for the decrease in the concentratino gradient near the 
+            inner wall of the pipe during stagnation (e.g. no flow at at night)
+
+        '''
+
+        stagnation_factor = 10 ** max((((self.pipe_permeability_dict['segments'][pipe_segment]['log_Dp'] + 12.5) / 2 + 
+                                self.pipe_permeability_dict['segments'][pipe_segment]['log_Kpw']) * 0.73611 + 
+                                -1.03574 ), 0)
+        return stagnation_factor
+    
     def _calculate_peak_allowable_gw_concentration_per_segment(self, 
                                     pipe_segment=None,
                                     stagnation_time_hours = None,  
@@ -786,17 +807,15 @@ class Pipe:
         drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
         stagnation_time = stagnation_time_hours / 24 # days
         segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
-        segment_outer_surface_area = self.pipe_dictionary['segments'][pipe_segment]['outer_surface_area']
+        segment_inner_surface_area = self.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
 
         #Risk limit value groundwater
         flux_max_stagnation = ( drinking_water_norm / 1000 * segment_volume /
                         stagnation_time)
-        flux_max_stagnation_per_m2 = flux_max_stagnation / segment_outer_surface_area
+        flux_max_stagnation_per_m2 = flux_max_stagnation / segment_inner_surface_area
         
-        stagnation_factor = 10 ** max((((self.pipe_permeability_dict['segments'][pipe_segment]['log_Dp'] + 12.5) / 2 + 
-                                self.pipe_permeability_dict['segments'][pipe_segment]['log_Kpw']) * 0.73611 + 
-                                -1.03574 ), 0)
+        stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
 
         concentration_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
                                     segment_diffusion_path_length / 
@@ -844,12 +863,12 @@ class Pipe:
         else: 
             drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
             segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
-            segment_outer_surface_area = self.pipe_dictionary['segments'][pipe_segment]['outer_surface_area']
+            segment_inner_surface_area = self.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
             segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
 
             # 24 hour max flux
             flux_max_per_day = drinking_water_norm / 1000 * self.flow_rate
-            flux_max_per_day_per_m2 = flux_max_per_day / segment_outer_surface_area
+            flux_max_per_day_per_m2 = flux_max_per_day / segment_inner_surface_area
 
             concentration_mean = (flux_max_per_day_per_m2 * segment_diffusion_path_length / 
                                         self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] * 
@@ -867,6 +886,82 @@ class Pipe:
             self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
             self.pipe_permeability_dict['segments'][pipe_segment]['concentration_mean'] = concentration_mean
             self.pipe_permeability_dict['segments'][pipe_segment]['concentration_mean_soil'] = concentration_mean_soil
+
+    def _calculate_mean_dw_concentration_per_segment(self, 
+                                         pipe_segment=None,
+                                        ):
+        '''
+        Calculates the peak (maximum) concentration in drinking water for a 
+        given a stagnation period given a groundwater concentration, for each pipe segment.
+        Stagnation period default of 8 hours. Peak concentrations in drinking 
+        water added to the pipe_permeability_dict.
+        
+        Parameters
+        ----------
+        pipe_segment: string
+            name of the pipe segment        
+        '''
+        segment_length = self.pipe_dictionary['segments'][pipe_segment]['length']
+        segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
+        segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
+
+        segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
+        concentration_groundwater = self.pipe_permeability_dict['concentration_groundwater']
+        segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
+        inner_diameter = self.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
+        permeation_coefficient = self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
+        flow_rate = self.flow_rate
+
+        # @MartinvdS how are the assessment factor incorporated? see trial below
+        # are these are different formulas than used in the excel sheet...?
+
+        # # From equation 4-9 KWR 2016.056
+        # concentration_drinkwater = ((permeation_coefficient * 2 * concentration_groundwater * 
+        #                    math.pi * (inner_diameter / 2) * segment_length) / 
+        #                     (segment_diffusion_path_length * flow_rate))
+
+        concentration_drinkwater = ((permeation_coefficient *  concentration_groundwater * 
+                           segment_surface_area) / 
+                            (segment_diffusion_path_length * flow_rate * self.assessment_factor_groundwater ))
+
+
+        #From equation 4-7 in KWR 2016.056
+        contact_time = (math.pi * (inner_diameter / 2) ** 2 * segment_length) / flow_rate
+        mass_drinkwater = ((permeation_coefficient * concentration_groundwater * 2 
+                           * math.pi * (inner_diameter / 2) * segment_length * 
+                           contact_time / segment_diffusion_path_length) / 
+                           self.assessment_factor_groundwater)
+        # or
+        mass_drinkwater = concentration_drinkwater * segment_volume
+
+        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_drinkwater'] = concentration_drinkwater
+        self.pipe_permeability_dict['segments'][pipe_segment]['contact_time'] = contact_time
+        self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
+
+    def calculate_mean_dw_concentration(self, ):
+        '''
+        Calculates the peak (maximum) concentration in drinking water for a 
+        given a stagnation period given a groundwater concentration.
+        Stagnation period default of 8 hours. Peak concentrations in drinking 
+        water added to the pipe_permeability_dict.
+        
+        Parameters
+        ----------
+        stagnation_time_hours: float
+            time in hours, default 8 hours
+
+        '''
+        sum_mass_segment = 0
+
+        for pipe_segment in self.pipe_dictionary['segment_list']:
+            self._calculate_mean_dw_concentration_per_segment(pipe_segment=pipe_segment,
+                                    )
+            sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
+        
+        concentration_pipe_drinking_water = (sum_mass_segment / 
+                                             self.pipe_dictionary['total_volume'])
+        
+        self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
     def _calculate_peak_dw_concentration_per_segment(self, 
                                          pipe_segment=None,
@@ -887,27 +982,33 @@ class Pipe:
         '''
         stagnation_time = stagnation_time_hours / 24 # days
         segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
+
         segment_length = self.pipe_dictionary['segments'][pipe_segment]['length']
-        segment_outer_surface_area = self.pipe_dictionary['segments'][pipe_segment]['outer_surface_area']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
         concentration_groundwater = self.pipe_permeability_dict['concentration_groundwater']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
-        inner_outer_diameter = self.pipe_dictionary['segments'][pipe_segment]['outer_diameter'] - self.pipe_dictionary['segments'][pipe_segment]['thickness'] 
+        inner_diameter = self.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
         permeation_coefficient = self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
-        
+        flow_rate = self.flow_rate
+
         # From equation 4-10 KWR 2016.056
-        # LEFT OFF HERE
-        concentratie_drinkwater = (permeation_coefficient * 2 * concentration_groundwater * stagnation_time) / (segment_diffusion_path_length * inner_outer_diameter/2)
-
-
-        flux_max_stagnation = ( concentration_groundwater * segment_volume /
-                        stagnation_time)
+        concentration_drinkwater = ((permeation_coefficient * 2 * concentration_groundwater * stagnation_time) / 
+                            (segment_diffusion_path_length * (inner_diameter / 2)))
         
-        flux_max_stagnation_per_m2 = flux_max_stagnation / segment_outer_surface_area
+        # Add the assessment factor and stagnation factor here @ah_todo
+        stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
+        assessment_factor = self.assessment_factor_groundwater
 
-        self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day'] = flux_max_stagnation
-        self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day_per_m2'] = flux_max_stagnation_per_m2
+        concentration_drinkwater = concentration_drinkwater / stagnation_factor / assessment_factor
 
+        #From equation 4-7 in KWR 2016.056
+        contact_time = stagnation_time
+        mass_drinkwater = concentration_drinkwater * segment_volume 
+        
+        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_drinkwater'] = concentration_drinkwater
+        self.pipe_permeability_dict['segments'][pipe_segment]['contact_time'] = contact_time
+        self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
+        self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
 
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, ):
@@ -925,21 +1026,22 @@ class Pipe:
         '''
         stagnation_time = stagnation_time_hours / 24 # days
 
-        sum_fluxes = 0
+        sum_mass_segment = 0
 
         for pipe_segment in self.pipe_dictionary['segment_list']:
             self._calculate_peak_dw_concentration_per_segment(pipe_segment=pipe_segment,
                                     stagnation_time_hours = stagnation_time_hours,  
                                     )
-            sum_fluxes += self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day_per_m2']
+            sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
         
-        concentration_pipe_drinking_water = (sum_fluxes / 
+        concentration_pipe_drinking_water = (sum_mass_segment / 
                                              self.pipe_dictionary['total_volume'])
         
         self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
+
     # AH_todo FUNCTIONS COMPLETE UNTIL HERE
-    # LEFT OFF HERE, need to discuss how to loop and calculate the groundwater 
+    # need to discuss how to loop and calculate the groundwater 
     # concentration on multiple sections
 
     def calculate_mean_allowable_gw_concentration(self, 

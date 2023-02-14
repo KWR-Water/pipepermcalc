@@ -42,7 +42,7 @@ def test_logKpw_ref():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
     
@@ -65,7 +65,7 @@ def test_logDp_ref():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
    
@@ -89,7 +89,7 @@ def test_logKp_ref_temperature_correction():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
     
@@ -113,7 +113,7 @@ def test_logDp_ref_temperature_correction():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
     
@@ -138,7 +138,7 @@ def test_logKp_ref_other_correction():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
     
@@ -164,7 +164,7 @@ def test_logDp_ref_other_correction():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
     
@@ -190,7 +190,7 @@ def test_logKpw():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
     
@@ -216,7 +216,7 @@ def test_logDpw():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
     
@@ -243,7 +243,7 @@ def test_stagnation_factor():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
 
@@ -272,7 +272,7 @@ def test_peak_without_stagnation():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
 
@@ -301,7 +301,7 @@ def test_peak_with_stagnation():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
 
@@ -330,7 +330,7 @@ def test_peak_soil_concentration():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
 
@@ -359,7 +359,7 @@ def test_mean_soil_concentration():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
 
@@ -383,7 +383,7 @@ def test_updating_partitioning_coefficient():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
 
@@ -419,7 +419,7 @@ def test_updating_diffusion_coefficient():
     pipe1.add_segment(name='seg1',
                     material='PE40',
                     length=25,
-                    diameter=0.0196,
+                    inner_diameter=0.0196,
                     thickness=0.0027,
                     )
 
