@@ -806,10 +806,9 @@ class Pipe:
                                          pipe_segment=None,
                                         ):
         '''
-        Calculates the peak (maximum) concentration in drinking water for a 
-        given a stagnation period given a groundwater concentration, for each pipe segment.
-        Stagnation period default of 8 hours. Peak concentrations in drinking 
-        water added to the pipe_permeability_dict.
+        Calculates the mean mass in drinking water for a 24 hour period given a 
+        groundwater concentration, for each pipe segment.
+        Mean mass in drinking water added to the pipe_permeability_dict.
         
         Parameters
         ----------
@@ -839,9 +838,8 @@ class Pipe:
 
     def calculate_mean_dw_concentration(self, ):
         '''
-        Calculates the peak (maximum) concentration in drinking water for a 
-        given a stagnation period given a groundwater concentration.
-        Stagnation period default of 8 hours. Peak concentrations in drinking 
+        Calculates the mean concentration in drinking water for a 24 hour period
+        given a groundwater concentration. Mean concentrations in drinking 
         water added to the pipe_permeability_dict.
         
         Parameters
@@ -872,9 +870,9 @@ class Pipe:
                                          pipe_segment=None,
                                         stagnation_time_hours = 8, ):
         '''
-        Calculates the peak (maximum) concentration in drinking water for a 
+        Calculates the peak (maximum) mass in drinking water for a 
         given a stagnation period given a groundwater concentration, for each pipe segment.
-        Stagnation period default of 8 hours. Peak concentrations in drinking 
+        Stagnation period default of 8 hours. Peak mass in drinking 
         water added to the pipe_permeability_dict.
         
         Parameters
@@ -898,7 +896,6 @@ class Pipe:
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation
-
         mass_drinkwater =(( permeation_coefficient * segment_surface_area * 
                                 stagnation_time * concentration_groundwater *  segment_volume) / 
                                 ((segment_diffusion_path_length * self.assessment_factor_groundwater * 
