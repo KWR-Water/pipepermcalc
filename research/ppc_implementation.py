@@ -58,7 +58,7 @@ test19 = test_segment_surface_area_calculations()
 pipe1 = Pipe()
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
                                  temperature_groundwater=12, 
-                                 concentration_groundwater = 1.8)
+                                 concentration_groundwater = 0.112980124482)
 pipe1.add_segment(name='seg1',
                 material='PE40',
                 length=25,
@@ -82,7 +82,7 @@ pipe1.add_segment(name='seg1',
 #                 )
 pipe1.set_flow_rate(flow_rate=0.5)
 
-pipe1.calculate_mean_dw_concentration()
+pipe1.calculate_peak_dw_concentration()
 pipe1.pipe_permeability_dict
 
 #%%
@@ -91,7 +91,8 @@ pipe1.pipe_permeability_dict
 pipe1 = Pipe()
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
                                  temperature_groundwater=12, 
-                                 concentration_groundwater = 1.8)
+                                 concentration_groundwater = 0.112980124482
+)
 pipe1.add_segment(name='seg1',
                 material='PE40',
                 length=25,
@@ -116,7 +117,32 @@ segment_diffusion_path_length = pipe1.pipe_dictionary['segments'][pipe_segment][
 segment_inner_diameter = pipe1.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
 permeation_coefficient = pipe1.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
 flow_rate = pipe1.flow_rate
+stagnation_time = 8 / 24
 
+stagnation_factor = pipe1._calculate_stagnation_factor(pipe_segment=pipe_segment)
+assessment_factor = pipe1.assessment_factor_groundwater
+
+concentration_drinkwater_excel = 0.001
+concentration_drinkwater = ((permeation_coefficient * 2 * 
+                                     (concentration_groundwater - concentration_drinkwater_excel) * stagnation_time) / 
+                            (segment_diffusion_path_length * (segment_inner_diameter / 2)))/ stagnation_factor / assessment_factor
+
+concentration_drinkwater = ((permeation_coefficient * (concentration_groundwater - concentration_drinkwater_excel) * segment_surface_area * stagnation_time) / 
+                            (segment_diffusion_path_length  * stagnation_factor * assessment_factor)) * (1 /  segment_volume)
+
+mass_drink_excel =  ((permeation_coefficient * (concentration_groundwater - concentration_drinkwater_excel) * segment_surface_area * stagnation_time) / 
+                            (segment_diffusion_path_length  * stagnation_factor * assessment_factor))
+
+# mass_drink_excel =  concentration_drinkwater * segment_volume
+mass_drink_excel
+#%%
+
+# calcl
+mass_drinkwater_calc =(( permeation_coefficient * segment_surface_area * stagnation_time * concentration_groundwater *  segment_volume) / ((segment_diffusion_path_length * pipe1.assessment_factor_groundwater * stagnation_factor * segment_volume) + (permeation_coefficient * segment_surface_area * stagnation_time) )  )
+# ((concentration_groundwater * permeation_coefficient * stagnation_time * segment_surface_area ) / segment_diffusion_path_length * stagnation_factor * assessment_factor )
+mass_drinkwater_calc
+# mass_drinkwater_calc / segment_volume
+#%%
 #Excel
 concentration_drinkwater_excel = (concentration_groundwater * (segment_surface_area * permeation_coefficient) / 
                                     ((flow_rate * segment_diffusion_path_length * pipe1.assessment_factor_groundwater) + segment_surface_area * permeation_coefficient ))

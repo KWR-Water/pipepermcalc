@@ -830,7 +830,10 @@ class Pipe:
            
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation
-        mass_drinkwater = (concentration_groundwater * segment_volume * segment_surface_area * permeation_coefficient) / (segment_diffusion_path_length * self.assessment_factor_groundwater * flow_rate + permeation_coefficient * segment_surface_area)
+        mass_drinkwater = ((concentration_groundwater * segment_volume * 
+                           segment_surface_area * permeation_coefficient) / 
+                            (segment_diffusion_path_length * self.assessment_factor_groundwater *
+                              flow_rate + permeation_coefficient * segment_surface_area))
         
         self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
 
@@ -884,28 +887,24 @@ class Pipe:
         '''
         stagnation_time = stagnation_time_hours / 24 # days
         segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
+        segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
 
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
         concentration_groundwater = self.pipe_permeability_dict['concentration_groundwater']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
         segment_inner_diameter = self.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
         permeation_coefficient = self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
-        flow_rate = self.flow_rate
-
-        # From equation 4-10 KWR 2016.056
-        concentration_drinkwater = ((permeation_coefficient * 2 * 
-                                     concentration_groundwater * stagnation_time) / 
-                            (segment_diffusion_path_length * (segment_inner_diameter / 2)))
-        
-        # Confirm with @MartinvdS hwo to the assessment factor and stagnation factor @ah_todo
         stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
-        assessment_factor = self.assessment_factor_groundwater
 
-        concentration_drinkwater = concentration_drinkwater / stagnation_factor / assessment_factor
+        # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
+        # in equation 4-5 and rearranging to remove C_dw from the equation
 
-        #From equation 4-7 in KWR 2016.056
-        mass_drinkwater = concentration_drinkwater * segment_volume 
-        
+        mass_drinkwater =(( permeation_coefficient * segment_surface_area * 
+                                stagnation_time * concentration_groundwater *  segment_volume) / 
+                                ((segment_diffusion_path_length * self.assessment_factor_groundwater * 
+                                  stagnation_factor * segment_volume) + 
+                                  (permeation_coefficient * segment_surface_area * stagnation_time) )  )
+       
         self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
         self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
 
