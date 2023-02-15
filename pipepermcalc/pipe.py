@@ -824,7 +824,7 @@ class Pipe:
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
         concentration_groundwater = self.pipe_permeability_dict['concentration_groundwater']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
-        inner_diameter = self.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
+        segment_inner_diameter = self.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
         permeation_coefficient = self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
         flow_rate = self.flow_rate
 
@@ -843,9 +843,9 @@ class Pipe:
 
 
         #From equation 4-7 in KWR 2016.056
-        contact_time = (math.pi * (inner_diameter / 2) ** 2 * segment_length) / flow_rate
+        contact_time = (math.pi * (segment_inner_diameter / 2) ** 2 * segment_length) / flow_rate
         mass_drinkwater = ((permeation_coefficient * concentration_groundwater * 2 
-                           * math.pi * (inner_diameter / 2) * segment_length * 
+                           * math.pi * (segment_inner_diameter / 2) * segment_length * 
                            contact_time / segment_diffusion_path_length) / 
                            self.assessment_factor_groundwater)
         # or
@@ -910,14 +910,14 @@ class Pipe:
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
         concentration_groundwater = self.pipe_permeability_dict['concentration_groundwater']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
-        inner_diameter = self.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
+        segment_inner_diameter = self.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
         permeation_coefficient = self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
         flow_rate = self.flow_rate
 
         # From equation 4-10 KWR 2016.056
         concentration_drinkwater = ((permeation_coefficient * 2 * 
                                      concentration_groundwater * stagnation_time) / 
-                            (segment_diffusion_path_length * (inner_diameter / 2)))
+                            (segment_diffusion_path_length * (segment_inner_diameter / 2)))
         
         # Confirm with @MartinvdS hwo to the assessment factor and stagnation factor @ah_todo
         stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
