@@ -953,17 +953,21 @@ class Pipe:
         '''
         sum_mass_segment = 0
 
-        # ah_todo add check for flow rate here
+        # Check if the flow rate has been set, if not raise error
+        if self._flow_rate_set is False: 
+            raise ValueError('Error, the flow rate in the pipe has not been set. \
+            To set flow rate use .set_flow_rate()')
+        else: 
 
-        for pipe_segment in self.pipe_dictionary['segment_list']:
-            self._calculate_mean_dw_concentration_per_segment(pipe_segment=pipe_segment,
-                                    )
-            sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
-        
-        concentration_pipe_drinking_water = (sum_mass_segment / 
-                                             self.pipe_dictionary['total_volume'])
-        
-        self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
+            for pipe_segment in self.pipe_dictionary['segment_list']:
+                self._calculate_mean_dw_concentration_per_segment(pipe_segment=pipe_segment,
+                                        )
+                sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
+            
+            concentration_pipe_drinking_water = (sum_mass_segment / 
+                                                self.pipe_dictionary['total_volume'])
+            
+            self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
     def _calculate_peak_dw_concentration_per_segment(self, 
                                          pipe_segment=None,
@@ -1028,18 +1032,23 @@ class Pipe:
 
         '''
         sum_mass_segment = 0
-        # ah_todo add check for flow rate here
+        
+        # Check if the flow rate has been set, if not raise error
+        if self._flow_rate_set is False: 
+            raise ValueError('Error, the flow rate in the pipe has not been set. \
+            To set flow rate use .set_flow_rate()')
+        else: 
 
-        for pipe_segment in self.pipe_dictionary['segment_list']:
-            self._calculate_peak_dw_concentration_per_segment(pipe_segment=pipe_segment,
-                                    stagnation_time_hours = stagnation_time_hours,  
-                                    )
-            sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
-        
-        concentration_pipe_drinking_water = (sum_mass_segment / 
-                                             self.pipe_dictionary['total_volume'])
-        
-        self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
+            for pipe_segment in self.pipe_dictionary['segment_list']:
+                self._calculate_peak_dw_concentration_per_segment(pipe_segment=pipe_segment,
+                                        stagnation_time_hours = stagnation_time_hours,  
+                                        )
+                sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
+            
+            concentration_pipe_drinking_water = (sum_mass_segment / 
+                                                self.pipe_dictionary['total_volume'])
+            
+            self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
 
     # AH_todo FUNCTIONS COMPLETE UNTIL HERE

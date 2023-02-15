@@ -79,7 +79,7 @@ pipe1.add_segment(name='seg1',
 #                 diffusion_path_length=0.001
 #                 )
 
-pipe1.set_flow_rate(flow_rate=0.5)
+# pipe1.set_flow_rate(flow_rate=0.5)
 
 pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8,)
 concentration_drinkwater = pipe1.pipe_permeability_dict['peak_concentration_pipe_drinking_water']
