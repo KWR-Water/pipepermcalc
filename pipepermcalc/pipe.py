@@ -2,7 +2,7 @@
 # A. Hockin, January 2023
 # KWR 403230-003
 # Pipe permeation calculator
-# With Martin vd Schans, Bram
+# With Martin vd Schans, Bram Hillebrand, Lennart Brokx
 #
 # ------------------------------------------------------------------------------
 
@@ -953,6 +953,8 @@ class Pipe:
         '''
         sum_mass_segment = 0
 
+        # ah_todo add check for flow rate here
+
         for pipe_segment in self.pipe_dictionary['segment_list']:
             self._calculate_mean_dw_concentration_per_segment(pipe_segment=pipe_segment,
                                     )
@@ -1026,6 +1028,7 @@ class Pipe:
 
         '''
         sum_mass_segment = 0
+        # ah_todo add check for flow rate here
 
         for pipe_segment in self.pipe_dictionary['segment_list']:
             self._calculate_peak_dw_concentration_per_segment(pipe_segment=pipe_segment,
@@ -1054,7 +1057,7 @@ class Pipe:
         
         '''
         #@MartinvdS, need to adjust this to account for mutliple segments, 
-        # right now it doesn't do what its supposed to...
+        # right now I don't think it doesn't do what its supposed to...
 
         for pipe_segment in self.pipe_dictionary['segment_list']:
             self._calculate_mean_allowable_gw_concentration_per_segment(pipe_segment=pipe_segment,)
@@ -1081,7 +1084,7 @@ class Pipe:
 
         '''
         #@MartinvdS, need to adjust this to account for mutliple segments, 
-        # right now it doesn't do what its supposed to...
+        # right now I don't think it doesn't do what its supposed to...
 
         for pipe_segment in self.pipe_dictionary['segment_list']:
             self._calculate_peak_allowable_gw_concentration_per_segment(pipe_segment=pipe_segment,

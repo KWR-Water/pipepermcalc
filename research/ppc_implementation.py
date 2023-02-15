@@ -49,12 +49,13 @@ test12 = test_peak_soil_concentration()
 test13 = test_mean_soil_concentration()
 test14 = test_updating_partitioning_coefficient()
 test15 = test_updating_diffusion_coefficient()
-
+test16 = test_calculate_peak_dw_concentration()
+test17 = test_calculate_mean_dw_concentration()
 #%%
 pipe1 = Pipe()
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
                                  temperature_groundwater=12, 
-                                 concentration_groundwater = 1.8)
+                                 concentration_groundwater = 0.112980124482)
 pipe1.add_segment(name='seg1',
                 material='PE40',
                 length=25,
@@ -80,17 +81,25 @@ pipe1.add_segment(name='seg1',
 
 pipe1.set_flow_rate(flow_rate=0.5)
 
-# pipe1.calculate_peak_allowable_gw_concentration(stagnation_time_hours = 8)
-# pipe1.pipe_permeability_dict['segments']['seg1']['stagnation_factor']
-
-#%%
 pipe1.calculate_peak_dw_concentration(stagnation_time_hours = 8,)
 concentration_drinkwater = pipe1.pipe_permeability_dict['peak_concentration_pipe_drinking_water']
-pipe1.pipe_permeability_dict['segments']['seg1']['stagnation_factor']
+concentration_drinkwater
 #%%
+pipe1 = Pipe()
+pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+pipe1.add_segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
+pipe1.set_flow_rate(flow_rate=0.5)
+
 pipe1.calculate_mean_dw_concentration()
 concentration_drinkwater = pipe1.pipe_permeability_dict['mean_concentration_pipe_drinking_water']
-pipe1.pipe_permeability_dict['segments']['seg1']['stagnation_factor']
+concentration_drinkwater
 
 # round(concentration_drinkwater, 6)
 #%% 
