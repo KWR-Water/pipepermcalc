@@ -34,7 +34,7 @@ class Pipe:
 
     Attributes
     -------
-    segment_list: LIST,
+    segment_list: list
         list of the names of the different pipe sements
 
     count: integer
@@ -52,30 +52,30 @@ class Pipe:
         Coefficient for correcting the diffusion coefficient for temperature. 
         From regression analysis, a is the slope, see table 5-6 in 
         KWR 2016.056. Constant equal to 61.8565740136974. 
-    diffusion_b_dh: float,
+    diffusion_b_dh: float
         Coefficient for correcting the diffusion coefficient for temperature. 
         From regression analysis, b is the intercept, see table 5-6 in 
         KWR 2016.056. Constant equal to -78.9191401984509. 
-    assessment_factor_groundwater: integer, 
+    assessment_factor_groundwater: integer 
         Factor used to correct calculations for observations in actual pipe 
         permeation. Permeation of PE house connections in groundwater = 3, 
         other pipe materials = 1. See section 7.2 in KWR 2016.056
-    assessment_factor_soil: integer,
+    assessment_factor_soil: integer
         Factor used to correct calculations for observations in actual pipe 
         permeation. All pipe materials = 1.
-    partitioning_a_c: float,
+    partitioning_a_c: float
         Constant used in the correction for the partitioning coefficent due to 
         the influence of temperature. See equation 5-20 in KWR 2016.056, for 
         partitioning a_c = 0.103965019849463.
-    partitioning_Cref_Sw: float,
+    partitioning_Cref_Sw: float
         Reference concentration used in the correction for the partitioning 
         coefficent due to the influence of temperature. Ssee section 5.4.7 in 
         KWR 2016.056. For partitioning, Cref_SW = 1.0.
-    diffusion_a_c: float,
+    diffusion_a_c: float
         Constant used in the correction for the diffusion coefficent due to 
         the influence of temperature. See equation 5-18 in KWR 2016.056, for 
         diffusion a_c = 0.784077209735583.
-    diffusion_Cref_Sw: float,
+    diffusion_Cref_Sw: float
         Reference concentration used in the correction for the diffusion 
         coefficent due to the influence of temperature. Ssee section 5.4.6 in 
         KWR 2016.056. For partitioning, Cref_SW = 0.5.
@@ -91,17 +91,17 @@ class Pipe:
         Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE
 
     pipe_dictionary: dictionary
-        number_segments: float,
+        number_segments: float
             total number of pipe segments
-        segment_list: list,
+        segment_list: list
             list of the names of the different pipe sements
-        total_length: float,
+        total_length: float
             sum of the lengths of the pipe segments
-        total_volume: float,
+        total_volume: float
             sum of the volumes of the pipe segments
         total_outer_surface_area: float,
             sum of the surface area of the pipe segments
-        flow_rate: float,
+        flow_rate: float
             flow rate in the pipe, m3/day 
         segments: dictionary
             dictionary of the individual pipe segments, containing the 
@@ -109,90 +109,90 @@ class Pipe:
             volume (m3) and surface area (m2)
     
     pipe_permeability_dict: dictionary
-        CAS_number: string,
+        CAS_number: string
             CAS is a unique identification number assigned by the Chemical 
             Abstracts Service (CAS)
-        chemical_name_NL: string,
+        chemical_name_NL: string
             Name of the chemical given in Dutch
-        chemical_name: string,
+        chemical_name: string
             @Bram to be replaced by the function restricting input of names
-        molecular_weight: float,
+        molecular_weight: float
             Mass of one mole of a given chemical, g/mol
-        solubility:	float,
+        solubility:	float
             solubility of given chemical in water, g/m3
         log_octanol_water_partitioning_coefficient:	float,
             Partition coefficient for the two-phase system consisting of 
             n-octanol and water, Log Kow, [-]
-        log_distribution_coefficient: float,
+        log_distribution_coefficient: float
             Ratio of the amount of chemical  adsorbed onto soil per amount 
             of water, m3/g
-        chemical_group: string,
+        chemical_group: string
             Grouping of chemicals (expert opinion) with similar properties
             for permeation: Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk, 
             Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE. See KWR 2016.056
-        chemical_group_number: integer,
+        chemical_group_number: integer
             Integer corresponding to the chemical group 
-        molecular_volume: float,
+        molecular_volume: float
             Volume occupied by one mole of the substance at a given 
             temperature and pressure, cm3/mol
-        Drinking_water_norm: float,
+        Drinking_water_norm: float
             Concentration allowable in the Dutch Drinking water decree, ug/L
-        concentration_groundwater: float,
+        concentration_groundwater: float
             Concentration of the given chemical in groundwater, g/m3
-        temperature_groundwater: float,
+        temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
-        log_Kpw_ref: float,
+        log_Kpw_ref: float
             partitioning coefiicient under lab conditions, [-]
-        f_Ktemp: float,
+        f_Ktemp: float
             Temperature correction factor for partitioning coefficient, [-]
-        f_Kconc: float,
+        f_Kconc: float
             Concentration correction factor for partitioning coefficient, [-]
-        log_Kpw: float,
+        log_Kpw: float
             Calculated log partitioning coefficient for the given chemical and pipe material, [-]
-        log_Dp_ref: float,
+        log_Dp_ref: float
             Diffusion coefficient under lab conditions, m2/s
-        f_Dtemp:float,
+        f_Dtemp:float
             Temperature correction factor for diffusion coefficient, [-]
-        f_Dconc: float,
+        f_Dconc: float
             Concentration correction factor for diffusion coefficient, [-]
-        log_Dp: float,
+        log_Dp: float
             Calculated log diffusion coefficient for the given chemical and pipe material, [-]
-        permeation_coefficient: float,
+        permeation_coefficient: float
             Calculated permeation coefficient for plastic-water, m2/day
-        stagnation_time_hours:float,
+        stagnation_time_hours:float
             Time in hours which water in pipe is stagnant, hours.
-        flux_max_stagnation: float,
+        flux_max_stagnation: float
             Maximum flux during stagnation period to remain below the drinking 
             water standard, mg/day
-        flux_max_stagnation_per_m2: float,
+        flux_max_stagnation_per_m2: float
             Maximum flux per square meter (surface area) of pipe during 
             stagnation period to remain below the drinking water standard, g/day
-        flux_max_per_day: float,
+        flux_max_per_day: float
             Maximum flux in a day (24 hours) to remain below the drinking 
             water standard, g/day
-        flux_max_per_day_per_m2: float,
+        flux_max_per_day_per_m2: float
             Maximum flux per square meter (surface area) of pipe in one day 
             (24 hours) to remain below the drinking water standard, g/day        
-        stagnation_factor: float,
+        stagnation_factor: float
             Correction for the decrease in the concentratino gradient near the 
             inner wall of the pipe during stagnation (e.g. no flow at at night)
-        concentration_peak_without_stagnation: float,
+        concentration_peak_without_stagnation: float
             Concentration in groundwater which, wihtout a stagnation period, 
             would not result in a peak concentration in drinking water exceeding 
             the drinking water norm, g/m3
-        concentration_peak_after_stagnation: float, 
+        concentration_peak_after_stagnation: float
             Concentration in groundwater which, after a stagnation period, 
             would not result in a peak concentration in drinking water exceeding 
             the drinking water norm, g/m3
-        concentration_peak_soil: float,
+        concentration_peak_soil: float
             Concentration in soil which, after a stagnation period, 
             would not result in a peak concentration in drinking water exceeding 
             the drinking water norm, mg/kg
-        concentration_mean: float,
+        concentration_mean: float
             Mean concentration in groundwater which would would not result in 
             a mean daily (24 horus) concentration in drinking water exceeding 
             the drinking water norm, g/m3
-        concentration_mean_soil: float,      
+        concentration_mean_soil: float     
             Mean concentration in soil which would would not result in 
             a mean daily (24 horus) concentration in drinking water exceeding 
             the drinking water norm, mg/kg
@@ -326,11 +326,11 @@ class Pipe:
         
         Parameters
         ----------
-        chemical_name: string, 
+        chemical_name: string
             @Bram to be replaced by the function restricting input of names
-        concentration_groundwater: float,
+        concentration_groundwater: float
             Concentration of the given chemical in groundwater, g/m3
-        temperature_groundwater: float,
+        temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
         '''
         
@@ -393,7 +393,7 @@ class Pipe:
         ----------
         pipe_permeability_dict: dictionary
             Dictionary of permeability coefficients
-        temperature_groundwater: float,
+        temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
         coefficient_name: string
             Either 'solubility' or 'molecular_weight'
@@ -800,7 +800,7 @@ class Pipe:
         ----------
         stagnation_time_hours: float
             time in hours, default 8 hours
-        pipe_segment: string,
+        pipe_segment: string
             Name of the pipe segment for which the concentrations are calculated
         '''
 
@@ -853,7 +853,7 @@ class Pipe:
         
         Parameters
         ----------
-        pipe_segment: string,
+        pipe_segment: string
             Name of the pipe segment for which the concentrations are calculated
         '''
         # Check if the flow rate has been set, if not raise error
@@ -938,7 +938,7 @@ class Pipe:
         self.pipe_permeability_dict['segments'][pipe_segment]['contact_time'] = contact_time
         self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
 
-    def calculate_mean_dw_concentration(self, ): #ah_todo write test functions for these
+    def calculate_mean_dw_concentration(self, ):
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
         given a stagnation period given a groundwater concentration.
@@ -1018,7 +1018,6 @@ class Pipe:
 
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, ):
-        #ah_todo write test functions for these
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
         given a stagnation period given a groundwater concentration.
@@ -1088,7 +1087,7 @@ class Pipe:
         ----------
         stagnation_time_hours: float
             time in hours, default 8 hours
-        pipe_segment: string,
+        pipe_segment: string
             Name of the pipe segment for which the concentrations are calculated
 
         '''
