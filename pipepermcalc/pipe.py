@@ -222,7 +222,7 @@ class Pipe:
         self.diffusion_Cref_Sw = 0.5 #see section 5.4.6 in KWR 2016.056
 
        
-    # @ah_todo revert back to csv, seperate file @Bram will think about this
+    # @ah_todo revert back to csv? seperate file? @Bram will think about this
     reference_pipe_material_dict = \
         {
         "PE40": {
@@ -938,7 +938,7 @@ class Pipe:
         self.pipe_permeability_dict['segments'][pipe_segment]['contact_time'] = contact_time
         self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
 
-    def calculate_mean_dw_concentration(self, ):
+    def calculate_mean_dw_concentration(self, ): #ah_todo write test functions for these
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
         given a stagnation period given a groundwater concentration.
@@ -995,7 +995,7 @@ class Pipe:
         concentration_drinkwater = ((permeation_coefficient * 2 * concentration_groundwater * stagnation_time) / 
                             (segment_diffusion_path_length * (inner_diameter / 2)))
         
-        # Add the assessment factor and stagnation factor here @ah_todo
+        # Confirm with @MartinvdS hwo to the assessment factor and stagnation factor @ah_todo
         stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
         assessment_factor = self.assessment_factor_groundwater
 
@@ -1012,6 +1012,7 @@ class Pipe:
 
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, ):
+        #ah_todo write test functions for these
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
         given a stagnation period given a groundwater concentration.
@@ -1024,8 +1025,6 @@ class Pipe:
             time in hours, default 8 hours
 
         '''
-        stagnation_time = stagnation_time_hours / 24 # days
-
         sum_mass_segment = 0
 
         for pipe_segment in self.pipe_dictionary['segment_list']:
