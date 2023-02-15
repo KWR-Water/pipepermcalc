@@ -59,12 +59,12 @@ pipe1 = Pipe()
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
-# pipe1.add_segment(name='seg1',
-#                 material='PE40',
-#                 length=25,
-#                 inner_diameter=0.0196,
-#                 thickness=0.0027,
-#                 )
+pipe1.add_segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
 
 # pipe1.add_segment(name='seg2',
 #                 material='PE40',
@@ -80,27 +80,65 @@ pipe1.set_groundwater_conditions(chemical_name="Benzene",
 #                 thickness=0.0010,
 #                 diffusion_path_length=0.001
 #                 )
-
-pipe1.add_segment(name='seg1',
-                material='PE40',
-                length=33.3/1000,
-                inner_diameter=25/1000,
-                thickness=2.7/1000,
-                permeation_direction='perpendicular',
-                # diffusion_path_length=10/1000
-                )
-
-pipe1.pipe_dictionary['segments']['seg1']['permeation_surface_area']
-
-#%%
-
-#%%
-
 pipe1.set_flow_rate(flow_rate=0.5)
 
 pipe1.calculate_mean_dw_concentration()
 pipe1.pipe_permeability_dict
 
+#%%
+
+#%%
+pipe1 = Pipe()
+pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                 temperature_groundwater=12, 
+                                 concentration_groundwater = 1.8)
+pipe1.add_segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
+
+pipe1.set_flow_rate(flow_rate=0.5)
+
+# pipe1.calculate_mean_dw_concentration()
+pipe1.pipe_permeability_dict
+pipe_segment = 'seg1'
+
+segment_length = pipe1.pipe_dictionary['segments'][pipe_segment]['length']
+# segment_surface_area = pipe1.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
+segment_surface_area = pipe1.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
+segment_volume = pipe1.pipe_dictionary['segments'][pipe_segment]['volume']
+
+segment_diffusion_path_length = pipe1.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
+concentration_groundwater = pipe1.pipe_permeability_dict['concentration_groundwater']
+segment_diffusion_path_length = pipe1.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
+segment_inner_diameter = pipe1.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
+permeation_coefficient = pipe1.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
+flow_rate = pipe1.flow_rate
+
+#Excel
+concentration_drinkwater_excel = (concentration_groundwater * (segment_surface_area * permeation_coefficient) / 
+                                    ((flow_rate * segment_diffusion_path_length * pipe1.assessment_factor_groundwater) + segment_surface_area * permeation_coefficient ))
+mass_drinkwater_excel = concentration_drinkwater_excel * segment_volume
+mass_flux_excel = (concentration_drinkwater_excel * flow_rate) / segment_surface_area
+mass_drinkwater_excel
+
+#Report
+concentration_drinkwater = 0.001
+contact_time = (math.pi * (segment_inner_diameter / 2) ** 2 * segment_length) / flow_rate
+contact_time2 = (segment_volume) / flow_rate
+mass_flux = permeation_coefficient * (concentration_groundwater - concentration_drinkwater) / (segment_diffusion_path_length * pipe1.assessment_factor_groundwater)
+
+mass_drinkwater_report = mass_flux * segment_surface_area * contact_time2
+mass_drinkwater_excel/mass_drinkwater_report
+
+# #calculation rearranged
+mass_drinkwater_calc = (concentration_groundwater * segment_volume * segment_surface_area * permeation_coefficient) / (segment_diffusion_path_length * pipe1.assessment_factor_groundwater * flow_rate + permeation_coefficient * segment_surface_area)
+mass_drinkwater_calc
+concentration_drinkwater_calc = mass_drinkwater_calc / segment_volume
+concentration_drinkwater_calc
+# mass_flux, mass_flux_excel #Mass fluxes ok.
 #%%
 
 def objective_function(x, 
