@@ -53,17 +53,18 @@ test15 = test_updating_diffusion_coefficient()
 test16 = test_calculate_peak_dw_concentration()
 test17 = test_calculate_mean_dw_concentration()
 test18 = test_mean_gw_concentration()
+test19 = test_segment_surface_area_calculations()
 #%%
 pipe1 = Pipe()
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
-pipe1.add_segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                thickness=0.0027,
-                )
+# pipe1.add_segment(name='seg1',
+#                 material='PE40',
+#                 length=25,
+#                 inner_diameter=0.0196,
+#                 thickness=0.0027,
+#                 )
 
 # pipe1.add_segment(name='seg2',
 #                 material='PE40',
@@ -79,6 +80,21 @@ pipe1.add_segment(name='seg1',
 #                 thickness=0.0010,
 #                 diffusion_path_length=0.001
 #                 )
+
+pipe1.add_segment(name='seg1',
+                material='PE40',
+                length=33.3/1000,
+                inner_diameter=25/1000,
+                thickness=2.7/1000,
+                permeation_direction='perpendicular',
+                # diffusion_path_length=10/1000
+                )
+
+pipe1.pipe_dictionary['segments']['seg1']['permeation_surface_area']
+
+#%%
+
+#%%
 
 pipe1.set_flow_rate(flow_rate=0.5)
 

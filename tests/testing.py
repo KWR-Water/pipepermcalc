@@ -427,4 +427,45 @@ def test_calculate_mean_dw_concentration():
                                ref_answer = 0.001, 
                                round_values=5)
 
+def test_segment_surface_area_calculations():
+    ''' Test the calculation for the different surface area options '''
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    pipe1.add_segment(name='seg1',
+                material='PE40',
+                length=7.5/1000,
+                inner_diameter=30.3/1000,
+                thickness=1.5/1000,
+                permeation_direction='parallel',
+                diffusion_path_length=7.5/1000,)
+    
+    raise_exception_two_values(answer=pipe1.pipe_dictionary['segments']['seg1']['permeation_surface_area'], 
+                               ref_answer = 0.000073159839, 
+                               round_values=12)
+    
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=1/1000,
+                    inner_diameter=28.5/1000,
+                    thickness=10/1000,
+                    permeation_direction='perpendicular',
+                    diffusion_path_length=10/1000
+                    )
+    
+    raise_exception_two_values(answer=pipe1.pipe_dictionary['segments']['seg1']['permeation_surface_area'], 
+                               ref_answer = 0.000089535391, 
+                               round_values=12)
+
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=33.3/1000,
+                    inner_diameter=25/1000,
+                    thickness=2.7/1000,
+                    permeation_direction='perpendicular',)
+    
+    raise_exception_two_values(answer=pipe1.pipe_dictionary['segments']['seg1']['permeation_surface_area'], 
+                               ref_answer = 0.002615375884, 
+                               round_values=12)
 
