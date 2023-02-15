@@ -802,7 +802,7 @@ class Pipe:
         return stagnation_factor
     
 
-    def _calculate_mean_dw_concentration_per_segment(self, 
+    def _calculate_mean_dw_mass_per_segment(self, 
                                          pipe_segment=None,
                                         ):
         '''
@@ -859,7 +859,7 @@ class Pipe:
         else: 
 
             for pipe_segment in self.pipe_dictionary['segment_list']:
-                self._calculate_mean_dw_concentration_per_segment(pipe_segment=pipe_segment,
+                self._calculate_mean_dw_mass_per_segment(pipe_segment=pipe_segment,
                                         )
                 sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
             
@@ -868,7 +868,7 @@ class Pipe:
             
             self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
-    def _calculate_peak_dw_concentration_per_segment(self, 
+    def _calculate_peak_dw_mass_per_segment(self, 
                                          pipe_segment=None,
                                         stagnation_time_hours = 8, ):
         '''
@@ -931,7 +931,7 @@ class Pipe:
         else: 
 
             for pipe_segment in self.pipe_dictionary['segment_list']:
-                self._calculate_peak_dw_concentration_per_segment(pipe_segment=pipe_segment,
+                self._calculate_peak_dw_mass_per_segment(pipe_segment=pipe_segment,
                                         stagnation_time_hours = stagnation_time_hours,  
                                         )
                 sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
