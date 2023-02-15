@@ -245,7 +245,7 @@ def test_peak_without_stagnation():
 
     pipe1.calculate_peak_allowable_gw_concentration(stagnation_time_hours = 8, )
 
-    raise_exception_two_values(answer=pipe1.pipe_permeability_dict['segments']['seg1']['concentration_peak_without_stagnation'], 
+    raise_exception_two_values(answer=pipe1.pipe_permeability_dict['segments']['seg1']['concentration_gw_peak_without_stagnation'], 
                                ref_answer = 0.081403, 
                                round_values=6)
 
@@ -267,7 +267,7 @@ def test_peak_with_stagnation():
                     )
 
     pipe1.calculate_peak_allowable_gw_concentration(stagnation_time_hours = 8,)
-    raise_exception_two_values(answer=pipe1.pipe_permeability_dict['segments']['seg1']['concentration_peak_after_stagnation'], 
+    raise_exception_two_values(answer=pipe1.pipe_permeability_dict['segments']['seg1']['concentration_gw_peak_after_stagnation'], 
                                ref_answer = 0.112980, 
                                round_values=6)
 
@@ -294,6 +294,27 @@ def test_peak_soil_concentration():
                                ref_answer =  0.171964 , 
                                round_values=6)
 
+def test_mean_gw_concentration():
+    '''test the calculatiion of the mean gw concentration'''
+
+    pipe1 = Pipe()
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8)
+    
+    pipe1.set_flow_rate(flow_rate=0.5)
+
+    pipe1.add_segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    inner_diameter=0.0196,
+                    thickness=0.0027,
+                    )
+
+    pipe1.calculate_mean_allowable_gw_concentration()
+    raise_exception_two_values(answer=pipe1.pipe_permeability_dict['segments']['seg1']['concentration_gw_mean'], 
+                               ref_answer = 1.7996603, 
+                               round_values=5)
 
 def test_mean_soil_concentration():
     '''test the calculatiion of the mean soil concentration'''

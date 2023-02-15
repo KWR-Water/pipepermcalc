@@ -39,6 +39,11 @@ class Pipe:
 
     count: integer
         Count of the number of segments created for the pipe
+    
+    #ah_todo add a direction variable to the add_segment() functions, 
+        default: perpendicular
+        otherwise parallel -> then there is a different SA calculation and V =0
+        add a schematic to the read the docs
 
     partitioning_a_dh: float
         Coefficient for correcting the partitioning coefficient for temperature. 
@@ -176,11 +181,11 @@ class Pipe:
         stagnation_factor: float
             Correction for the decrease in the concentratino gradient near the 
             inner wall of the pipe during stagnation (e.g. no flow at at night)
-        concentration_peak_without_stagnation: float
+        concentration_gw_peak_without_stagnation: float
             Concentration in groundwater which, wihtout a stagnation period, 
             would not result in a peak concentration in drinking water exceeding 
             the drinking water norm, g/m3
-        concentration_peak_after_stagnation: float
+        concentration_gw_peak_after_stagnation: float
             Concentration in groundwater which, after a stagnation period, 
             would not result in a peak concentration in drinking water exceeding 
             the drinking water norm, g/m3
@@ -188,7 +193,7 @@ class Pipe:
             Concentration in soil which, after a stagnation period, 
             would not result in a peak concentration in drinking water exceeding 
             the drinking water norm, mg/kg
-        concentration_mean: float
+        concentration_gw_mean:float
             Mean concentration in groundwater which would would not result in 
             a mean daily (24 horus) concentration in drinking water exceeding 
             the drinking water norm, g/m3
@@ -817,28 +822,28 @@ class Pipe:
         
         stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
 
-        concentration_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
+        concentration_gw_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
                                     segment_diffusion_path_length / 
                                     self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] 
                                     * self.assessment_factor_groundwater)
 
 
-        concentration_peak_after_stagnation = stagnation_factor * concentration_peak_without_stagnation
+        concentration_gw_peak_after_stagnation = stagnation_factor * concentration_gw_peak_without_stagnation
 
         #Risk limit value soil, first check if a distribution coefficient is known
         if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
             concentration_peak_soil = 'log_distribution_coefficient (Kd) unknown'
         else:
             concentration_peak_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
-                                        concentration_peak_after_stagnation * 
+                                        concentration_gw_peak_after_stagnation * 
                                         self.assessment_factor_soil / self.assessment_factor_groundwater)
 
         self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_time_hours'] = stagnation_time_hours
         self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation'] = flux_max_stagnation
         self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation_per_m2'] = flux_max_stagnation_per_m2
         self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
-        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_without_stagnation'] = concentration_peak_without_stagnation
-        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_after_stagnation'] = concentration_peak_after_stagnation
+        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_without_stagnation'] = concentration_gw_peak_without_stagnation
+        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_after_stagnation'] = concentration_gw_peak_after_stagnation
         self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_soil'] = concentration_peak_soil
 
     def _calculate_mean_allowable_gw_concentration_per_segment(self, 
@@ -870,7 +875,7 @@ class Pipe:
             flux_max_per_day = drinking_water_norm / 1000 * self.flow_rate
             flux_max_per_day_per_m2 = flux_max_per_day / segment_inner_surface_area
 
-            concentration_mean = (flux_max_per_day_per_m2 * segment_diffusion_path_length / 
+            concentration_gw_mean= (flux_max_per_day_per_m2 * segment_diffusion_path_length / 
                                         self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] * 
                                         self.assessment_factor_groundwater + drinking_water_norm / 1000)
             
@@ -879,12 +884,12 @@ class Pipe:
                 concentration_mean_soil = 'log_distribution_coefficient (Kd) unknown'
             else:
                 concentration_mean_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
-                                            concentration_mean * 
+                                            concentration_gw_mean* 
                                             self.assessment_factor_soil / self.assessment_factor_groundwater)
 
             self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day'] = flux_max_per_day
             self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
-            self.pipe_permeability_dict['segments'][pipe_segment]['concentration_mean'] = concentration_mean
+            self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_mean'] = concentration_gw_mean
             self.pipe_permeability_dict['segments'][pipe_segment]['concentration_mean_soil'] = concentration_mean_soil
 
     def _calculate_mean_dw_concentration_per_segment(self, 
@@ -920,9 +925,10 @@ class Pipe:
         #                    math.pi * (inner_diameter / 2) * segment_length) / 
         #                     (segment_diffusion_path_length * flow_rate))
 
-        concentration_drinkwater = ((permeation_coefficient *  concentration_groundwater * 
-                           segment_surface_area) / 
-                            (segment_diffusion_path_length * flow_rate * self.assessment_factor_groundwater ))
+        # ah_todo clean this function up
+        # concentration_drinkwater = ((permeation_coefficient *  concentration_groundwater * 
+        #                    segment_surface_area) / 
+        #                     (segment_diffusion_path_length * flow_rate * self.assessment_factor_groundwater ))
 
 
         #From equation 4-7 in KWR 2016.056
@@ -932,9 +938,9 @@ class Pipe:
                            contact_time / segment_diffusion_path_length) / 
                            self.assessment_factor_groundwater)
         # or
-        mass_drinkwater = concentration_drinkwater * segment_volume
+        # mass_drinkwater = concentration_drinkwater * segment_volume
 
-        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_drinkwater'] = concentration_drinkwater
+        # self.pipe_permeability_dict['segments'][pipe_segment]['concentration_drinkwater'] = concentration_drinkwater
         self.pipe_permeability_dict['segments'][pipe_segment]['contact_time'] = contact_time
         self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
 
@@ -998,7 +1004,8 @@ class Pipe:
         flow_rate = self.flow_rate
 
         # From equation 4-10 KWR 2016.056
-        concentration_drinkwater = ((permeation_coefficient * 2 * concentration_groundwater * stagnation_time) / 
+        concentration_drinkwater = ((permeation_coefficient * 2 * 
+                                     concentration_groundwater * stagnation_time) / 
                             (segment_diffusion_path_length * (inner_diameter / 2)))
         
         # Confirm with @MartinvdS hwo to the assessment factor and stagnation factor @ah_todo

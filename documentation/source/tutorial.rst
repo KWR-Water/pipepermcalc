@@ -95,7 +95,7 @@ To view the peak drinking water concentration after the stagnation period:
 
 .. ipython:: python
 
-    pipe1.pipe_permeability_dict['concentration_peak_after_stagnation']
+    pipe1.pipe_permeability_dict['concentration_gw_peak_after_stagnation']
 
 .. @ah_todo add as example to read the docs in advanced user tutorial to manually 
 .. pipe1._update_partitioning_coefficient(new_log_Kpw= 0.9116730996845103, 
