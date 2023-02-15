@@ -40,11 +40,6 @@ class Pipe:
     count: integer
         Count of the number of segments created for the pipe
     
-    #ah_todo add a direction variable to the add_segment() functions, 
-        default: perpendicular
-        otherwise parallel -> then there is a different SA calculation and V =0
-        add a schematic to the read the docs
-
     partitioning_a_dh: float
         Coefficient for correcting the partitioning coefficient for temperature. 
         From regression analysis, a is the slope, see table 5-6 in 
@@ -670,12 +665,6 @@ class Pipe:
             Length of pipe segment, meters 
         inner_diameter: float
             Inner diameter of pipe segment, meters
-            
-            @Martin, why in excel is the thickness of the material (column H, 
-            sheet "dimensies...") the thickness of "both" sides of the material (2 * thickness)
-            Also why is the inner diameter used to calculate the dienstkraan 
-            and koppelstuk, shouldn't it be the outer diameter?
-
         thickness: float
             Thickness of pipe segment, meters
         permeation_direction: string
@@ -705,7 +694,6 @@ class Pipe:
         if permeation_direction == 'parallel':
             volume = 0 
             # outer_surface_area = None #not applicable to this type of permeation
-            # inner_surface_area = (math.pi * ((inner_diameter + thickness) ** 2 - inner_diameter ** 2) * length)
             permeation_surface_area = (math.pi * ((inner_diameter + thickness) ** 2 - inner_diameter ** 2) )/4
         elif permeation_direction == 'perpendicular':
             volume = math.pi * (inner_diameter / 2) ** 2 * length
@@ -890,7 +878,6 @@ class Pipe:
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
         concentration_groundwater = self.pipe_permeability_dict['concentration_groundwater']
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
-        segment_inner_diameter = self.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
         permeation_coefficient = self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
         stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
 
@@ -967,7 +954,6 @@ class Pipe:
         drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
         stagnation_time = stagnation_time_hours / 24 # days
         segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
-        # segment_inner_surface_area = self.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
         segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
 
         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
@@ -1024,8 +1010,6 @@ class Pipe:
                              To set flow rate use .set_flow_rate()')
         else: 
             drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
-            segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
-            # segment_inner_surface_area = self.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
             segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
 
             segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
@@ -1061,7 +1045,7 @@ class Pipe:
         a given chemical, no soil concentration is calculated.
         
         '''
-        #@MartinvdS, need to adjust this to account for mutliple segments, 
+        #@MartinvdS, ah_todo, need to adjust this to account for mutliple segments, 
         # right now I don't think it doesn't do what its supposed to...
 
         for pipe_segment in self.pipe_dictionary['segment_list']:
@@ -1088,7 +1072,7 @@ class Pipe:
             Name of the pipe segment for which the concentrations are calculated
 
         '''
-        #@MartinvdS, need to adjust this to account for mutliple segments, 
+        #@MartinvdS, ah_todo, need to adjust this to account for mutliple segments, 
         # right now I don't think it doesn't do what its supposed to...
 
         for pipe_segment in self.pipe_dictionary['segment_list']:

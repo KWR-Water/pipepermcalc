@@ -85,86 +85,7 @@ pipe1.set_flow_rate(flow_rate=0.5)
 pipe1.calculate_peak_dw_concentration()
 pipe1.pipe_permeability_dict
 
-#%%
 
-#%%
-pipe1 = Pipe()
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
-                                 temperature_groundwater=12, 
-                                 concentration_groundwater = 0.112980124482
-)
-pipe1.add_segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                thickness=0.0027,
-                )
-
-pipe1.set_flow_rate(flow_rate=0.5)
-
-# pipe1.calculate_mean_dw_concentration()
-pipe1.pipe_permeability_dict
-pipe_segment = 'seg1'
-
-segment_length = pipe1.pipe_dictionary['segments'][pipe_segment]['length']
-# segment_surface_area = pipe1.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
-segment_surface_area = pipe1.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
-segment_volume = pipe1.pipe_dictionary['segments'][pipe_segment]['volume']
-
-segment_diffusion_path_length = pipe1.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
-concentration_groundwater = pipe1.pipe_permeability_dict['concentration_groundwater']
-segment_diffusion_path_length = pipe1.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
-segment_inner_diameter = pipe1.pipe_dictionary['segments'][pipe_segment]['inner_diameter'] 
-permeation_coefficient = pipe1.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
-flow_rate = pipe1.flow_rate
-stagnation_time = 8 / 24
-
-stagnation_factor = pipe1._calculate_stagnation_factor(pipe_segment=pipe_segment)
-assessment_factor = pipe1.assessment_factor_groundwater
-
-concentration_drinkwater_excel = 0.001
-concentration_drinkwater = ((permeation_coefficient * 2 * 
-                                     (concentration_groundwater - concentration_drinkwater_excel) * stagnation_time) / 
-                            (segment_diffusion_path_length * (segment_inner_diameter / 2)))/ stagnation_factor / assessment_factor
-
-concentration_drinkwater = ((permeation_coefficient * (concentration_groundwater - concentration_drinkwater_excel) * segment_surface_area * stagnation_time) / 
-                            (segment_diffusion_path_length  * stagnation_factor * assessment_factor)) * (1 /  segment_volume)
-
-mass_drink_excel =  ((permeation_coefficient * (concentration_groundwater - concentration_drinkwater_excel) * segment_surface_area * stagnation_time) / 
-                            (segment_diffusion_path_length  * stagnation_factor * assessment_factor))
-
-# mass_drink_excel =  concentration_drinkwater * segment_volume
-mass_drink_excel
-#%%
-
-# calcl
-mass_drinkwater_calc =(( permeation_coefficient * segment_surface_area * stagnation_time * concentration_groundwater *  segment_volume) / ((segment_diffusion_path_length * pipe1.assessment_factor_groundwater * stagnation_factor * segment_volume) + (permeation_coefficient * segment_surface_area * stagnation_time) )  )
-# ((concentration_groundwater * permeation_coefficient * stagnation_time * segment_surface_area ) / segment_diffusion_path_length * stagnation_factor * assessment_factor )
-mass_drinkwater_calc
-# mass_drinkwater_calc / segment_volume
-#%%
-#Excel
-concentration_drinkwater_excel = (concentration_groundwater * (segment_surface_area * permeation_coefficient) / 
-                                    ((flow_rate * segment_diffusion_path_length * pipe1.assessment_factor_groundwater) + segment_surface_area * permeation_coefficient ))
-mass_drinkwater_excel = concentration_drinkwater_excel * segment_volume
-mass_flux_excel = (concentration_drinkwater_excel * flow_rate) / segment_surface_area
-mass_drinkwater_excel
-
-#Report
-concentration_drinkwater = 0.001
-contact_time = (math.pi * (segment_inner_diameter / 2) ** 2 * segment_length) / flow_rate
-contact_time2 = (segment_volume) / flow_rate
-mass_flux = permeation_coefficient * (concentration_groundwater - concentration_drinkwater) / (segment_diffusion_path_length * pipe1.assessment_factor_groundwater)
-
-mass_drinkwater_report = mass_flux * segment_surface_area * contact_time2
-mass_drinkwater_excel/mass_drinkwater_report
-
-# #calculation rearranged
-mass_drinkwater_calc = (concentration_groundwater * segment_volume * segment_surface_area * permeation_coefficient) / (segment_diffusion_path_length * pipe1.assessment_factor_groundwater * flow_rate + permeation_coefficient * segment_surface_area)
-mass_drinkwater_calc
-concentration_drinkwater_calc = mass_drinkwater_calc / segment_volume
-concentration_drinkwater_calc
-# mass_flux, mass_flux_excel #Mass fluxes ok.
 #%%
 
 def objective_function(x, 
@@ -172,85 +93,42 @@ def objective_function(x,
                         pipe_segment = 'seg1',
                         ):
     drinking_water_concentration = x
+    drinking_water_norm = pipe1.pipe_permeability_dict['Drinking_water_norm']
     stagnation_time = stagnation_time_hours / 24 # days
     segment_volume = pipe1.pipe_dictionary['segments'][pipe_segment]['volume']
-    segment_inner_surface_area = pipe1.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
-    segment_diffusion_path_length = pipe1.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
+    segment_surface_area = pipe1.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
 
-    flux_max_stagnation = ( drinking_water_concentration * segment_volume /
-                stagnation_time)
-    flux_max_stagnation_per_m2 = flux_max_stagnation / segment_inner_surface_area
+    segment_diffusion_path_length = pipe1.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
 
     stagnation_factor = pipe1._calculate_stagnation_factor(pipe_segment=pipe_segment)
 
-    concentration_gw_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
-                                segment_diffusion_path_length / 
-                                pipe1.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] 
-                                * pipe1.assessment_factor_groundwater)
+    return (stagnation_factor * (x  * segment_volume /
+                stagnation_time / segment_surface_area * 
+                            segment_diffusion_path_length / 
+                            pipe1.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] 
+                            * pipe1.assessment_factor_groundwater)) - x
 
 
-    concentration_gw_peak_after_stagnation = stagnation_factor * concentration_gw_peak_without_stagnation    
-    return concentration_gw_peak_after_stagnation
 
 # constraints = LinearConstraint(np.ones(n_buyers), lb=n_shares, ub=n_shares)
-res = minimize(objective_function, x0 = 6)  #bounds = constraints=constraints)
+bounds = [(0,1000)]
+res = minimize(objective_function, x0 = 10, bounds = bounds)  #bounds = constraints=constraints)
 # X is the initial value of the inputs to the objective function. 
 # The objective function is what we’re trying to minimize
 answer = res.x[0]
+
 answer
 
-#%%
-stagnation_time_hours = 8
-pipe_segment = 'seg1'
-drinking_water_norm = pipe1.pipe_permeability_dict['Drinking_water_norm']
-
-drinking_water_concentration = drinking_water_norm / 1000
-stagnation_time = stagnation_time_hours / 24 # days
-segment_volume = pipe1.pipe_dictionary['segments'][pipe_segment]['volume']
-segment_inner_surface_area = pipe1.pipe_dictionary['segments'][pipe_segment]['inner_surface_area']
-segment_diffusion_path_length = pipe1.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
-
-#Risk limit value groundwater
-flux_max_stagnation = ( drinking_water_concentration * segment_volume /
-                stagnation_time)
-flux_max_stagnation_per_m2 = flux_max_stagnation / segment_inner_surface_area
-
-stagnation_factor = pipe1._calculate_stagnation_factor(pipe_segment=pipe_segment)
-
-concentration_gw_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
-                            segment_diffusion_path_length / 
-                            pipe1.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] 
-                            * pipe1.assessment_factor_groundwater)
-
-
-concentration_gw_peak_after_stagnation = stagnation_factor * concentration_gw_peak_without_stagnation
-
-#Risk limit value soil, first check if a distribution coefficient is known
-if math.isnan(pipe1.pipe_permeability_dict['log_distribution_coefficient']):
-    concentration_peak_soil = 'log_distribution_coefficient (Kd) unknown'
-else:
-    concentration_peak_soil = (10 ** pipe1.pipe_permeability_dict['log_distribution_coefficient'] * 
-                                concentration_gw_peak_after_stagnation * 
-                                pipe1.assessment_factor_soil / pipe1.assessment_factor_groundwater)
-
-concentration_gw_peak_after_stagnation
-# pipe1.pipe_permeability_dict['segments'][pipe_segment]['stagnation_time_hours'] = stagnation_time_hours
-# pipe1.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation'] = flux_max_stagnation
-# pipe1.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation_per_m2'] = flux_max_stagnation_per_m2
-# pipe1.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
-# pipe1.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_without_stagnation'] = concentration_gw_peak_without_stagnation
-# pipe1.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_after_stagnation'] = concentration_gw_peak_after_stagnation
-# pipe1.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_soil'] = concentration_peak_soil
-
-#%%
+# %%
 
 
 #%%
-def objective_function(x):
+def objective_function(x, y=1):
+    # y = 1
+    return 3 * x ** 4 - 2 * x + y 
 
-    return 3 * x ** 4 - 2 * x + 1
-
-res = minimize(objective_function, 6)
+# bounds = [(1,3)]
+res = minimize(objective_function, 6) #, bounds = bounds)
 # X is the initial value of the inputs to the objective function. 
 # The objective function is what we’re trying to minimize
 answer = res.x[0]
