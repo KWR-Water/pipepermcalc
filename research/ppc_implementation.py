@@ -73,13 +73,14 @@ pipe1.add_segment(name='seg1',
 #                 thickness=0.0027,
 #                 )
 
-# pipe1.add_segment(name='seg2',
-#                 material='PE80',
-#                 length=0.001,
-#                 inner_diameter=0.0235,
-#                 thickness=0.0010,
-#                 diffusion_path_length=0.001
-#                 )
+pipe1.add_segment(name='seg2',
+                material='PE80',
+                length=0.001,
+                inner_diameter=0.0235,
+                thickness=0.0010,
+                diffusion_path_length=0.001, 
+
+                )
 pipe1.set_flow_rate(flow_rate=0.5)
 
 pipe1.calculate_peak_dw_concentration()

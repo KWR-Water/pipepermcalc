@@ -6,11 +6,6 @@
 #
 # ------------------------------------------------------------------------------
 
-#%% ----------------------------------------------------------------------------
-# INITIALISATION OF PYTHON e.g. packages, etc.
-# ------------------------------------------------------------------------------
-
-# Plotting modules
 import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.colors as colors
@@ -198,7 +193,9 @@ class Pipe:
             a mean daily (24 horus) concentration in drinking water exceeding 
             the drinking water norm, mg/kg
     '''
-
+    #ah_todo change input variables to restrict the type (e.g. only float, 
+    # only integer, only positive values etc)
+    
     count = 0 # count of pipe segments
 
     def __init__(self, 
@@ -499,6 +496,7 @@ class Pipe:
 
         return segment_dict
 
+
     def _calculate_logD(self, 
                        pipe_material=None,
                         segment_dict=None,):
@@ -600,6 +598,7 @@ class Pipe:
             
             self.pipe_permeability_dict['segments'][segment_name] = segment_dict
 
+
     def _update_partitioning_coefficient(self, 
                                         new_log_Kpw=None, 
                                         segment_name=None):
@@ -641,6 +640,7 @@ class Pipe:
                                     (10 ** self.pipe_permeability_dict['segments'][segment_name]['log_Dp']) 
                                     * 10 ** self.pipe_permeability_dict['segments'][segment_name]['log_Kpw'])
 
+
     def add_segment(self,
                     name=None,
                     material=None,
@@ -648,7 +648,8 @@ class Pipe:
                     inner_diameter=None,
                     thickness=None,
                     permeation_direction='perpendicular',
-                    diffusion_path_length=None,
+                    diffusion_path_length=None, 
+                    #Segment class() ah_todo: add these as args, then assign self.name = name in init
                     ):
         
         '''
@@ -681,8 +682,8 @@ class Pipe:
             used to calculate the diffusion through the pipe segment. 
             Unit meters.
         '''
-        self.count += 1 #count the number of segments created
-        self.segment_list.append(name) 
+        self.count += 1 #count the number of segments created, #Segment class() ah_todo remove this
+        self.segment_list.append(name) #Segment class() ah_todo, this also removed
 
         if diffusion_path_length is None:
             diffusion_path_length = thickness
@@ -767,6 +768,7 @@ class Pipe:
         
         self._calculate_pipe_K_D(pipe_material=material, segment_name = name)
 
+
     def _calculate_stagnation_factor(self, 
                                      pipe_segment=None):
         ''' Calculates the stagnation factor given a pipe segment
@@ -824,6 +826,7 @@ class Pipe:
         
         self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
 
+
     def calculate_mean_dw_concentration(self, ):
         '''
         Calculates the mean concentration in drinking water for a 24 hour period
@@ -854,9 +857,11 @@ class Pipe:
             
             self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
+
     def _calculate_peak_dw_mass_per_segment(self, 
                                          pipe_segment=None,
                                         stagnation_time_hours = 8, ):
+        #Segment class() ah_todo: move all functions on segments to the segment class
         '''
         Calculates the peak (maximum) mass in drinking water for a 
         given a stagnation period given a groundwater concentration, for each pipe segment.
@@ -892,6 +897,7 @@ class Pipe:
         self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
         self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
 
+
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, ):
         '''
@@ -913,7 +919,7 @@ class Pipe:
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
-
+            # Segment class() ah_todo this will change to loops over the segment list of objects
             for pipe_segment in self.pipe_dictionary['segment_list']:
                 self._calculate_peak_dw_mass_per_segment(pipe_segment=pipe_segment,
                                         stagnation_time_hours = stagnation_time_hours,  
@@ -989,6 +995,7 @@ class Pipe:
         self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_after_stagnation'] = concentration_gw_peak_after_stagnation
         self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_soil'] = concentration_peak_soil
 
+
     def _calculate_mean_allowable_gw_concentration_per_segment(self, 
                                     pipe_segment, 
                                     ):
@@ -1034,6 +1041,7 @@ class Pipe:
             self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
             self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_mean'] = concentration_gw_mean
             self.pipe_permeability_dict['segments'][pipe_segment]['concentration_mean_soil'] = concentration_mean_soil
+
 
     def calculate_mean_allowable_gw_concentration(self, 
                                     ):
@@ -1081,10 +1089,10 @@ class Pipe:
                                     )
 
 
-
     def __str__(self,):
         ''' or override the "print" function '''
         return str(self.pipe_dictionary)
     
+
     def _set_multidiffusion(self,):
         ''' Function to return diffusion coefficient for multicomponent diffusion'''
