@@ -220,7 +220,8 @@ class Pipe:
         self.diffusion_Cref_Sw = 0.5 #see section 5.4.6 in KWR 2016.056
 
        
-    # @ah_todo revert back to csv? seperate file? @Bram will think about this
+    # @ah_todo revert back to csv? seperate file? 
+    # @MartinvdS-> suggest to implement the "named tuple" method, leave for now do at the end
     reference_pipe_material_dict = \
         {
         "PE40": {
@@ -641,132 +642,132 @@ class Pipe:
                                     * 10 ** self.pipe_permeability_dict['segments'][segment_name]['log_Kpw'])
 
 
-    def add_segment(self,
-                    name=None,
-                    material=None,
-                    length=None,
-                    inner_diameter=None,
-                    thickness=None,
-                    permeation_direction='perpendicular',
-                    diffusion_path_length=None, 
-                    #Segment class() ah_todo: add these as args, then assign self.name = name in init
-                    ):
+    # def add_segment(self,
+    #                 name=None,
+    #                 material=None,
+    #                 length=None,
+    #                 inner_diameter=None,
+    #                 thickness=None,
+    #                 permeation_direction='perpendicular',
+    #                 diffusion_path_length=None, 
+    #                 #Segment class() ah_todo: add these as args, then assign self.name = name in init
+    #                 ):
         
-        '''
-        Adds a segment to the pipe. Creates pipe_dictionary as attribute 
-        containing information on the different pipe segment materials and sizes. 
+    #     '''
+    #     Adds a segment to the pipe. Creates pipe_dictionary as attribute 
+    #     containing information on the different pipe segment materials and sizes. 
 
-        Parameters
-        ----------
-        name: string
-            name of the pipe segment
-        material: enum?? @Bram -> set choice of materials
-            e.g. PE40, PE80, PVC, EPDM, rubber etc.
-        length: float
-            Length of pipe segment, meters 
-        inner_diameter: float
-            Inner diameter of pipe segment, meters
-        thickness: float
-            Thickness of pipe segment, meters
-        permeation_direction: string
-            Direction of permeation through the pipe segment. Options are 
-            'perpendicular' or 'parallel'. Default permeation is perpendicular 
-            to the flow direction. See schematic XX in read the docs.
-            @AH_todo add schematic of permeation for parallel vs. perpendicular
-        diffusion_path_length: float
-            In the case of permeation perpendicular to the flow direction, a 
-            diffusion path length is required to calculate the permeation 
-            through the pipe segment. For example in the case of a pipe 
-            coupling rings. If no value is given, diffusion is assumed 
-            perpendicular to the flow direction and the thickness is 
-            used to calculate the diffusion through the pipe segment. 
-            Unit meters.
-        '''
-        self.count += 1 #count the number of segments created, #Segment class() ah_todo remove this
-        self.segment_list.append(name) #Segment class() ah_todo, this also removed
+    #     Parameters
+    #     ----------
+    #     name: string
+    #         name of the pipe segment
+    #     material: enum?? @Bram -> set choice of materials
+    #         e.g. PE40, PE80, PVC, EPDM, rubber etc.
+    #     length: float
+    #         Length of pipe segment, meters 
+    #     inner_diameter: float
+    #         Inner diameter of pipe segment, meters
+    #     thickness: float
+    #         Thickness of pipe segment, meters
+    #     permeation_direction: string
+    #         Direction of permeation through the pipe segment. Options are 
+    #         'perpendicular' or 'parallel'. Default permeation is perpendicular 
+    #         to the flow direction. See schematic XX in read the docs.
+    #         @AH_todo add schematic of permeation for parallel vs. perpendicular
+    #     diffusion_path_length: float
+    #         In the case of permeation perpendicular to the flow direction, a 
+    #         diffusion path length is required to calculate the permeation 
+    #         through the pipe segment. For example in the case of a pipe 
+    #         coupling rings. If no value is given, diffusion is assumed 
+    #         perpendicular to the flow direction and the thickness is 
+    #         used to calculate the diffusion through the pipe segment. 
+    #         Unit meters.
+    #     '''
+    #     self.count += 1 #count the number of segments created, #Segment class() ah_todo remove this
+    #     self.segment_list.append(name) #Segment class() ah_todo, this also removed
 
-        if diffusion_path_length is None:
-            diffusion_path_length = thickness
-        else:
-            pass
+    #     if diffusion_path_length is None:
+    #         diffusion_path_length = thickness
+    #     else:
+    #         pass
         
-        outer_diameter = inner_diameter + thickness
+    #     outer_diameter = inner_diameter + thickness
 
-        if permeation_direction == 'parallel':
-            volume = 0 
-            # outer_surface_area = None #not applicable to this type of permeation
-            permeation_surface_area = (math.pi * ((inner_diameter + thickness) ** 2 - inner_diameter ** 2) )/4
-        elif permeation_direction == 'perpendicular':
-            volume = math.pi * (inner_diameter / 2) ** 2 * length
-            # outer_surface_area = (math.pi * outer_diameter * length)
-            # inner_surface_area = (math.pi * inner_diameter * length)
-            permeation_surface_area =(math.pi * inner_diameter * length)
+    #     if permeation_direction == 'parallel':
+    #         volume = 0 
+    #         # outer_surface_area = None #not applicable to this type of permeation
+    #         permeation_surface_area = (math.pi * ((inner_diameter + thickness) ** 2 - inner_diameter ** 2) )/4
+    #     elif permeation_direction == 'perpendicular':
+    #         volume = math.pi * (inner_diameter / 2) ** 2 * length
+    #         # outer_surface_area = (math.pi * outer_diameter * length)
+    #         # inner_surface_area = (math.pi * inner_diameter * length)
+    #         permeation_surface_area =(math.pi * inner_diameter * length)
 
-        # @MartinvdS check about drawing #1 = outer diameter used, 
-        # #3 inner diameter used for SA calculations, see notebook and 
-        # sheet "dimensies tertiare"
+    #     # @MartinvdS check about drawing #1 = outer diameter used, 
+    #     # #3 inner diameter used for SA calculations, see notebook and 
+    #     # sheet "dimensies tertiare"
 
-        if self.count >1:
+    #     if self.count >1:
 
-            total_length = length + self.pipe_dictionary['total_length']
-            total_volume = volume + self.pipe_dictionary['total_volume']
+    #         total_length = length + self.pipe_dictionary['total_length']
+    #         total_volume = volume + self.pipe_dictionary['total_volume']
 
-            new_segment = {
-                    name : {
-                    'material': material,
-                    'length': length,
-                    'outer_diameter': outer_diameter,
-                    'inner_diameter': inner_diameter,
-                    'thickness': thickness,
-                    'diffusion_path_length': diffusion_path_length,
-                    'volume': volume,
-                    # 'outer_surface_area': outer_surface_area,
-                    # 'inner_surface_area': inner_surface_area,
-                    'permeation_surface_area': permeation_surface_area,
-                    'permeation_direction':permeation_direction,
+    #         new_segment = {
+    #                 name : {
+    #                 'material': material,
+    #                 'length': length,
+    #                 'outer_diameter': outer_diameter,
+    #                 'inner_diameter': inner_diameter,
+    #                 'thickness': thickness,
+    #                 'diffusion_path_length': diffusion_path_length,
+    #                 'volume': volume,
+    #                 # 'outer_surface_area': outer_surface_area,
+    #                 # 'inner_surface_area': inner_surface_area,
+    #                 'permeation_surface_area': permeation_surface_area,
+    #                 'permeation_direction':permeation_direction,
 
-                    },
-                    }
+    #                 },
+    #                 }
 
-            segment_dict = self.pipe_dictionary['segments']
-            segment_dict.update(new_segment)
-            pipe_dictionary = {
-                    'number_segments': self.count,
-                    'segment_list': self.segment_list,
-                    'total_length':total_length,
-                    'total_volume':total_volume,
-                    'segments': segment_dict
-                ,
-            }
-        else:
+    #         segment_dict = self.pipe_dictionary['segments']
+    #         segment_dict.update(new_segment)
+    #         pipe_dictionary = {
+    #                 'number_segments': self.count,
+    #                 'segment_list': self.segment_list,
+    #                 'total_length':total_length,
+    #                 'total_volume':total_volume,
+    #                 'segments': segment_dict
+    #             ,
+    #         }
+    #     else:
             
-            pipe_dictionary = {
-                    'number_segments': self.count,
-                    'segment_list': self.segment_list,
-                    'total_length':length,
-                    'total_volume':volume,
+    #         pipe_dictionary = {
+    #                 'number_segments': self.count,
+    #                 'segment_list': self.segment_list,
+    #                 'total_length':length,
+    #                 'total_volume':volume,
 
-                'segments': {
-                    name : {
-                    'material': material,
-                    'length': length,
-                    'outer_diameter': outer_diameter,
-                    'inner_diameter': inner_diameter,
-                    'thickness': thickness,
-                    'diffusion_path_length': diffusion_path_length,
-                    'volume': volume,
-                    # 'outer_surface_area': outer_surface_area,
-                    # 'inner_surface_area': inner_surface_area,
-                    'permeation_surface_area': permeation_surface_area,
-                    'permeation_direction':permeation_direction,
+    #             'segments': {
+    #                 name : {
+    #                 'material': material,
+    #                 'length': length,
+    #                 'outer_diameter': outer_diameter,
+    #                 'inner_diameter': inner_diameter,
+    #                 'thickness': thickness,
+    #                 'diffusion_path_length': diffusion_path_length,
+    #                 'volume': volume,
+    #                 # 'outer_surface_area': outer_surface_area,
+    #                 # 'inner_surface_area': inner_surface_area,
+    #                 'permeation_surface_area': permeation_surface_area,
+    #                 'permeation_direction':permeation_direction,
 
-                    },
-                },
-            }
+    #                 },
+    #             },
+    #         }
             
-        self.pipe_dictionary = pipe_dictionary
+    #     self.pipe_dictionary = pipe_dictionary
         
-        self._calculate_pipe_K_D(pipe_material=material, segment_name = name)
+    #     self._calculate_pipe_K_D(pipe_material=material, segment_name = name)
 
 
     def _calculate_stagnation_factor(self, 
@@ -932,9 +933,7 @@ class Pipe:
             self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
 
-    # AH_todo FUNCTIONS COMPLETE UNTIL HERE
-    # These should be updated AFTER we move to the pipe - segment subclass
-    # keep here in case we search-find switch names so it still works.
+    # AH_todo FUNCTIONS COMPLETE UNTIL HERE, below here these only work for a single pipe segment
 
     def _calculate_peak_allowable_gw_concentration_per_segment(self, 
                                     pipe_segment=None,
