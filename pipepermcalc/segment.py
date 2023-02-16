@@ -30,6 +30,47 @@ class Segment:
     Attributes
     -------
     #ah_todo add attributes
+
+    partitioning_a_dh: float
+        Coefficient for correcting the partitioning coefficient for temperature. 
+        From regression analysis, a is the slope, see table 5-6 in 
+        KWR 2016.056. Constant equal to 7.92169801506708. 
+    partitioning_b_dh: float,
+        Coefficient for correcting the partitioning coefficient for temperature. 
+        From regression analysis, b is the intercept, see table 5-6 in 
+        KWR 2016.056. Constant equal to -17.1875608983359. 
+    diffusion_a_dh: float 
+        Coefficient for correcting the diffusion coefficient for temperature. 
+        From regression analysis, a is the slope, see table 5-6 in 
+        KWR 2016.056. Constant equal to 61.8565740136974. 
+    diffusion_b_dh: float
+        Coefficient for correcting the diffusion coefficient for temperature. 
+        From regression analysis, b is the intercept, see table 5-6 in 
+        KWR 2016.056. Constant equal to -78.9191401984509. 
+    assessment_factor_groundwater: integer 
+        Factor used to correct calculations for observations in actual pipe 
+        permeation. Permeation of PE house connections in groundwater = 3, 
+        other pipe materials = 1. See section 7.2 in KWR 2016.056
+    assessment_factor_soil: integer
+        Factor used to correct calculations for observations in actual pipe 
+        permeation. All pipe materials = 1.
+    partitioning_a_c: float
+        Constant used in the correction for the partitioning coefficent due to 
+        the influence of temperature. See equation 5-20 in KWR 2016.056, for 
+        partitioning a_c = 0.103965019849463.
+    partitioning_Cref_Sw: float
+        Reference concentration used in the correction for the partitioning 
+        coefficent due to the influence of temperature. Ssee section 5.4.7 in 
+        KWR 2016.056. For partitioning, Cref_SW = 1.0.
+    diffusion_a_c: float
+        Constant used in the correction for the diffusion coefficent due to 
+        the influence of temperature. See equation 5-18 in KWR 2016.056, for 
+        diffusion a_c = 0.784077209735583.
+    diffusion_Cref_Sw: float
+        Reference concentration used in the correction for the diffusion 
+        coefficent due to the influence of temperature. Ssee section 5.4.6 in 
+        KWR 2016.056. For partitioning, Cref_SW = 0.5.
+
     name: string
         name of the pipe segment
     material: enum?? @Bram -> set choice of materials
@@ -53,6 +94,42 @@ class Segment:
         perpendicular to the flow direction and the thickness is 
         used to calculate the diffusion through the pipe segment. 
         Unit meters.
+    volume: float
+        Volume of the pipe segment
+
+    reference_pipe_material_dict: dictionary 
+        Reference dictionary with regression values (slope=a-value, intercept=b-value)
+        for the partitioning (K) and diffusion (D) coefficient for the available 
+        plastics (PE40, PE80, SBR, EPDM) per chemical groups. 
+        Used to calculate the specifice partitioning or diffusion coefficient 
+        from the reference value. 
+        Chemical group numbers: Expert opinion (Martin Meerkerk), 
+        see table 5-4 KWR 2016.056, Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk
+        Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE
+
+    log_Kpw_ref: float
+        partitioning coefiicient under lab conditions, [-]
+    f_Ktemp: float
+        Temperature correction factor for partitioning coefficient, [-]
+    f_Kconc: float
+        Concentration correction factor for partitioning coefficient, [-]
+    log_Kpw: float
+        Calculated log partitioning coefficient for the given chemical and pipe material, [-]
+    log_Dp_ref: float
+        Diffusion coefficient under lab conditions, m2/s
+    f_Dtemp:float
+        Temperature correction factor for diffusion coefficient, [-]
+    f_Dconc: float
+        Concentration correction factor for diffusion coefficient, [-]
+    log_Dp: float
+        Calculated log diffusion coefficient for the given chemical and pipe material, [-]
+    permeation_coefficient: float
+        Calculated permeation coefficient for plastic-water, m2/day
+    stagnation_factor: float
+        Correction for the decrease in the concentratino gradient near the 
+        inner wall of the pipe during stagnation (e.g. no flow at at night)
+
+
     '''
 
     count = 0 # count of pipe segments
@@ -67,8 +144,8 @@ class Segment:
                 diffusion_path_length=None,
                 ):
         '''
-        Creates a pipe segment. Creates pipe_dictionary as attribute 
-        containing information on the different pipe segment materials and sizes. 
+        Creates a pipe segment with the attributes of the pipe (length, 
+        thickness, diameter, material etc.). 
         #ah_todo update these definitions
 
         '''  
@@ -112,29 +189,19 @@ class Segment:
         # @MartinvdS check about drawing #1 = outer diameter used, 
         # #3 inner diameter used for SA calculations, see notebook and 
         # sheet "dimensies tertiare"
-       
-        #ah_todo convert to attributes of the class
-        pipe_dictionary = {
-                # 'number_segments': self.count,
-                # 'segment_list': self.segment_list,
-                'total_length':length,
-                'total_volume':volume,
-                'material': material,
-                'length': length,
-                'outer_diameter': outer_diameter,
-                'inner_diameter': inner_diameter,
-                'thickness': thickness,
-                'diffusion_path_length': diffusion_path_length,
-                'volume': volume,
-                # 'outer_surface_area': outer_surface_area,
-                # 'inner_surface_area': inner_surface_area,
-                'permeation_surface_area': permeation_surface_area,
-                'permeation_direction':permeation_direction,
-                }
-            
-        self.pipe_dictionary = pipe_dictionary
+                   
         self.volume = volume
         self.length = length
+        self.permeation_surface_area = permeation_surface_area
+        self.material = material
+        self.outer_diameter = outer_diameter
+        self.inner_diameter = inner_diameter
+        self.thickness = thickness
+        self.diffusion_path_length = diffusion_path_length
+        # 'outer_surface_area': outer_surface_area,
+        # 'inner_surface_area': inner_surface_area,
+        self.permeation_surface_area = permeation_surface_area
+        self.permeation_direction = permeation_direction
 
 
     # @ah_todo revert back to csv? seperate file? 
@@ -292,7 +359,6 @@ class Segment:
             coefficient
         '''
 
-        # from ppc_database material column K27-29
         Cg_Sw = min(pipe_permeability_dict['concentration_groundwater'] / pipe_permeability_dict['solubility'], 1)
         f_conc = a_c * (Cg_Sw - Cref_Sw)
         return f_conc
@@ -337,11 +403,10 @@ class Segment:
         # sum corrections for final Log k
         log_Kpw = log_Kpw_ref + f_Ktemp + f_Kconc + f_Kage
 
-        #ah discussed wtih Bram not to store these values, only calculate them on the fly
-        # pipe_permeability_dict['log_Kpw_ref'] = log_Kpw_ref
-        # pipe_permeability_dict['f_Ktemp'] = f_Ktemp   
-        # pipe_permeability_dict['f_Kconc'] = f_Kconc
-        # pipe_permeability_dict['log_Kpw'] = log_Kpw
+        self.log_Kpw_ref = log_Kpw_ref
+        self.f_Ktemp = f_Ktemp   
+        self.f_Kconc = f_Kconc
+        self.log_Kpw = log_Kpw
 
         return log_Kpw
 
@@ -378,13 +443,20 @@ class Segment:
         log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
         
         #ah discussed wtih Bram not to store these values, only calculate them on the fly
-        # segment_dict['log_Dp_ref'] = log_Dp_ref
-        # segment_dict['f_Dtemp'] = f_Dtemp    
-        # segment_dict['f_Dconc'] = f_Dconc
-        # segment_dict['log_Dp'] = log_Dp #m2/s
+        self.log_Dp_ref = log_Dp_ref
+        self.f_Dtemp = f_Dtemp    
+        self.f_Dconc = f_Dconc
+        self.log_Dp = log_Dp #m2/s
 
         return log_Dp
 
+    def _calculate_permeation_coefficient(self,):
+        ''' Calculate the permeation coefficient for the segment'''
+        #Permeation coefficient for plastic-water (Ppw), unit: m2/day
+        permeation_coefficient = (24 * 60 * 60 * 
+                                        (10 ** self.log_Dp) 
+                                        * 10 ** self.log_Kpw)
+        return permeation_coefficient
 
     def _calculate_pipe_K_D(self,
                             pipe_permeability_dict,
@@ -421,9 +493,7 @@ class Segment:
             self.log_Dp = self._calculate_logD(pipe_permeability_dict = pipe_permeability_dict)
 
             #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-            self.permeation_coefficient = (24 * 60 * 60 * 
-                                        (10 ** self.log_Dp) 
-                                        * 10 ** self.log_Kpw)
+            self.permeation_coefficient = self._calculate_permeation_coefficient()
             
 
     def _calculate_stagnation_factor(self,):
@@ -461,10 +531,6 @@ class Segment:
         Parameters
         ----------
         '''
-        #ah_todo convert to attributes of the class
-        segment_surface_area = self.pipe_dictionary['permeation_surface_area']
-        segment_volume = self.pipe_dictionary['volume']
-        segment_diffusion_path_length = self.pipe_dictionary['diffusion_path_length']         
 
         concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
 
@@ -479,11 +545,11 @@ class Segment:
            
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation
-        self.mass_drinkwater = ((concentration_groundwater * segment_volume * 
-                           segment_surface_area * permeation_coefficient) / 
-                            (segment_diffusion_path_length * self.assessment_factor_groundwater *
-                              flow_rate + permeation_coefficient * segment_surface_area))
-        #ah_todo rename to mass_drinkwater to chemical_mass_drinkingwater
+        self.chemical_mass_drinkwater = ((concentration_groundwater * self.volume * 
+                           self.permeation_surface_area * permeation_coefficient) / 
+                            (self.diffusion_path_length * self.assessment_factor_groundwater *
+                              flow_rate + permeation_coefficient * self.permeation_surface_area))
+        #ah_todo rename to chemical_mass_drinkwater to chemical_chemical_mass_drinkwater
 
     def _calculate_peak_dw_mass_per_segment(self, 
                                         pipe_permeability_dict, 
@@ -491,7 +557,6 @@ class Segment:
                                         stagnation_time_hours = 8, 
                                         flow_rate=None,
                                         ):
-        #Segment class() ah_todo: move all functions on segments to the segment class
         '''
         Calculates the peak (maximum) mass in drinking water for a 
         given a stagnation period given a groundwater concentration, for each pipe segment.
@@ -507,9 +572,6 @@ class Segment:
 
         '''
         stagnation_time = stagnation_time_hours / 24 # days
-        segment_surface_area = self.pipe_dictionary['permeation_surface_area']
-        segment_volume = self.pipe_dictionary['volume']
-        segment_diffusion_path_length = self.pipe_dictionary['diffusion_path_length']         
 
         concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
         self._calculate_pipe_K_D(pipe_permeability_dict, 
@@ -517,16 +579,53 @@ class Segment:
                             ) 
 
         permeation_coefficient = self.permeation_coefficient
-        stagnation_factor = self._calculate_stagnation_factor()
+        self.stagnation_factor = self._calculate_stagnation_factor()
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation
-        mass_drinkwater =(( permeation_coefficient * segment_surface_area * 
-                                stagnation_time * concentration_groundwater *  segment_volume) / 
-                                ((segment_diffusion_path_length * self.assessment_factor_groundwater * 
-                                  stagnation_factor * segment_volume) + 
-                                  (permeation_coefficient * segment_surface_area * stagnation_time) )  )
+        chemical_mass_drinkwater =(( permeation_coefficient * self.permeation_surface_area * 
+                                stagnation_time * concentration_groundwater *  self.volume) / 
+                                ((self.diffusion_path_length * self.assessment_factor_groundwater * 
+                                  self.stagnation_factor * self.volume) + 
+                                  (permeation_coefficient * self.permeation_surface_area * stagnation_time) )  )
        
-        self.mass_drinkwater = mass_drinkwater
-        #ah_todo rename to mass_drinkwater to chemical_mass_drinkingwater
+        self.chemical_mass_drinkwater = chemical_mass_drinkwater
+        #ah_todo rename to chemical_mass_drinkwater to chemical_mass_drinkingwater
+
+    def _update_partitioning_coefficient(self, 
+                                        new_log_Kpw=None,):
+        ''' Function to update the partitioning coefficient and the associated 
+        permeation coefficient
+
+        Parameters
+        ----------
+        new_log_Kpw:float
+            New value for the partitioning coefficient for the given pipe segment
+        segment_name: string
+            name of the pipe segment        
+        '''
+
+        self.log_Kpw = new_log_Kpw
+
+        #Permeation coefficient for plastic-water (Ppw), unit: m2/day
+        self.permeation_coefficient = self._calculate_permeation_coefficient()
+       
+        
+    def _update_diffusion_coefficient(self, 
+                                        new_log_Dp=None, ):
+        ''' Function to update the diffusion coefficient and the associated 
+        permeation coefficient
+
+        Parameters
+        ----------
+        new_log_Dp:float
+            New value for the diffusion coefficient for the given pipe segment
+        segment_name: string
+            name of the pipe segment        
+        '''
+
+        self.log_Dp = new_log_Dp
+
+        #Permeation coefficient for plastic-water (Ppw), unit: m2/day
+        self.permeation_coefficient = self._calculate_permeation_coefficient()
 

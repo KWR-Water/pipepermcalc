@@ -36,25 +36,29 @@ from pipepermcalc.segment import *
 # PLACEHOLDER until the testing function works, ask @Bram
 from tests.testing import *
 
-# test1 = test_logKpw_ref()
-# test2 = test_logDp_ref()
-# test3 = test_logKp_ref_temperature_correction()
-# test4 = test_logDp_ref_temperature_correction()
-# test5 = test_logKp_ref_other_correction()
-# test6 = test_logDp_ref_other_correction()
-# test7 = test_logKpw()
-# test8 = test_logDpw()
-# test9 = test_stagnation_factor()
+test1 = test_logKpw_ref()
+test2 = test_logDp_ref()
+test3 = test_logKp_ref_temperature_correction()
+test4 = test_logDp_ref_temperature_correction()
+test5 = test_logKp_ref_other_correction()
+test6 = test_logDp_ref_other_correction()
+test7 = test_logKpw()
+test8 = test_logDpw()
+test9 = test_stagnation_factor()
+test16 = test_calculate_peak_dw_concentration()
+test17 = test_calculate_mean_dw_concentration()
+test19 = test_segment_surface_area_calculations()
+test14 = test_updating_partitioning_coefficient()
+test15 = test_updating_diffusion_coefficient()
+
+#%%
+# These tests use incomplete functions, ignore for now 
 # test10 = test_peak_without_stagnation()
 # test11 = test_peak_with_stagnation()
 # test12 = test_peak_soil_concentration()
-# test13 = test_mean_soil_concentration()
-# test14 = test_updating_partitioning_coefficient()
-# test15 = test_updating_diffusion_coefficient()
-# test16 = test_calculate_peak_dw_concentration()
-# test17 = test_calculate_mean_dw_concentration()
 # test18 = test_mean_gw_concentration()
-# test19 = test_segment_surface_area_calculations()
+# test13 = test_mean_soil_concentration()
+
 #%%
 seg1 = Segment(name='seg1',
                 material='PE40',
@@ -63,30 +67,29 @@ seg1 = Segment(name='seg1',
                 thickness=0.0027,
                 )
 
+pipe1 = Pipe(segment_list=[seg1])
+pipe1.segment_list
+
+pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                temperature_groundwater=12, 
+                                concentration_groundwater = 0.112980124482)
+pipe1.set_flow_rate(flow_rate=0.5)
+pipe1.calculate_peak_dw_concentration()  
+pipe1.pipe_permeability_dict
+
+#%%
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
 # seg2 = Segment(name='seg2',
 #                 material='PE80',
 #                 length=25,
 #                 inner_diameter=0.0196,
 #                 thickness=0.0027,
 #                 )
-
-pipe1 = Pipe(segment_list=[seg1])
-pipe1.segment_list
-
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
-                                 temperature_groundwater=12, 
-                                 concentration_groundwater = 0.112980124482)
-pipe1.set_flow_rate(flow_rate=0.5)
-pipe1.calculate_peak_dw_concentration()
-pipe1.pipe_permeability_dict['peak_concentration_pipe_drinking_water']
-
-#%%
-seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                thickness=0.0027,
-                )
 
 _partitioning_a_dh = 7.92169801506708 #see table 5-6 in KWR 2016.056
 _partitioning_b_dh = -17.1875608983359 #see table 5-6 in KWR 2016.056
