@@ -86,6 +86,7 @@ seg1 = Segment(name='seg1',
                 inner_diameter=0.0196,
                 thickness=0.0027,
                 )
+
 _partitioning_a_dh = 7.92169801506708 #see table 5-6 in KWR 2016.056
 _partitioning_b_dh = -17.1875608983359 #see table 5-6 in KWR 2016.056
 _diffusion_a_dh = 61.8565740136974 #see table 5-6 in KWR 2016.056
@@ -105,7 +106,7 @@ pipe_permeability_dict['temperature_groundwater'] = 12
 pipe_permeability_dict['concentration_groundwater'] = 1.8
 pipe_permeability_dict
 
-seg1._calculate_logK(pipe_permeability_dict)
+seg1._calculate_pipe_K_D(pipe_permeability_dict, _groundwater_conditions_set=True)
 #%%
 pipe1 = Pipe()
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 

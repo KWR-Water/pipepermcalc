@@ -311,10 +311,6 @@ class Segment:
         
         See table 5-3 in KWR 2016.056 for explanation of calculations
         
-        Parameters
-        ----------
-        pipe_material: string
-            Choice of pipe material: PE40, PE80, SBR, EPDM
         '''
 
         # calculate reference log K plastic-water (log kpw) 
@@ -355,26 +351,21 @@ class Segment:
 
         See table 5-3 in KWR 2016.056 for explanation of calculations
         
-        Parameters
-        ----------
-        pipe_material: string
-            Choice of pipe material: PE40, PE80, SBR, EPDM
         '''
         
         # calculate reference log D plastic (log Dp) 
-        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][self.pipe_permeability_dict['chemical_group_number']]
-        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][self.pipe_permeability_dict['chemical_group_number']]
-        log_Dp_ref = a_ref * self.pipe_permeability_dict['molecular_weight'] + b_ref
+        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
+        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
+        log_Dp_ref = a_ref * pipe_permeability_dict['molecular_weight'] + b_ref
 
         # correct for temperature, concentration, age
-        f_Dtemp = self._correct_for_temperature(pipe_permeability_dict=self.pipe_permeability_dict, 
-                        temperature_groundwater=self.temperature_groundwater, 
+        f_Dtemp = self._correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
                         coefficient_name ='molecular_weight', 
                             a_dh = self._diffusion_a_dh, 
                             b_dh = self._diffusion_b_dh, 
                         )
 
-        f_Dconc = self._concentration_correction(pipe_permeability_dict=self.pipe_permeability_dict,
+        f_Dconc = self._concentration_correction(pipe_permeability_dict=pipe_permeability_dict,
                                 a_c = self.diffusion_a_c , 
                                 Cref_Sw = self.diffusion_Cref_Sw) 
         
@@ -382,21 +373,20 @@ class Segment:
 
         # sum corrections for final Log D
         log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
+        
+        #ah discussed wtih Bram not to store these values, only calculate them on the fly
+        # segment_dict['log_Dp_ref'] = log_Dp_ref
+        # segment_dict['f_Dtemp'] = f_Dtemp    
+        # segment_dict['f_Dconc'] = f_Dconc
+        # segment_dict['log_Dp'] = log_Dp #m2/s
 
-        segment_dict['log_Dp_ref'] = log_Dp_ref
-        segment_dict['f_Dtemp'] = f_Dtemp    
-        segment_dict['f_Dconc'] = f_Dconc
-        segment_dict['log_Dp'] = log_Dp #m2/s
-
-        return segment_dict
+        return log_Dp
 
 
     def _calculate_pipe_K_D(self,
                             pipe_permeability_dict,
                             _groundwater_conditions_set, 
-                                 chemical_name, 
-                                 temperature_groundwater, 
-                                 concentration_groundwater): #ah_funct1
+        ): #ah_funct1
         '''
         Fetch the pipe and chemical information corresponding to the given pipe 
         material and chemical choice. Creates the pipe_permeability_dict, 
@@ -422,17 +412,16 @@ class Segment:
         else:           
 
             # calculate log K plastic-water (log kpw) 
-            self._calculate_logK(pipe_permeability_dict = pipe_permeability_dict)
+            self.log_Kpw = self._calculate_logK(pipe_permeability_dict = pipe_permeability_dict)
 
             # calculate log D plastic (log Dp) 
-            self._calculate_logD(pipe_permeability_dict = pipe_permeability_dict)
+            self.log_Dp = self._calculate_logD(pipe_permeability_dict = pipe_permeability_dict)
 
             #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-            segment_dict['permeation_coefficient'] = (24 * 60 * 60 * 
-                                        (10 ** segment_dict['log_Dp']) 
-                                        * 10 ** segment_dict['log_Kpw'])
+            self.permeation_coefficient = (24 * 60 * 60 * 
+                                        (10 ** self.log_Dp) 
+                                        * 10 ** self.log_Kpw)
             
-            self.pipe_permeability_dict['segments'][segment_name] = segment_dict        
 
     def _calculate_stagnation_factor(self, 
                                      pipe_segment=None):
