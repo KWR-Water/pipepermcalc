@@ -426,8 +426,7 @@ class Segment:
                                         * 10 ** self.log_Kpw)
             
 
-    def _calculate_stagnation_factor(self, 
-                                     pipe_segment=None):
+    def _calculate_stagnation_factor(self,):
         ''' Calculates the stagnation factor given a pipe segment
         
         Parameters
@@ -443,8 +442,8 @@ class Segment:
 
         '''
 
-        stagnation_factor = 10 ** max((((self.pipe_permeability_dict['segments'][pipe_segment]['log_Dp'] + 12.5) / 2 + 
-                                self.pipe_permeability_dict['segments'][pipe_segment]['log_Kpw']) * 0.73611 + 
+        stagnation_factor = 10 ** max((((self.log_Dp + 12.5) / 2 + 
+                                self.log_Kpw) * 0.73611 + 
                                 -1.03574 ), 0)
         return stagnation_factor
     
@@ -466,7 +465,6 @@ class Segment:
         segment_surface_area = self.pipe_dictionary['permeation_surface_area']
         segment_volume = self.pipe_dictionary['volume']
         segment_diffusion_path_length = self.pipe_dictionary['diffusion_path_length']         
-        segment_diffusion_path_length = self.pipe_dictionary['diffusion_path_length']
 
         concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
 
@@ -488,8 +486,11 @@ class Segment:
         #ah_todo rename to mass_drinkwater to chemical_mass_drinkingwater
 
     def _calculate_peak_dw_mass_per_segment(self, 
-                                         pipe_segment=None,
-                                        stagnation_time_hours = 8, ):
+                                        pipe_permeability_dict, 
+                                        _groundwater_conditions_set,
+                                        stagnation_time_hours = 8, 
+                                        flow_rate=None,
+                                        ):
         #Segment class() ah_todo: move all functions on segments to the segment class
         '''
         Calculates the peak (maximum) mass in drinking water for a 
@@ -506,14 +507,17 @@ class Segment:
 
         '''
         stagnation_time = stagnation_time_hours / 24 # days
-        segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
-        segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
+        segment_surface_area = self.pipe_dictionary['permeation_surface_area']
+        segment_volume = self.pipe_dictionary['volume']
+        segment_diffusion_path_length = self.pipe_dictionary['diffusion_path_length']         
 
-        segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
-        concentration_groundwater = self.pipe_permeability_dict['concentration_groundwater']
-        segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length']
-        permeation_coefficient = self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient']
-        stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
+        concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
+        self._calculate_pipe_K_D(pipe_permeability_dict, 
+                                 _groundwater_conditions_set, 
+                            ) 
+
+        permeation_coefficient = self.permeation_coefficient
+        stagnation_factor = self._calculate_stagnation_factor()
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation
@@ -523,6 +527,6 @@ class Segment:
                                   stagnation_factor * segment_volume) + 
                                   (permeation_coefficient * segment_surface_area * stagnation_time) )  )
        
-        self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater'] = mass_drinkwater
-        self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
+        self.mass_drinkwater = mass_drinkwater
+        #ah_todo rename to mass_drinkwater to chemical_mass_drinkingwater
 

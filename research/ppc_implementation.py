@@ -75,10 +75,10 @@ pipe1.segment_list
 
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
                                  temperature_groundwater=12, 
-                                 concentration_groundwater = 1.8)
+                                 concentration_groundwater = 0.112980124482)
 pipe1.set_flow_rate(flow_rate=0.5)
-pipe1.calculate_mean_dw_concentration()
-pipe1.pipe_permeability_dict['mean_concentration_pipe_drinking_water']
+pipe1.calculate_peak_dw_concentration()
+pipe1.pipe_permeability_dict['peak_concentration_pipe_drinking_water']
 
 #%%
 seg1 = Segment(name='seg1',

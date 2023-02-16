@@ -941,15 +941,22 @@ class Pipe:
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
+            self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name)
+            self.pipe_permeability_dict['chemical_name'] = self.chemical_name
+            self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
+            self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
+
             # Segment class() ah_todo this will change to loops over the segment list of objects
-            for pipe_segment in self.pipe_dictionary['segment_list']:
-                self._calculate_peak_dw_mass_per_segment(pipe_segment=pipe_segment,
+            for segment in self.segment_list:
+                segment._calculate_peak_dw_mass_per_segment(pipe_permeability_dict = self.pipe_permeability_dict,
                                         stagnation_time_hours = stagnation_time_hours,  
+                                        _groundwater_conditions_set = self._groundwater_conditions_set,
+                                        flow_rate = self.flow_rate                                       
                                         )
-                sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
+                sum_mass_segment += segment.mass_drinkwater
             
             concentration_pipe_drinking_water = (sum_mass_segment / 
-                                                self.pipe_dictionary['total_volume'])
+                                                self.total_volume)
             
             self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
