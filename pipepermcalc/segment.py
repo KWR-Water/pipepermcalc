@@ -112,7 +112,8 @@ class Segment:
         # @MartinvdS check about drawing #1 = outer diameter used, 
         # #3 inner diameter used for SA calculations, see notebook and 
         # sheet "dimensies tertiare"
-
+       
+        #ah_todo convert to attributes of the class
         pipe_dictionary = {
                 # 'number_segments': self.count,
                 # 'segment_list': self.segment_list,
@@ -132,6 +133,8 @@ class Segment:
                 }
             
         self.pipe_dictionary = pipe_dictionary
+        self.volume = volume
+        self.length = length
 
 
     # @ah_todo revert back to csv? seperate file? 
@@ -386,7 +389,7 @@ class Segment:
     def _calculate_pipe_K_D(self,
                             pipe_permeability_dict,
                             _groundwater_conditions_set, 
-        ): #ah_funct1
+        ):
         '''
         Fetch the pipe and chemical information corresponding to the given pipe 
         material and chemical choice. Creates the pipe_permeability_dict, 
@@ -450,8 +453,7 @@ class Segment:
                                             pipe_permeability_dict,
                                             _groundwater_conditions_set,
                                             flow_rate=None,
-                                            assessment_factor_groundwater=None,
-                                        ): #ah_funct1
+                                        ): 
         '''
         Calculates the mean mass in drinking water for a 24 hour period given a 
         groundwater concentration, for each pipe segment.
@@ -460,29 +462,30 @@ class Segment:
         Parameters
         ----------
         '''
+        #ah_todo convert to attributes of the class
         segment_surface_area = self.pipe_dictionary['permeation_surface_area']
         segment_volume = self.pipe_dictionary['volume']
         segment_diffusion_path_length = self.pipe_dictionary['diffusion_path_length']         
         segment_diffusion_path_length = self.pipe_dictionary['diffusion_path_length']
+
         concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
 
         self._calculate_pipe_K_D(pipe_permeability_dict, 
                                  _groundwater_conditions_set, 
-                            ) #ah_funct1
+                            ) 
 
-        permeation_coefficient = self.pipe_dictionary['permeation_coefficient']
+        permeation_coefficient = self.permeation_coefficient
 
         #@martinvdS, but if we assign some volumes to zero, this messes this up, 
         # so input the actual volume calculation instead?     
            
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation
-        mass_drinkwater = ((concentration_groundwater * segment_volume * 
+        self.mass_drinkwater = ((concentration_groundwater * segment_volume * 
                            segment_surface_area * permeation_coefficient) / 
-                            (segment_diffusion_path_length * assessment_factor_groundwater *
+                            (segment_diffusion_path_length * self.assessment_factor_groundwater *
                               flow_rate + permeation_coefficient * segment_surface_area))
-        
-        self.self.pipe_dictionary['mass_drinkwater'] = mass_drinkwater #ah_todo rename to chemical_mass_drinkingwater
+        #ah_todo rename to mass_drinkwater to chemical_mass_drinkingwater
 
     def _calculate_peak_dw_mass_per_segment(self, 
                                          pipe_segment=None,

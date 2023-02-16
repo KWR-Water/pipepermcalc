@@ -22,6 +22,8 @@ from datetime import timedelta
 
 from project_path import file_path
 
+from pipepermcalc.segment import * 
+
 class Pipe:
     '''
     Pipe object class to make segments of the pipe and calculate the peak and
@@ -210,6 +212,15 @@ class Pipe:
         self.segment_list = segment_list
         self._groundwater_conditions_set = False
         self._flow_rate_set = False
+
+        sum_total_volume = 0
+        sum_total_length = 0
+        for segment in segment_list:
+            sum_total_length += segment.length
+            sum_total_volume += segment.volume
+
+        self.total_length = sum_total_length
+        self.total_volume = sum_total_volume
 
         # self._partitioning_a_dh = 7.92169801506708 #see table 5-6 in KWR 2016.056
         # self._partitioning_b_dh = -17.1875608983359 #see table 5-6 in KWR 2016.056
@@ -857,12 +868,14 @@ class Pipe:
 
             # for pipe_segment in self.pipe_dictionary['segment_list']:
             for segment in self.segment_list:
-                segment._calculate_mean_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict, )
+                segment._calculate_mean_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
+                                                            _groundwater_conditions_set = self._groundwater_conditions_set,
+                                                            flow_rate = self.flow_rate)
 
-                sum_mass_segment += self.pipe_permeability_dict['segments'][pipe_segment]['mass_drinkwater']
+                sum_mass_segment += segment.mass_drinkwater
             
             concentration_pipe_drinking_water = (sum_mass_segment / 
-                                                self.pipe_dictionary['total_volume'])
+                                                self.total_volume)
             
             self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
