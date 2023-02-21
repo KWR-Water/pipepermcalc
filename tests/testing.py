@@ -142,10 +142,9 @@ def test_logDp_ref_temperature_correction():
                                round_values=6)
     
 
-def test_logKp_ref_other_correction():
-    '''test the calculatiion of the reference logK value, 
-    corrected for concentration
-      against the excel'''
+def test_logKp_ref_concentration_correction():
+    '''test the calculation of the reference logK value, 
+    corrected for concentration against the excel'''
 
     seg1 = Segment(name='seg1',
                     material='PE40',
@@ -167,10 +166,9 @@ def test_logKp_ref_other_correction():
                                round_values=6)
     
 
-def test_logDp_ref_other_correction():
+def test_logDp_ref_concentration_correction():
     '''test the calculatiion of the reference logD value, 
-    corrected for ?? @MartinvdS column AC
-      against the excel'''
+    corrected for concentration '''
 
     seg1 = Segment(name='seg1',
                     material='PE40',
@@ -193,9 +191,7 @@ def test_logDp_ref_other_correction():
     
 
 def test_logKpw():
-    '''test the calculatiion of the reference logK value, 
-    corrected for ?? @MartinvdS column AC
-      against the excel'''
+    '''test the calculatiion of the logKpw'''
 
     seg1 = Segment(name='seg1',
                     material='PE40',
@@ -218,9 +214,7 @@ def test_logKpw():
     
 
 def test_logDpw():
-    '''test the calculatiion of the reference logD value, 
-    corrected for ?? @MartinvdS column AC
-      against the excel'''
+    '''test the calculatiion of the logDw'''
 
     seg1 = Segment(name='seg1',
                     material='PE40',

@@ -186,9 +186,6 @@ class Segment:
             # inner_surface_area = (math.pi * inner_diameter * length)
             permeation_surface_area =(math.pi * inner_diameter * length)
 
-        # @MartinvdS check about drawing #1 = outer diameter used, 
-        # #3 inner diameter used for SA calculations, see notebook and 
-        # sheet "dimensies tertiare"
                    
         self.volume = volume
         self.length = length
@@ -205,7 +202,7 @@ class Segment:
 
 
     # @ah_todo revert back to csv? seperate file? 
-    # @MartinvdS-> suggest to implement the "named tuple" method, leave for now do at the end
+    # From Bram, @MartinvdS-> suggest to implement the "named tuple" method, leave for now do at the end
     reference_pipe_material_dict = \
         {
         "PE40": {
@@ -520,6 +517,7 @@ class Segment:
 
     def _calculate_mean_dw_mass_per_segment(self, 
                                             pipe_permeability_dict,
+                                            concentration_drinking_water,
                                             _groundwater_conditions_set,
                                             flow_rate=None,
                                         ): 
@@ -538,18 +536,21 @@ class Segment:
                                  _groundwater_conditions_set, 
                             ) 
 
-        permeation_coefficient = self.permeation_coefficient
-
-        #@martinvdS, but if we assign some volumes to zero, this messes this up, 
-        # so input the actual volume calculation instead?     
-           
+          
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
-        # in equation 4-5 and rearranging to remove C_dw from the equation
-        self.chemical_mass_drinkwater = ((concentration_groundwater * self.volume * 
-                           self.permeation_surface_area * permeation_coefficient) / 
-                            (self.diffusion_path_length * self.assessment_factor_groundwater *
-                              flow_rate + permeation_coefficient * self.permeation_surface_area))
-        #ah_todo rename to chemical_mass_drinkwater to chemical_chemical_mass_drinkwater
+        # in equation 4-5 
+        # self.chemical_mass_drinkwater = ((concentration_groundwater * self.volume * 
+        #                    self.permeation_surface_area * permeation_coefficient) / 
+        #                     (self.diffusion_path_length * self.assessment_factor_groundwater *
+        #                       flow_rate + permeation_coefficient * self.permeation_surface_area))
+
+        delta_c = concentration_groundwater - concentration_drinking_water
+
+        self.chemical_mass_drinkwater = ((self.permeation_coefficient 
+                                          * self.permeation_surface_area 
+                                          * delta_c / self.diffusion_path_length ) 
+                                            / self.assessment_factor_groundwater)
+
 
     def _calculate_peak_dw_mass_per_segment(self, 
                                         pipe_permeability_dict, 

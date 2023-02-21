@@ -40,8 +40,8 @@ test1 = test_logKpw_ref()
 test2 = test_logDp_ref()
 test3 = test_logKp_ref_temperature_correction()
 test4 = test_logDp_ref_temperature_correction()
-test5 = test_logKp_ref_other_correction()
-test6 = test_logDp_ref_other_correction()
+test5 = test_logKp_ref_concentration_correction()
+test6 = test_logDp_ref_concentration_correction()
 test7 = test_logKpw()
 test8 = test_logDpw()
 test9 = test_stagnation_factor()
@@ -74,8 +74,8 @@ pipe1.set_groundwater_conditions(chemical_name="Benzene",
                                 temperature_groundwater=12, 
                                 concentration_groundwater = 0.112980124482)
 pipe1.set_flow_rate(flow_rate=0.5)
-pipe1.calculate_peak_dw_concentration()  
-pipe1.pipe_permeability_dict
+# pipe1.calculate_peak_dw_concentration()  
+# pipe1.pipe_permeability_dict
 
 #%%
 seg1 = Segment(name='seg1',

@@ -211,7 +211,10 @@ class Pipe:
         return chemical_dict
 
 
-    def calculate_mean_dw_concentration(self, ):
+    def calculate_mean_dw_concentration(self, 
+                                        tolerance = 0.1,
+                                        relaxation_factor = 0.1,
+                                        max_iterations = 1000):
         '''
         Calculates the mean concentration in drinking water for a 24 hour period
         given a groundwater concentration. Mean concentrations in drinking 
@@ -219,32 +222,54 @@ class Pipe:
         
         Parameters
         ----------
-        stagnation_time_hours: float
-            time in hours, default 8 hours
+        tolerance: float 
+            the allowable difference between the calculated and actual drinking water concentration
+        relaxatoin_factor: float
+            used to iterate and calculate the new drinking water concentration
+        max_iterations: int
+            Maximum number of iterations allowed in the optimization scheme
 
         '''
-        sum_mass_segment = 0
 
         # Check if the flow rate has been set, if not raise error
         if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
+            concentration_drinking_water = 0.01 #initial guess for drinking water
+            counter = 0
             self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name)
             self.pipe_permeability_dict['chemical_name'] = self.chemical_name
             self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
             self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
 
-            for segment in self.segment_list:
-                segment._calculate_mean_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
-                                                            _groundwater_conditions_set = self._groundwater_conditions_set,
-                                                            flow_rate = self.flow_rate)
+            while True:    
 
-                sum_mass_segment += segment.chemical_mass_drinkwater
+                sum_mass_segment = 0
+
+                for segment in self.segment_list:
+                    segment._calculate_mean_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
+                                                                concentration_drinking_water = concentration_drinking_water,
+                                                                _groundwater_conditions_set = self._groundwater_conditions_set,
+                                                                flow_rate = self.flow_rate)
+
+                    sum_mass_segment += segment.chemical_mass_drinkwater
             
-            concentration_pipe_drinking_water = (sum_mass_segment / 
-                                                self.total_volume)
+                concentration_pipe_drinking_water = (sum_mass_segment / 
+                                                self.flow_rate) #volume of water consumed in 1 day = flow rate
             
+                
+                counter +=1
+                
+                if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) <= tolerance:
+                    break
+                elif counter > max_iterations:
+                    print('Max iterations exceeded')
+                    break
+                else:
+                    concentration_drinking_water = relaxation_factor * concentration_pipe_drinking_water + (1- relaxation_factor) * concentration_drinking_water
+                # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+                
             self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
 
@@ -288,165 +313,165 @@ class Pipe:
             self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
 
-    # AH_todo FUNCTIONS COMPLETE UNTIL HERE, below here these only work for a single pipe segment
+    # # AH_todo FUNCTIONS COMPLETE UNTIL HERE, below here these only work for a single pipe segment
 
-    def _calculate_peak_allowable_gw_concentration_per_segment(self, 
-                                    pipe_segment=None,
-                                    stagnation_time_hours = None,  
-                                    ):
-        '''
-        Calculates the peak (maximum) concentration in groundwater water for a 
-        given a stagnation period, that would not result in a peak concentration 
-        in drinking water exceeding the drinking water norm for a single pipe segment.
-        Stagnation period default of 8 hours. Peak concentrations in groundwater 
-        water and soil added to the pipe_permeability_dict. If the distribution 
-        coefficient it unknown for a given chemical, no soil concentration is 
-        calculated.
+    # def _calculate_peak_allowable_gw_concentration_per_segment(self, 
+    #                                 pipe_segment=None,
+    #                                 stagnation_time_hours = None,  
+    #                                 ):
+    #     '''
+    #     Calculates the peak (maximum) concentration in groundwater water for a 
+    #     given a stagnation period, that would not result in a peak concentration 
+    #     in drinking water exceeding the drinking water norm for a single pipe segment.
+    #     Stagnation period default of 8 hours. Peak concentrations in groundwater 
+    #     water and soil added to the pipe_permeability_dict. If the distribution 
+    #     coefficient it unknown for a given chemical, no soil concentration is 
+    #     calculated.
         
-        Parameters
-        ----------
-        stagnation_time_hours: float
-            time in hours, default 8 hours
-        pipe_segment: string
-            Name of the pipe segment for which the concentrations are calculated
-        '''
+    #     Parameters
+    #     ----------
+    #     stagnation_time_hours: float
+    #         time in hours, default 8 hours
+    #     pipe_segment: string
+    #         Name of the pipe segment for which the concentrations are calculated
+    #     '''
 
-        drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
-        stagnation_time = stagnation_time_hours / 24 # days
-        segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
-        segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
+    #     drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
+    #     stagnation_time = stagnation_time_hours / 24 # days
+    #     segment_volume = self.pipe_dictionary['segments'][pipe_segment]['volume']
+    #     segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
 
-        segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
+    #     segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
 
-        #Risk limit value groundwater
-        flux_max_stagnation = ( drinking_water_norm / 1000 * segment_volume /
-                        stagnation_time)
-        flux_max_stagnation_per_m2 = flux_max_stagnation / segment_surface_area
+    #     #Risk limit value groundwater
+    #     flux_max_stagnation = ( drinking_water_norm / 1000 * segment_volume /
+    #                     stagnation_time)
+    #     flux_max_stagnation_per_m2 = flux_max_stagnation / segment_surface_area
         
-        stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
+    #     stagnation_factor = self._calculate_stagnation_factor(pipe_segment=pipe_segment)
 
-        concentration_gw_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
-                                    segment_diffusion_path_length / 
-                                    self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] 
-                                    * self.assessment_factor_groundwater)
-
-
-        concentration_gw_peak_after_stagnation = stagnation_factor * concentration_gw_peak_without_stagnation
-
-        #Risk limit value soil, first check if a distribution coefficient is known
-        if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
-            concentration_peak_soil = 'log_distribution_coefficient (Kd) unknown'
-        else:
-            concentration_peak_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
-                                        concentration_gw_peak_after_stagnation * 
-                                        self.assessment_factor_soil / self.assessment_factor_groundwater)
-
-        self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_time_hours'] = stagnation_time_hours
-        self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation'] = flux_max_stagnation
-        self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation_per_m2'] = flux_max_stagnation_per_m2
-        self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
-        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_without_stagnation'] = concentration_gw_peak_without_stagnation
-        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_after_stagnation'] = concentration_gw_peak_after_stagnation
-        self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_soil'] = concentration_peak_soil
+    #     concentration_gw_peak_without_stagnation = (flux_max_stagnation_per_m2 * 
+    #                                 segment_diffusion_path_length / 
+    #                                 self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] 
+    #                                 * self.assessment_factor_groundwater)
 
 
-    def _calculate_mean_allowable_gw_concentration_per_segment(self, 
-                                    pipe_segment, 
-                                    ):
-        '''
-        Calculates the mean 24 hour concentration in groundwater which would not 
-        result in a drinking water concentration exceeding the drinking water
-        norm for a single pipe segment. Mean concentrations in groundwater and soil added to the 
-        pipe_permeability_dict. If the distribution coefficient it unknown for 
-        a given chemical, no soil concentration is calculated.
+    #     concentration_gw_peak_after_stagnation = stagnation_factor * concentration_gw_peak_without_stagnation
+
+    #     #Risk limit value soil, first check if a distribution coefficient is known
+    #     if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
+    #         concentration_peak_soil = 'log_distribution_coefficient (Kd) unknown'
+    #     else:
+    #         concentration_peak_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
+    #                                     concentration_gw_peak_after_stagnation * 
+    #                                     self.assessment_factor_soil / self.assessment_factor_groundwater)
+
+    #     self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_time_hours'] = stagnation_time_hours
+    #     self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation'] = flux_max_stagnation
+    #     self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_stagnation_per_m2'] = flux_max_stagnation_per_m2
+    #     self.pipe_permeability_dict['segments'][pipe_segment]['stagnation_factor'] = stagnation_factor
+    #     self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_without_stagnation'] = concentration_gw_peak_without_stagnation
+    #     self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_peak_after_stagnation'] = concentration_gw_peak_after_stagnation
+    #     self.pipe_permeability_dict['segments'][pipe_segment]['concentration_peak_soil'] = concentration_peak_soil
+
+
+    # def _calculate_mean_allowable_gw_concentration_per_segment(self, 
+    #                                 pipe_segment, 
+    #                                 ):
+    #     '''
+    #     Calculates the mean 24 hour concentration in groundwater which would not 
+    #     result in a drinking water concentration exceeding the drinking water
+    #     norm for a single pipe segment. Mean concentrations in groundwater and soil added to the 
+    #     pipe_permeability_dict. If the distribution coefficient it unknown for 
+    #     a given chemical, no soil concentration is calculated.
         
-        Parameters
-        ----------
-        pipe_segment: string
-            Name of the pipe segment for which the concentrations are calculated
-        '''
-        # Check if the flow rate has been set, if not raise error
-        if self._flow_rate_set is False: 
-            raise ValueError('Error, the flow rate in the pipe has not been set. \
-                             To set flow rate use .set_flow_rate()')
-        else: 
-            drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
-            segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
+    #     Parameters
+    #     ----------
+    #     pipe_segment: string
+    #         Name of the pipe segment for which the concentrations are calculated
+    #     '''
+    #     # Check if the flow rate has been set, if not raise error
+    #     if self._flow_rate_set is False: 
+    #         raise ValueError('Error, the flow rate in the pipe has not been set. \
+    #                          To set flow rate use .set_flow_rate()')
+    #     else: 
+    #         drinking_water_norm = self.pipe_permeability_dict['Drinking_water_norm']
+    #         segment_surface_area = self.pipe_dictionary['segments'][pipe_segment]['permeation_surface_area']
 
-            segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
+    #         segment_diffusion_path_length = self.pipe_dictionary['segments'][pipe_segment]['diffusion_path_length'] 
 
-            # 24 hour max flux
-            flux_max_per_day = drinking_water_norm / 1000 * self.flow_rate
-            flux_max_per_day_per_m2 = flux_max_per_day / segment_surface_area
+    #         # 24 hour max flux
+    #         flux_max_per_day = drinking_water_norm / 1000 * self.flow_rate
+    #         flux_max_per_day_per_m2 = flux_max_per_day / segment_surface_area
 
-            concentration_gw_mean= (flux_max_per_day_per_m2 * segment_diffusion_path_length / 
-                                        self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] * 
-                                        self.assessment_factor_groundwater + drinking_water_norm / 1000)
+    #         concentration_gw_mean= (flux_max_per_day_per_m2 * segment_diffusion_path_length / 
+    #                                     self.pipe_permeability_dict['segments'][pipe_segment]['permeation_coefficient'] * 
+    #                                     self.assessment_factor_groundwater + drinking_water_norm / 1000)
             
-            #Risk limit value soil, first check if there is a distribution coefficient known
-            if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
-                concentration_mean_soil = 'log_distribution_coefficient (Kd) unknown'
-            else:
-                concentration_mean_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
-                                            concentration_gw_mean* 
-                                            self.assessment_factor_soil / self.assessment_factor_groundwater)
+    #         #Risk limit value soil, first check if there is a distribution coefficient known
+    #         if math.isnan(self.pipe_permeability_dict['log_distribution_coefficient']):
+    #             concentration_mean_soil = 'log_distribution_coefficient (Kd) unknown'
+    #         else:
+    #             concentration_mean_soil = (10 ** self.pipe_permeability_dict['log_distribution_coefficient'] * 
+    #                                         concentration_gw_mean* 
+    #                                         self.assessment_factor_soil / self.assessment_factor_groundwater)
 
-            self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day'] = flux_max_per_day
-            self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
-            self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_mean'] = concentration_gw_mean
-            self.pipe_permeability_dict['segments'][pipe_segment]['concentration_mean_soil'] = concentration_mean_soil
+    #         self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day'] = flux_max_per_day
+    #         self.pipe_permeability_dict['segments'][pipe_segment]['flux_max_per_day_per_m2'] = flux_max_per_day_per_m2
+    #         self.pipe_permeability_dict['segments'][pipe_segment]['concentration_gw_mean'] = concentration_gw_mean
+    #         self.pipe_permeability_dict['segments'][pipe_segment]['concentration_mean_soil'] = concentration_mean_soil
 
 
-    def calculate_mean_allowable_gw_concentration(self, 
-                                    ):
-        '''
-        Calculates the mean 24 hour concentration in groundwater which would not 
-        result in a drinking water concentration exceeding the drinking water
-        norm. Mean concentrations in groundwater and soil added to the 
-        pipe_permeability_dict. If the distribution coefficient it unknown for 
-        a given chemical, no soil concentration is calculated.
+    # def calculate_mean_allowable_gw_concentration(self, 
+    #                                 ):
+    #     '''
+    #     Calculates the mean 24 hour concentration in groundwater which would not 
+    #     result in a drinking water concentration exceeding the drinking water
+    #     norm. Mean concentrations in groundwater and soil added to the 
+    #     pipe_permeability_dict. If the distribution coefficient it unknown for 
+    #     a given chemical, no soil concentration is calculated.
         
-        '''
-        #@MartinvdS, ah_todo, need to adjust this to account for mutliple segments, 
-        # right now I don't think it doesn't do what its supposed to...
+    #     '''
+    #     #@MartinvdS, ah_todo, need to adjust this to account for mutliple segments, 
+    #     # right now I don't think it doesn't do what its supposed to...
 
-        for pipe_segment in self.pipe_dictionary['segment_list']:
-            self._calculate_mean_allowable_gw_concentration_per_segment(pipe_segment=pipe_segment,)
+    #     for pipe_segment in self.pipe_dictionary['segment_list']:
+    #         self._calculate_mean_allowable_gw_concentration_per_segment(pipe_segment=pipe_segment,)
 
 
-    def calculate_peak_allowable_gw_concentration(self, 
-                                    stagnation_time_hours = 8,  
-                                    ):
-        '''
-        Calculates the peak (maximum) concentration in groundwater water for a 
-        given a stagnation period that would not result in a peak concentration 
-        in drinking water exceeding the drinking water norm for each pipe segment.
-        Stagnation period default of 8 hours. Peak concentrations in groundwater 
-        water and soil added to the pipe_permeability_dict. If the distribution 
-        coefficient it unknown for a given chemical, no soil concentration is 
-        calculated.
+    # def calculate_peak_allowable_gw_concentration(self, 
+    #                                 stagnation_time_hours = 8,  
+    #                                 ):
+    #     '''
+    #     Calculates the peak (maximum) concentration in groundwater water for a 
+    #     given a stagnation period that would not result in a peak concentration 
+    #     in drinking water exceeding the drinking water norm for each pipe segment.
+    #     Stagnation period default of 8 hours. Peak concentrations in groundwater 
+    #     water and soil added to the pipe_permeability_dict. If the distribution 
+    #     coefficient it unknown for a given chemical, no soil concentration is 
+    #     calculated.
         
-        Parameters
-        ----------
-        stagnation_time_hours: float
-            time in hours, default 8 hours
-        pipe_segment: string
-            Name of the pipe segment for which the concentrations are calculated
+    #     Parameters
+    #     ----------
+    #     stagnation_time_hours: float
+    #         time in hours, default 8 hours
+    #     pipe_segment: string
+    #         Name of the pipe segment for which the concentrations are calculated
 
-        '''
-        #@MartinvdS, ah_todo, need to adjust this to account for mutliple segments, 
-        # right now I don't think it doesn't do what its supposed to...
+    #     '''
+    #     #@MartinvdS, ah_todo, need to adjust this to account for mutliple segments, 
+    #     # right now I don't think it doesn't do what its supposed to...
 
-        for pipe_segment in self.pipe_dictionary['segment_list']:
-            self._calculate_peak_allowable_gw_concentration_per_segment(pipe_segment=pipe_segment,
-                                    stagnation_time_hours = stagnation_time_hours,  
-                                    )
+    #     for pipe_segment in self.pipe_dictionary['segment_list']:
+    #         self._calculate_peak_allowable_gw_concentration_per_segment(pipe_segment=pipe_segment,
+    #                                 stagnation_time_hours = stagnation_time_hours,  
+    #                                 )
 
 
-    def __str__(self,):
-        ''' or override the "print" function '''
-        return str(self.pipe_dictionary)
+    # def __str__(self,):
+    #     ''' or override the "print" function '''
+    #     return str(self.pipe_dictionary)
     
 
-    def _set_multidiffusion(self,):
-        ''' Function to return diffusion coefficient for multicomponent diffusion'''
+    # def _set_multidiffusion(self,):
+    #     ''' Function to return diffusion coefficient for multicomponent diffusion'''
