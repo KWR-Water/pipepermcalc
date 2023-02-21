@@ -539,11 +539,6 @@ class Segment:
           
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 
-        # self.chemical_mass_drinkwater = ((concentration_groundwater * self.volume * 
-        #                    self.permeation_surface_area * permeation_coefficient) / 
-        #                     (self.diffusion_path_length * self.assessment_factor_groundwater *
-        #                       flow_rate + permeation_coefficient * self.permeation_surface_area))
-
         delta_c = concentration_groundwater - concentration_drinking_water
 
         self.chemical_mass_drinkwater = ((self.permeation_coefficient 
@@ -554,6 +549,7 @@ class Segment:
 
     def _calculate_peak_dw_mass_per_segment(self, 
                                         pipe_permeability_dict, 
+                                        concentration_drinking_water,
                                         _groundwater_conditions_set,
                                         stagnation_time_hours = 8, 
                                         flow_rate=None,
@@ -579,19 +575,23 @@ class Segment:
                                  _groundwater_conditions_set, 
                             ) 
 
-        permeation_coefficient = self.permeation_coefficient
         self.stagnation_factor = self._calculate_stagnation_factor()
+        delta_c = concentration_groundwater - concentration_drinking_water
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation
-        chemical_mass_drinkwater =(( permeation_coefficient * self.permeation_surface_area * 
-                                stagnation_time * concentration_groundwater *  self.volume) / 
-                                ((self.diffusion_path_length * self.assessment_factor_groundwater * 
-                                  self.stagnation_factor * self.volume) + 
-                                  (permeation_coefficient * self.permeation_surface_area * stagnation_time) )  )
+        # chemical_mass_drinkwater =(( permeation_coefficient * self.permeation_surface_area * 
+        #                         stagnation_time * concentration_groundwater *  self.volume) / 
+        #                         ((self.diffusion_path_length * self.assessment_factor_groundwater * 
+        #                           self.stagnation_factor * self.volume) + 
+        #                           (permeation_coefficient * self.permeation_surface_area * stagnation_time) )  )
        
-        self.chemical_mass_drinkwater = chemical_mass_drinkwater
-        #ah_todo rename to chemical_mass_drinkwater to chemical_mass_drinkingwater
+        self.chemical_mass_drinkwater = ((self.permeation_coefficient 
+                                             * self.permeation_surface_area 
+                                             * delta_c / self.diffusion_path_length 
+                                             * stagnation_time * self.stagnation_factor) 
+                                            / self.assessment_factor_groundwater)
+
 
     def _update_partitioning_coefficient(self, 
                                         new_log_Kpw=None,):

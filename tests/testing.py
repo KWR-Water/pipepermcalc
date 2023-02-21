@@ -337,7 +337,7 @@ def test_calculate_peak_dw_concentration():
     pipe1.calculate_peak_dw_concentration()    
 
     raise_exception_two_values(answer=pipe1.pipe_permeability_dict['peak_concentration_pipe_drinking_water'], 
-                               ref_answer = 0.001, 
+                               ref_answer = 0.0018865325623111913, 
                                round_values=4)
 
 def test_calculate_mean_dw_concentration():

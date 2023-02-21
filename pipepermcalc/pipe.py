@@ -267,14 +267,21 @@ class Pipe:
                     print('Max iterations exceeded')
                     break
                 else:
-                    concentration_drinking_water = relaxation_factor * concentration_pipe_drinking_water + (1- relaxation_factor) * concentration_drinking_water
+                    concentration_drinking_water = (relaxation_factor 
+                                                    * concentration_pipe_drinking_water 
+                                                    + (1 - relaxation_factor) 
+                                                    * concentration_drinking_water)
                 # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
                 
             self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
 
     def calculate_peak_dw_concentration(self, 
-                                        stagnation_time_hours = 8, ):
+                                        stagnation_time_hours = 8, 
+                                        tolerance = 0.1,
+                                        relaxation_factor = 0.1,
+                                        max_iterations = 1000):
+
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
         given a stagnation period given a groundwater concentration.
@@ -285,31 +292,58 @@ class Pipe:
         ----------
         stagnation_time_hours: float
             time in hours, default 8 hours
+        tolerance: float 
+            the allowable difference between the calculated and actual drinking water concentration
+        relaxatoin_factor: float
+            used to iterate and calculate the new drinking water concentration
+        max_iterations: int
+            Maximum number of iterations allowed in the optimization scheme
 
         '''
-        sum_mass_segment = 0
-        
         # Check if the flow rate has been set, if not raise error
         if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
+            concentration_drinking_water = 0.01 #initial guess for drinking water
+            counter = 0
             self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name)
             self.pipe_permeability_dict['chemical_name'] = self.chemical_name
             self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
             self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
+            stagnation_time = stagnation_time_hours / 24
 
-            for segment in self.segment_list:
-                segment._calculate_peak_dw_mass_per_segment(pipe_permeability_dict = self.pipe_permeability_dict,
-                                        stagnation_time_hours = stagnation_time_hours,  
-                                        _groundwater_conditions_set = self._groundwater_conditions_set,
-                                        flow_rate = self.flow_rate                                       
-                                        )
-                sum_mass_segment += segment.chemical_mass_drinkwater
+            while True:    
+
+                sum_mass_segment = 0
+
+                for segment in self.segment_list:
+                    segment._calculate_peak_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
+                                                                concentration_drinking_water = concentration_drinking_water,
+                                                                _groundwater_conditions_set = self._groundwater_conditions_set,
+                                                                stagnation_time_hours = stagnation_time_hours, 
+                                                                flow_rate = self.flow_rate)
+
+                    sum_mass_segment += segment.chemical_mass_drinkwater
             
-            concentration_pipe_drinking_water = (sum_mass_segment / 
-                                                self.total_volume)
+                concentration_pipe_drinking_water = (sum_mass_segment / 
+                                                self.total_volume) #volume of water in the pipe during stagnation time
             
+                
+                counter +=1
+                
+                if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) <= tolerance:
+                    break
+                elif counter > max_iterations:
+                    print('Max iterations exceeded')
+                    break
+                else:
+                    concentration_drinking_water = (relaxation_factor 
+                                                    * concentration_pipe_drinking_water 
+                                                    + (1 - relaxation_factor) 
+                                                    * concentration_drinking_water)
+                # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+                
             self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
 
