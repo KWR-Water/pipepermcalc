@@ -222,7 +222,6 @@ class Segment:
         self.permeation_surface_area = permeation_surface_area
         self.outer_diameter = outer_diameter
         self.inner_diameter = inner_diameter
-        self.permeation_surface_area = permeation_surface_area
 
 
     # @ah_todo revert back to csv? seperate file? 
@@ -382,9 +381,6 @@ class Segment:
 
         Cg_Sw = min(pipe_permeability_dict['concentration_groundwater'] / pipe_permeability_dict['solubility'], 1)
         f_conc = a_c * (Cg_Sw - Cref_Sw)
-        # ah_todo, check the bounds for the LogK and LogD corrections for concentration, 
-        # if they are outside of what the report gives, limit to the bounds and throw back an error
-        # fig 5-7?? @martin vdS
 
         return f_conc
 
@@ -395,7 +391,29 @@ class Segment:
 
         f_age = 0.000
         return f_age
-    
+
+
+    def _calculate_ref_logK(self,
+                           pipe_permeability_dict):
+        '''Calculate the reference log K'''
+
+        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_a'][pipe_permeability_dict['chemical_group_number']]
+        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_b'][pipe_permeability_dict['chemical_group_number']]
+        log_Kpw_ref = a_ref * pipe_permeability_dict['log_octanol_water_partitioning_coefficient'] + b_ref
+
+        return log_Kpw_ref
+
+
+    def _calculate_ref_logD(self,
+                           pipe_permeability_dict):
+        '''Calculate the reference log K'''
+
+        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
+        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
+        log_Dp_ref = a_ref * pipe_permeability_dict['molecular_weight'] + b_ref
+
+        return log_Dp_ref    
+
 
     def _calculate_logK(self, 
                         pipe_permeability_dict):
@@ -408,9 +426,7 @@ class Segment:
         '''
 
         # calculate reference log K plastic-water (log kpw) 
-        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_a'][pipe_permeability_dict['chemical_group_number']]
-        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_b'][pipe_permeability_dict['chemical_group_number']]
-        log_Kpw_ref = a_ref * pipe_permeability_dict['log_octanol_water_partitioning_coefficient'] + b_ref
+        log_Kpw_ref = self._calculate_ref_logK(pipe_permeability_dict=pipe_permeability_dict, )
 
         # correct for temperature, concentration, age
         f_Ktemp = self._correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
@@ -447,9 +463,7 @@ class Segment:
         '''
         
         # calculate reference log D plastic (log Dp) 
-        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
-        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
-        log_Dp_ref = a_ref * pipe_permeability_dict['molecular_weight'] + b_ref
+        log_Dp_ref = self._calculate_ref_logD(pipe_permeability_dict=pipe_permeability_dict, )
 
         # correct for temperature, concentration, age
         f_Dtemp = self._correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
