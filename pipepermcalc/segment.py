@@ -28,7 +28,7 @@ class Segment:
     Segment object class to make segments of the pipe.
 
     Attributes
-    -------
+    ----------
     #ah_todo add attributes
 
     partitioning_a_dh: float
@@ -81,7 +81,7 @@ class Segment:
         Inner diameter of pipe segment, meters
     thickness: float
         Thickness of pipe segment, meters
-    permeation_direction: string
+        permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
         Direction of permeation through the pipe segment. Options are 
         'perpendicular' or 'parallel'. Default permeation is perpendicular 
         to the flow direction. See schematic XX in read the docs.
@@ -146,10 +146,37 @@ class Segment:
         '''
         Creates a pipe segment with the attributes of the pipe (length, 
         thickness, diameter, material etc.). 
-        #ah_todo update these definitions
+        
+        Parameters
+        ----------
+        name: string
+            name of the pipe segment
+        material: string enum?? @Bram -> set choice of materials
+            e.g. PE40, PE80, PVC, EPDM, rubber etc.
+        length: float
+            Length of pipe segment, meters 
+        inner_diameter: float
+            Inner diameter of pipe segment, meters
+        thickness: float
+            Thickness of pipe segment, meters
+        permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
+            Direction of permeation through the pipe segment. Options are 
+            'perpendicular' or 'parallel'. Default permeation is perpendicular 
+            to the flow direction. See schematic XX in read the docs.
+            @AH_todo add schematic of permeation for parallel vs. perpendicular
+        diffusion_path_length: float
+            In the case of permeation perpendicular to the flow direction, a 
+            diffusion path length is required to calculate the permeation 
+            through the pipe segment. For example in the case of a pipe 
+            coupling rings. If no value is given, diffusion is assumed 
+            perpendicular to the flow direction and the thickness is 
+            used to calculate the diffusion through the pipe segment. 
+            Unit meters.
 
         '''  
-        #constants
+
+
+        #Constants for various LogK and Log D equations
         self._partitioning_a_dh = 7.92169801506708 #see table 5-6 in KWR 2016.056
         self._partitioning_b_dh = -17.1875608983359 #see table 5-6 in KWR 2016.056
         self._diffusion_a_dh = 61.8565740136974 #see table 5-6 in KWR 2016.056
@@ -163,42 +190,39 @@ class Segment:
 
         self.name = name
         self.material = material
-        self.length = length
-        self.inner_diameter = inner_diameter
-        self.thickness = thickness
-        self.permeation_direction = permeation_direction
-        self.diffusion_path_length = diffusion_path_length    
 
+        self.length = float(length)
+        self.inner_diameter = float(inner_diameter)
+        self.thickness = float(thickness)
+        self.permeation_direction = permeation_direction
+    
         if diffusion_path_length is None:
-            diffusion_path_length = thickness
+            self.diffusion_path_length = self.thickness
         else:
-            pass
+            self.diffusion_path_length = float(diffusion_path_length)    
         
+        # Checks here that length, inner diameter, thickness, diffusion path length > 0
+        check_values = ['length', 'inner_diameter', 'thickness', 'diffusion_path_length']
+        for check_value in check_values:
+            value = getattr(self, check_value)
+            if value <= 0:
+                raise ValueError(f'{check_value} must be > 0 ')
+
         outer_diameter = inner_diameter + thickness
 
         if permeation_direction == 'parallel':
             volume = 0 
-            # outer_surface_area = None #not applicable to this type of permeation
             permeation_surface_area = (math.pi * ((inner_diameter + thickness) ** 2 - inner_diameter ** 2) )/4
         elif permeation_direction == 'perpendicular':
             volume = math.pi * (inner_diameter / 2) ** 2 * length
-            # outer_surface_area = (math.pi * outer_diameter * length)
-            # inner_surface_area = (math.pi * inner_diameter * length)
             permeation_surface_area =(math.pi * inner_diameter * length)
 
                    
         self.volume = volume
-        self.length = length
         self.permeation_surface_area = permeation_surface_area
-        self.material = material
         self.outer_diameter = outer_diameter
         self.inner_diameter = inner_diameter
-        self.thickness = thickness
-        self.diffusion_path_length = diffusion_path_length
-        # 'outer_surface_area': outer_surface_area,
-        # 'inner_surface_area': inner_surface_area,
         self.permeation_surface_area = permeation_surface_area
-        self.permeation_direction = permeation_direction
 
 
     # @ah_todo revert back to csv? seperate file? 
@@ -342,7 +366,7 @@ class Segment:
         Correction factor for the influence of concentration on the 
         partitioning or diffusion coefficient 
 
-        See table 5-3 in KWR 2016.056
+        See table 5-3, equations 5-17 and 5-19 in KWR 2016.056
 
         Parameters
         ----------
@@ -358,6 +382,10 @@ class Segment:
 
         Cg_Sw = min(pipe_permeability_dict['concentration_groundwater'] / pipe_permeability_dict['solubility'], 1)
         f_conc = a_c * (Cg_Sw - Cref_Sw)
+        # ah_todo, check the bounds for the LogK and LogD corrections for concentration, 
+        # if they are outside of what the report gives, limit to the bounds and throw back an error
+        # fig 5-7?? @martin vdS
+
         return f_conc
 
 
@@ -399,7 +427,7 @@ class Segment:
 
         # sum corrections for final Log k
         log_Kpw = log_Kpw_ref + f_Ktemp + f_Kconc + f_Kage
-
+        
         self.log_Kpw_ref = log_Kpw_ref
         self.f_Ktemp = f_Ktemp   
         self.f_Kconc = f_Kconc
@@ -438,7 +466,9 @@ class Segment:
 
         # sum corrections for final Log D
         log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
-        
+
+
+
         #ah discussed wtih Bram not to store these values, only calculate them on the fly
         self.log_Dp_ref = log_Dp_ref
         self.f_Dtemp = f_Dtemp    
@@ -531,17 +561,12 @@ class Segment:
         '''
 
         concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
-
-        self._calculate_pipe_K_D(pipe_permeability_dict, 
-                                 _groundwater_conditions_set, 
-                            ) 
-
-          
+         
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 
         delta_c = concentration_groundwater - concentration_drinking_water
 
-        self.chemical_mass_drinkwater = ((self.permeation_coefficient 
+        self.mass_chemical_drinkwater = ((self.permeation_coefficient 
                                           * self.permeation_surface_area 
                                           * delta_c / self.diffusion_path_length ) 
                                             / self.assessment_factor_groundwater)
@@ -571,22 +596,13 @@ class Segment:
         stagnation_time = stagnation_time_hours / 24 # days
 
         concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
-        self._calculate_pipe_K_D(pipe_permeability_dict, 
-                                 _groundwater_conditions_set, 
-                            ) 
 
         self.stagnation_factor = self._calculate_stagnation_factor()
         delta_c = concentration_groundwater - concentration_drinking_water
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
-        # in equation 4-5 and rearranging to remove C_dw from the equation
-        # chemical_mass_drinkwater =(( permeation_coefficient * self.permeation_surface_area * 
-        #                         stagnation_time * concentration_groundwater *  self.volume) / 
-        #                         ((self.diffusion_path_length * self.assessment_factor_groundwater * 
-        #                           self.stagnation_factor * self.volume) + 
-        #                           (permeation_coefficient * self.permeation_surface_area * stagnation_time) )  )
-       
-        self.chemical_mass_drinkwater = ((self.permeation_coefficient 
+        # in equation 4-5 and rearranging to remove C_dw from the equation       
+        self.mass_chemical_drinkwater = ((self.permeation_coefficient 
                                              * self.permeation_surface_area 
                                              * delta_c / self.diffusion_path_length 
                                              * stagnation_time * self.stagnation_factor) 

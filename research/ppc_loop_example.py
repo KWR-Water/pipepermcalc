@@ -32,6 +32,8 @@ from pipepermcalc.pipe import *
 from pipepermcalc.segment import * 
 # ah_todo need to add an additional import
 #%%
+# Mean concentration in groundwater for a given drinking water 
+
 seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
@@ -39,12 +41,92 @@ seg1 = Segment(name='seg1',
                 thickness=0.0027,
                 )
 
-# seg2 = Segment(name='seg2',
-#                 material='PE40',
-#                 length=25,
-#                 inner_diameter=0.0196,
-#                 thickness=0.0027,
-#                 )
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_flow_rate(flow_rate=0.5)
+
+concentration_drinking_water = 0.001 #norm for drinking water
+tolerance = 0.01
+relaxation_factor = 0.1
+max_iterations = 1000
+counter = 0
+
+# Calculate the  initial guess for the gw based on the norm/c_dw 
+# instead of having a user input initial guess, @martinvdS, requires a 
+# groundwater concentration to calculate the pipe Kpw/Dw/Ppw so use the 
+# drinking water norm??
+
+pipe2 = Pipe(segment_list=[seg1])
+pipe2.set_groundwater_conditions(chemical_name="Benzene", 
+                                temperature_groundwater=12, 
+                                concentration_groundwater=concentration_drinking_water, 
+                                )
+#*** initial guess gw concentration
+concentration_groundwater = ((concentration_drinking_water * seg1.volume * seg1.assessment_factor_groundwater 
+                     * seg1.diffusion_path_length) 
+                     / (seg1.permeation_coefficient * seg1.permeation_surface_area) 
+                     + concentration_drinking_water)
+
+
+while True:
+    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+                                temperature_groundwater=12, 
+                                concentration_groundwater=concentration_groundwater, 
+                                )
+    sum_mass_segment = 0
+
+    pipe1.pipe_permeability_dict = pipe1._fetch_chemical_database(chemical_name=pipe1.chemical_name)
+    pipe1.pipe_permeability_dict['chemical_name'] = pipe1.chemical_name
+    pipe1.pipe_permeability_dict['concentration_groundwater'] = pipe1.concentration_groundwater
+    pipe1.pipe_permeability_dict['temperature_groundwater'] = pipe1.temperature_groundwater
+    concentration_groundwater = pipe1.pipe_permeability_dict['concentration_groundwater'] 
+
+    for segment in pipe1.segment_list:
+        delta_c = concentration_groundwater - concentration_drinking_water
+        segment._calculate_pipe_K_D(pipe1.pipe_permeability_dict, 
+                                pipe1._groundwater_conditions_set, ) 
+        
+        # ah_todo, check the bounds for the LogK and LogD corrections for concentration, 
+        # if they are outside of what the report gives, limit to the bounds and throw back an error
+        # fig 5-7? @martin vdS
+
+        segment.mass_chemical_drinkwater = ((segment.permeation_coefficient 
+                                             * segment.permeation_surface_area 
+                                             * delta_c / segment.diffusion_path_length ) 
+                                            / segment.assessment_factor_groundwater)
+        
+
+        sum_mass_segment += segment.mass_chemical_drinkwater
+
+    concentration_pipe_drinking_water = (sum_mass_segment / 
+                                        pipe1.flow_rate)
+    counter +=1
+
+    if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) <= tolerance:
+        break
+    elif counter > max_iterations:
+        print('Max iterations exceeded')
+        break
+    else:
+        new_groundwater = concentration_groundwater * (1 + ((concentration_drinking_water - concentration_pipe_drinking_water) / concentration_drinking_water * relaxation_factor))
+        concentration_groundwater = new_groundwater
+        if counter % 100 == 0 : print(new_groundwater)
+
+print(new_groundwater, counter)
+#%%
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
+
+seg2 = Segment(name='seg2',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
 
 pipe1 = Pipe(segment_list=[seg1])
 pipe1.set_groundwater_conditions(chemical_name="Benzene", 
@@ -53,7 +135,7 @@ pipe1.set_groundwater_conditions(chemical_name="Benzene",
                                 )
 
 pipe1.set_flow_rate(flow_rate=0.5)
-pipe1.calculate_peak_dw_concentration()
+pipe1.calculate_mean_dw_concentration()
 pipe1.pipe_permeability_dict
 
 #%% COMPLETE
@@ -89,11 +171,11 @@ while True:
                                 pipe1._groundwater_conditions_set, 
                         ) 
 
-        segment.chemical_mass_drinkwater = ((segment.permeation_coefficient * segment.permeation_surface_area * delta_c / segment.diffusion_path_length ) 
+        segment.mass_chemical_drinkwater = ((segment.permeation_coefficient * segment.permeation_surface_area * delta_c / segment.diffusion_path_length ) 
                                             / segment.assessment_factor_groundwater)
         # end segment function
 
-        sum_mass_segment += segment.chemical_mass_drinkwater
+        sum_mass_segment += segment.mass_chemical_drinkwater
 
     concentration_pipe_drinking_water = (sum_mass_segment / 
                                         pipe1.flow_rate) #volume of water consumed in 1 day = flow rate
@@ -105,13 +187,13 @@ while True:
         print('Max iterations exceeded')
         break
     else:
-        concentration_drinking_water = relaxation_factor * concentration_pipe_drinking_water + (1- relaxation_factor) * concentration_drinking_water
+        concentration_drinking_water = relaxation_factor * concentration_pipe_drinking_water + (1 - relaxation_factor) * concentration_drinking_water
 
     if counter % 100 ==0 : print(concentration_drinking_water)
 
 print(concentration_pipe_drinking_water, counter)
 
-#%% 
+#%% COMPLETE
 # PEAK concentration in drinking water for a given groundwater concentration 
 seg1 = Segment(name='seg1',
                 material='PE40',
@@ -162,14 +244,14 @@ while True:
                         ) 
         stagnation_factor = segment._calculate_stagnation_factor()
 
-        segment.chemical_mass_drinkwater = ((segment.permeation_coefficient 
+        segment.mass_chemical_drinkwater = ((segment.permeation_coefficient 
                                              * segment.permeation_surface_area 
                                              * delta_c / segment.diffusion_path_length 
                                              * stagnation_time * stagnation_factor) 
                                             / segment.assessment_factor_groundwater)
         # end segment function
 
-        sum_mass_segment += segment.chemical_mass_drinkwater
+        sum_mass_segment += segment.mass_chemical_drinkwater
 
     concentration_pipe_drinking_water = (sum_mass_segment / 
                                         pipe1.total_volume) 
@@ -187,60 +269,6 @@ while True:
 
 print(concentration_pipe_drinking_water, counter)
 
-#%%
-# Mean concentration in groundwater for a given drinking water 
-
-norm_dw = 0.001
-tolerance = 0.01
-
-# How to we prevent that the code goes off in the wrong direction?
-
-# add limit in number of iterations, e.g. 1000
-
-# ah_todo calculate the  initial guess for the gw based on the norm/c_dw instead of having a user input initial guess 
-initial_guess_gw = 100
-# -> see mass calculation, solve for delta C, 
-
-new_groundwater = initial_guess_gw
-counter = 0
-
-while True:
-    guess_gw = new_groundwater
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater=guess_gw, #*** initial guess dw concentration
-                                )
-    sum_mass_segment = 0
-
-    pipe1.pipe_permeability_dict = pipe1._fetch_chemical_database(chemical_name=pipe1.chemical_name)
-    pipe1.pipe_permeability_dict['chemical_name'] = pipe1.chemical_name
-    pipe1.pipe_permeability_dict['concentration_groundwater'] = pipe1.concentration_groundwater
-    pipe1.pipe_permeability_dict['temperature_groundwater'] = pipe1.temperature_groundwater
-
-    # ah_todo, check the bounds for the LogK and LogD corrections for concentration, 
-    # if they are outside of what the report gives, limit to the bounds and throw back an error
-
-    for segment in pipe1.segment_list:
-        # segment._calculate_mean_dw_mass_per_segment(pipe_permeability_dict=pipe1.pipe_permeability_dict,
-        #                                             _groundwater_conditions_set = pipe1._groundwater_conditions_set,
-        #                                             flow_rate = pipe1.flow_rate)
-        
-
-        sum_mass_segment += segment.chemical_mass_drinkwater
-
-    concentration_pipe_drinking_water = (sum_mass_segment / 
-                                        pipe1.total_volume)
-    counter +=1
-
-    if abs(1 - norm_dw / concentration_pipe_drinking_water) <= tolerance:
-        break
-    else:
-        new_groundwater = initial_guess_gw + (1+( norm_dw - concentration_pipe_drinking_water) / concentration_pipe_drinking_water * 0.1)
-    
-    # add break for the counter, 
-    # print every 100th solution
-
-print(new_groundwater, counter)
   
 #%%
 # Peak concentration in groundwater for a given drinking water 
@@ -275,7 +303,7 @@ while True:
                                 _groundwater_conditions_set = pipe1._groundwater_conditions_set,
                                 flow_rate = pipe1.flow_rate                                       
                                 )
-        sum_mass_segment += segment.chemical_mass_drinkwater
+        sum_mass_segment += segment.mass_chemical_drinkwater
     
     concentration_pipe_drinking_water = (sum_mass_segment / 
                                         pipe1.total_volume)

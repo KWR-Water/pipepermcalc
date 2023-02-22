@@ -150,13 +150,30 @@ class Pipe:
         self.total_volume = sum_total_volume
 
 
+    def check_input_values(self, check_values):
+        '''Checks that the input values are > 0
+        
+        Parameters
+        ----------
+        check_values: list,
+            List (string) of the variables to check 
+        '''
+        
+        for check_value in check_values:
+            value = getattr(self, check_value)
+            if value <= 0:
+                raise ValueError(f'{check_value} must be > 0 ')
+        
+
     def set_groundwater_conditions(self,
                                    chemical_name=None,                                    
                                    concentration_groundwater=None,
                                    temperature_groundwater=None):
         ''' 
         Specifies the chemical of interest, concentration and temperature in the 
-        groundwater and returns the parameters as attributes of the class.
+        groundwater and returns the parameters as attributes of the class. 
+        Calculates the segment permeation parameters based on the groundwater 
+        conditions.
         
         Parameters
         ----------
@@ -167,11 +184,26 @@ class Pipe:
         temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
         '''
-        
+
+
         self.concentration_groundwater = concentration_groundwater
         self.temperature_groundwater = temperature_groundwater
+        # Checks here that input concentration and temperature > 0
+        check_values = ['concentration_groundwater', 'temperature_groundwater',]
+        self.check_input_values(check_values)
+
         self.chemical_name = chemical_name
         self._groundwater_conditions_set = True
+
+        self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name)
+        self.pipe_permeability_dict['chemical_name'] = self.chemical_name
+        self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
+        self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
+
+        for segment in self.segment_list:
+            segment._calculate_pipe_K_D(pipe_permeability_dict=self.pipe_permeability_dict, 
+                                 _groundwater_conditions_set=self._groundwater_conditions_set, )
+
     
 
     def set_flow_rate(self, 
@@ -185,6 +217,11 @@ class Pipe:
             flow_rate through pipe. Defaul of 0.5 m3/day.
         '''
         self.flow_rate = flow_rate
+
+        # Checks here that input flow_rate > 0
+        check_values = ['flow_rate', ]
+        self.check_input_values(check_values)
+
         self._flow_rate_set = True
 
 
@@ -212,7 +249,7 @@ class Pipe:
 
 
     def calculate_mean_dw_concentration(self, 
-                                        tolerance = 0.1,
+                                        tolerance = 0.01, #ah_todo should we not have these as defaults?
                                         relaxation_factor = 0.1,
                                         max_iterations = 1000):
         '''
@@ -230,18 +267,24 @@ class Pipe:
             Maximum number of iterations allowed in the optimization scheme
 
         '''
+        self.max_iterations = int(max_iterations)
+        self.tolerance = tolerance
+        self.relaxation_factor = relaxation_factor
+        
+        # Checks here that input 'max_iterations', 'tolerance', 'relaxation_factor' > 0
+        check_values = ['max_iterations', 'tolerance', 'relaxation_factor' ]
+        self.check_input_values(check_values)
+
 
         # Check if the flow rate has been set, if not raise error
         if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
-            concentration_drinking_water = 0.01 #initial guess for drinking water
+            concentration_drinking_water = 0.01 #initial guess for drinking water 
+            # @martinvds, is concentration_drinking_water  a user input parameter 
+            # or do we calculate? or is it the drinking water norm?
             counter = 0
-            self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name)
-            self.pipe_permeability_dict['chemical_name'] = self.chemical_name
-            self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
-            self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
 
             while True:    
 
@@ -253,7 +296,7 @@ class Pipe:
                                                                 _groundwater_conditions_set = self._groundwater_conditions_set,
                                                                 flow_rate = self.flow_rate)
 
-                    sum_mass_segment += segment.chemical_mass_drinkwater
+                    sum_mass_segment += segment.mass_chemical_drinkwater
             
                 concentration_pipe_drinking_water = (sum_mass_segment / 
                                                 self.flow_rate) #volume of water consumed in 1 day = flow rate
@@ -278,7 +321,7 @@ class Pipe:
 
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, 
-                                        tolerance = 0.1,
+                                        tolerance = 0.01, #ah_todo should we not have these as defaults?
                                         relaxation_factor = 0.1,
                                         max_iterations = 1000):
 
@@ -300,18 +343,27 @@ class Pipe:
             Maximum number of iterations allowed in the optimization scheme
 
         '''
+
+        self.max_iterations = int(max_iterations)
+        self.tolerance = tolerance
+        self.relaxation_factor = relaxation_factor
+        self.stagnation_time_hours = stagnation_time_hours
+
+        # Checks here that input 'stagnation_time_hours', 'max_iterations', 
+        # 'tolerance', 'relaxation_factor' > 0
+        check_values = ['stagnation_time_hours', 'max_iterations', 'tolerance', 'relaxation_factor' ]
+        self.check_input_values(check_values)
+
         # Check if the flow rate has been set, if not raise error
         if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
             concentration_drinking_water = 0.01 #initial guess for drinking water
+            # @martinvds, is concentration_drinking_water  a user input parameter 
+            # or do we calculate? or is it the drinking water norm?
+
             counter = 0
-            self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name)
-            self.pipe_permeability_dict['chemical_name'] = self.chemical_name
-            self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
-            self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
-            stagnation_time = stagnation_time_hours / 24
 
             while True:    
 
@@ -324,12 +376,10 @@ class Pipe:
                                                                 stagnation_time_hours = stagnation_time_hours, 
                                                                 flow_rate = self.flow_rate)
 
-                    sum_mass_segment += segment.chemical_mass_drinkwater
+                    sum_mass_segment += segment.mass_chemical_drinkwater
             
                 concentration_pipe_drinking_water = (sum_mass_segment / 
                                                 self.total_volume) #volume of water in the pipe during stagnation time
-            
-                
                 counter +=1
                 
                 if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) <= tolerance:
@@ -345,6 +395,35 @@ class Pipe:
                 # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
                 
             self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
+
+
+    def calculate_mean_allowable_gw_concentration(self, 
+                                        concentration_drinking_water,
+                                        tolerance = 0.01, #ah_todo should we not have these as defaults?
+                                        relaxation_factor = 0.1,
+                                        max_iterations = 1000
+                                        ):
+        '''
+        Calculates the mean 24 hour concentration in groundwater which would not 
+        result in a drinking water concentration exceeding the drinking water
+        norm. Mean concentrations in groundwater and soil added to the 
+        pipe_permeability_dict. If the distribution coefficient it unknown for 
+        a given chemical, no soil concentration is calculated.
+
+        Parameters
+        ----------
+        concentration_drinking_water: float
+            Concentration in the drinking water for which to calculate the mean 
+            allowable groundwater concentration, g/m^3
+        tolerance: float 
+            the allowable difference between the calculated and actual drinking water concentration
+        relaxatoin_factor: float
+            used to iterate and calculate the new drinking water concentration
+        max_iterations: int
+            Maximum number of iterations allowed in the optimization scheme
+        
+        '''
+
 
 
     # # AH_todo FUNCTIONS COMPLETE UNTIL HERE, below here these only work for a single pipe segment
