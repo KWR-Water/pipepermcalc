@@ -45,6 +45,7 @@ pipe1 = Pipe(segment_list=[seg1])
 
 pipe1.set_flow_rate(flow_rate=0.5)
 
+chemical_name = 'Benzene'
 concentration_drinking_water = 0.001 #norm for drinking water
 tolerance = 0.01
 relaxation_factor = 0.1
@@ -52,21 +53,23 @@ max_iterations = 1000
 counter = 0
 
 # Calculate the  initial guess for the gw based on the norm/c_dw 
-# instead of having a user input initial guess, @martinvdS, requires a 
-# groundwater concentration to calculate the pipe Kpw/Dw/Ppw so use the 
-# drinking water norm??
 
-pipe2 = Pipe(segment_list=[seg1])
-pipe2.set_groundwater_conditions(chemical_name="Benzene", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater=concentration_drinking_water, 
-                                )
+pipe_permeability_dict = pipe1._fetch_chemical_database(
+                                chemical_name=chemical_name)
+
 #*** initial guess gw concentration
-concentration_groundwater = ((concentration_drinking_water * seg1.volume * seg1.assessment_factor_groundwater 
-                     * seg1.diffusion_path_length) 
-                     / (seg1.permeation_coefficient * seg1.permeation_surface_area) 
-                     + concentration_drinking_water)
+for segment in pipe1.segment_list:
+    log_Dp_ref = segment._calculate_ref_logD(pipe_permeability_dict=pipe_permeability_dict, )
+    log_Kpw_ref = segment._calculate_ref_logK(pipe_permeability_dict=pipe_permeability_dict, )
 
+    concentration_groundwater = ((concentration_drinking_water * pipe1.total_volume 
+                                  * segment.assessment_factor_groundwater 
+                                  * segment.diffusion_path_length) 
+                                  / (log_Kpw_ref * log_Dp_ref 
+                                     * segment.permeation_surface_area) 
+                                     + concentration_drinking_water )
+
+# @martinvdS, which segment to use? or how to sum them?    
 
 while True:
     pipe1.set_groundwater_conditions(chemical_name="Benzene", 
@@ -86,10 +89,6 @@ while True:
         segment._calculate_pipe_K_D(pipe1.pipe_permeability_dict, 
                                 pipe1._groundwater_conditions_set, ) 
         
-        # ah_todo, check the bounds for the LogK and LogD corrections for concentration, 
-        # if they are outside of what the report gives, limit to the bounds and throw back an error
-        # fig 5-7? @martin vdS
-
         segment.mass_chemical_drinkwater = ((segment.permeation_coefficient 
                                              * segment.permeation_surface_area 
                                              * delta_c / segment.diffusion_path_length ) 

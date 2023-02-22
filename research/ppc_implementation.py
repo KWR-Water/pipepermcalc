@@ -60,17 +60,6 @@ test15 = test_updating_diffusion_coefficient()
 # test13 = test_mean_soil_concentration()
 
 #%%
-seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                thickness=-0.0027,
-                )
-
-
-#%%
-# @martinvdS - does it make sense that a twice large pipe has the same peak 
-# concentration but a 2x higher mean concentration?
 
 seg1 = Segment(name='seg1',
                 material='PE40',
@@ -92,7 +81,6 @@ pipe1.set_groundwater_conditions(chemical_name="Benzene",
                                 temperature_groundwater=12, 
                                 concentration_groundwater=1.8, 
                                 )
-
 pipe1.set_flow_rate(flow_rate=0.5)
 pipe1.calculate_mean_dw_concentration()
 pipe1.calculate_peak_dw_concentration()

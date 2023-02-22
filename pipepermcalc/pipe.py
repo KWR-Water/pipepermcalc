@@ -281,9 +281,7 @@ class Pipe:
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
-            concentration_drinking_water = 0.01 #initial guess for drinking water 
-            # @martinvds, is concentration_drinking_water  a user input parameter 
-            # or do we calculate? or is it the drinking water norm?
+            concentration_drinking_water = 0 #initial guess for drinking water 
             counter = 0
 
             while True:    
@@ -314,7 +312,7 @@ class Pipe:
                                                     * concentration_pipe_drinking_water 
                                                     + (1 - relaxation_factor) 
                                                     * concentration_drinking_water)
-                # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+                # if counter % 10 ==0 : print(concentration_drinking_water) #for debugging
                 
             self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
@@ -359,10 +357,7 @@ class Pipe:
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
-            concentration_drinking_water = 0.01 #initial guess for drinking water
-            # @martinvds, is concentration_drinking_water  a user input parameter 
-            # or do we calculate? or is it the drinking water norm?
-
+            concentration_drinking_water = 0.0 #initial guess for drinking water
             counter = 0
 
             while True:    
@@ -399,7 +394,7 @@ class Pipe:
 
     def calculate_mean_allowable_gw_concentration(self, 
                                         concentration_drinking_water,
-                                        tolerance = 0.01, #ah_todo should we not have these as defaults?
+                                        tolerance = 0.01, #ah_todo should we have these as defaults?
                                         relaxation_factor = 0.1,
                                         max_iterations = 1000
                                         ):
@@ -424,6 +419,34 @@ class Pipe:
         
         '''
 
+    def calculate_peak_allowable_gw_concentration(self, 
+                                    stagnation_time_hours = 8,
+                                    tolerance = 0.01, #ah_todo should we have these as defaults?
+                                    relaxation_factor = 0.1,
+                                    max_iterations = 1000
+
+                                    ):
+        '''
+        Calculates the peak (maximum) concentration in groundwater water for a 
+        given a stagnation period that would not result in a peak concentration 
+        in drinking water exceeding the drinking water norm for each pipe segment.
+        Stagnation period default of 8 hours. Peak concentrations in groundwater 
+        water and soil added to the pipe_permeability_dict. If the distribution 
+        coefficient it unknown for a given chemical, no soil concentration is 
+        calculated.
+        
+        Parameters
+        ----------
+        stagnation_time_hours: float
+            time in hours, default 8 hours
+        tolerance: float 
+            the allowable difference between the calculated and actual drinking water concentration
+        relaxatoin_factor: float
+            used to iterate and calculate the new drinking water concentration
+        max_iterations: int
+            Maximum number of iterations allowed in the optimization scheme
+
+        '''
 
 
     # # AH_todo FUNCTIONS COMPLETE UNTIL HERE, below here these only work for a single pipe segment
