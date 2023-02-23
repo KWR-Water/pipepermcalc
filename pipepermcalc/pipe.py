@@ -20,7 +20,7 @@ import math
 import datetime
 from datetime import timedelta
 
-from project_path import file_path
+from project_path import file_path, module_path
 
 from pipepermcalc.segment import * 
 
@@ -239,7 +239,7 @@ class Pipe:
             @Bram to be replaced by the function restricting input of names
         '''
         
-        ppc_database = read_csv(file_path.parent / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
+        ppc_database = read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
 
         df = ppc_database[ppc_database['chemical_name'].str.contains(chemical_name)]
 
