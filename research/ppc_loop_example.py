@@ -30,8 +30,130 @@ from project_path import file_path
 
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
-# ah_todo need to add an additional import
 #%%
+
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
+
+seg2 = Segment(name='seg2',
+                material='PE40',
+                length=12.5,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
+
+pipe1 = Pipe(segment_list=[seg1])
+pipe1.set_flow_rate(flow_rate=0.5)
+pipe1.calculate_peak_allowable_gw_concentration (concentration_drinking_water = 0.001,
+                                        chemical_name='Benzene',
+                                        temperature_groundwater=12,)
+
+pipe1.pipe_permeability_dict
+#%%
+#COMPLETE
+# peak concentration in groundwater for a given drinking water 
+
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
+
+# seg2 = Segment(name='seg2',
+#                 material='PE40',
+#                 length=12.5,
+#                 inner_diameter=0.0196,
+#                 thickness=0.0027,
+#                 )
+
+pipe1 = Pipe(segment_list=[seg1])
+pipe1.set_flow_rate(flow_rate=0.5)
+
+chemical_name = 'Benzene'
+concentration_drinking_water = 0.001 #norm for drinking water
+tolerance = 0.01
+relaxation_factor = 0.1
+max_iterations = 1000
+stagnation_time_hours = 8
+temperature_groundwater = 12
+
+pipe_permeability_dict = pipe1._fetch_chemical_database(
+                                chemical_name=chemical_name)
+
+pipe1.stagnation_time = stagnation_time_hours / 24
+
+# calculate initial guess for gw concentration
+sum_KDA_d = 0
+for segment in pipe1.segment_list:
+    # calculate the sum of the Kpw * DP * SA *f_stag / d for all pipe segments
+    log_Dp_ref = segment._calculate_ref_logD(pipe_permeability_dict=pipe_permeability_dict, )
+    log_Kpw_ref = segment._calculate_ref_logK(pipe_permeability_dict=pipe_permeability_dict, )
+    
+    Dp_ref = 10 ** log_Dp_ref
+    Kpw_ref = 10 ** log_Kpw_ref
+
+    #stagnation factor with reference values for LogDp and LogKpw
+    stagnation_factor = 10 ** max((((log_Dp_ref + 12.5) / 2 + 
+                        log_Kpw_ref) * 0.73611 + 
+                        -1.03574 ), 0)            
+
+    sum_KDA_d_segment = (Dp_ref * Kpw_ref * segment.permeation_surface_area 
+                            * stagnation_factor
+                        / segment.diffusion_path_length )
+
+    sum_KDA_d += sum_KDA_d_segment
+
+concentration_groundwater = (concentration_drinking_water 
+                                + (concentration_drinking_water * pipe1.total_volume 
+                                * segment.assessment_factor_groundwater ) 
+                                / (sum_KDA_d * pipe1.stagnation_time) )
+counter = 0
+
+while True:
+    pipe1.set_groundwater_conditions(chemical_name=chemical_name, 
+                                temperature_groundwater=temperature_groundwater, 
+                                concentration_groundwater=concentration_groundwater, 
+                                )
+    sum_mass_segment = 0
+
+    pipe1.pipe_permeability_dict = pipe1._fetch_chemical_database(chemical_name=pipe1.chemical_name)
+    pipe1.pipe_permeability_dict['chemical_name'] = pipe1.chemical_name
+    pipe1.pipe_permeability_dict['concentration_groundwater'] = pipe1.concentration_groundwater
+    pipe1.pipe_permeability_dict['temperature_groundwater'] = pipe1.temperature_groundwater
+    concentration_groundwater = pipe1.pipe_permeability_dict['concentration_groundwater'] 
+
+    # mass of chemical in pipe water to meet drinking water norm
+    mass_drinkingwater_norm = (concentration_drinking_water * pipe1.total_volume 
+                                * pipe1.stagnation_time)
+
+    for segment in pipe1.segment_list:
+        segment._calculate_peak_dw_mass_per_segment(pipe_permeability_dict=pipe1.pipe_permeability_dict,
+                                                        concentration_drinking_water = concentration_drinking_water,
+                                                        _groundwater_conditions_set = pipe1._groundwater_conditions_set,
+                                                        stagnation_time_hours = stagnation_time_hours,
+                                                        flow_rate = pipe1.flow_rate)
+        sum_mass_segment += segment.mass_chemical_drinkwater
+
+    counter +=1
+
+    if abs(1 - mass_drinkingwater_norm / sum_mass_segment) <= tolerance:
+        break
+    elif counter > max_iterations:
+        print('Max iterations exceeded')
+        break
+    else:
+        new_groundwater = concentration_groundwater * (1 - relaxation_factor + relaxation_factor * (mass_drinkingwater_norm / sum_mass_segment))
+        concentration_groundwater = new_groundwater
+        # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+print(new_groundwater, counter)
+
+#%%
+#COMPLETE
 # Mean concentration in groundwater for a given drinking water 
 
 seg1 = Segment(name='seg1',
@@ -57,19 +179,20 @@ counter = 0
 pipe_permeability_dict = pipe1._fetch_chemical_database(
                                 chemical_name=chemical_name)
 
+sum_KDA_d = 0
 #*** initial guess gw concentration
 for segment in pipe1.segment_list:
-    log_Dp_ref = segment._calculate_ref_logD(pipe_permeability_dict=pipe_permeability_dict, )
-    log_Kpw_ref = segment._calculate_ref_logK(pipe_permeability_dict=pipe_permeability_dict, )
+    # calculate the sum of the 
+    Dp_ref = 10 ** segment._calculate_ref_logD(pipe_permeability_dict=pipe_permeability_dict, )
+    Kpw_ref = 10 ** segment._calculate_ref_logK(pipe_permeability_dict=pipe_permeability_dict, )
 
-    concentration_groundwater = ((concentration_drinking_water * pipe1.total_volume 
-                                  * segment.assessment_factor_groundwater 
-                                  * segment.diffusion_path_length) 
-                                  / (log_Kpw_ref * log_Dp_ref 
-                                     * segment.permeation_surface_area) 
-                                     + concentration_drinking_water )
+    sum_KDA_d_segment = (Dp_ref * Kpw_ref * segment.permeation_surface_area 
+                         / segment.diffusion_path_length )
 
-# @martinvdS, which segment to use? or how to sum them?    
+    sum_KDA_d+= sum_KDA_d_segment
+
+
+concentration_groundwater = (concentration_drinking_water + (concentration_drinking_water * pipe1.flow_rate * segment.assessment_factor_groundwater ) / sum_KDA_d )
 
 while True:
     pipe1.set_groundwater_conditions(chemical_name="Benzene", 
@@ -83,6 +206,9 @@ while True:
     pipe1.pipe_permeability_dict['concentration_groundwater'] = pipe1.concentration_groundwater
     pipe1.pipe_permeability_dict['temperature_groundwater'] = pipe1.temperature_groundwater
     concentration_groundwater = pipe1.pipe_permeability_dict['concentration_groundwater'] 
+
+    # mass of chemical groundwater water to meet drinking water norm
+    mass_groundwater_norm = concentration_drinking_water * pipe1.flow_rate
 
     for segment in pipe1.segment_list:
         delta_c = concentration_groundwater - concentration_drinking_water
@@ -101,13 +227,13 @@ while True:
                                         pipe1.flow_rate)
     counter +=1
 
-    if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) <= tolerance:
+    if abs(1 - mass_groundwater_norm / sum_mass_segment) <= tolerance:
         break
     elif counter > max_iterations:
         print('Max iterations exceeded')
         break
     else:
-        new_groundwater = concentration_groundwater * (1 + ((concentration_drinking_water - concentration_pipe_drinking_water) / concentration_drinking_water * relaxation_factor))
+        new_groundwater = concentration_groundwater * (1 - relaxation_factor + relaxation_factor * (mass_groundwater_norm / sum_mass_segment))
         concentration_groundwater = new_groundwater
         if counter % 100 == 0 : print(new_groundwater)
 
