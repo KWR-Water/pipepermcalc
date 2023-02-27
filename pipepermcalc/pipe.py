@@ -87,6 +87,13 @@ class Pipe:
         temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
         
+        tolerance: float 
+            the allowable difference between the calculated and actual drinking water concentration
+        relaxatoin_factor: float
+            used to iterate and calculate the new drinking water concentration
+        max_iterations: int
+            Maximum number of iterations allowed in the optimization scheme
+                    
         #ah_todo update these after finished these functions.
             
         # stagnation_time_hours:float
@@ -250,7 +257,7 @@ class Pipe:
 
     def calculate_mean_dw_concentration(self, 
                                         tolerance = 0.01, #ah_todo should we not have these as defaults?
-                                        relaxation_factor = 0.1,
+                                        relaxation_factor = 0.5,
                                         max_iterations = 1000):
         '''
         Calculates the mean concentration in drinking water for a 24 hour period
@@ -302,7 +309,7 @@ class Pipe:
                 
                 counter +=1
                 
-                if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) <= tolerance:
+                if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) / relaxation_factor <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
@@ -320,7 +327,7 @@ class Pipe:
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, 
                                         tolerance = 0.01, #ah_todo should we not have these as defaults?
-                                        relaxation_factor = 0.1,
+                                        relaxation_factor = 0.5,
                                         max_iterations = 1000):
 
         '''
@@ -377,7 +384,7 @@ class Pipe:
                                                 self.total_volume) #volume of water in the pipe during stagnation time
                 counter +=1
                 
-                if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) <= tolerance:
+                if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) / relaxation_factor <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
@@ -395,7 +402,7 @@ class Pipe:
     def calculate_mean_allowable_gw_concentration(self, 
                                         concentration_drinking_water,
                                         tolerance = 0.01, #ah_todo should we have these as defaults?
-                                        relaxation_factor = 0.1,
+                                        relaxation_factor = 0.5,
                                         max_iterations = 1000
                                         ):
         '''
@@ -422,7 +429,7 @@ class Pipe:
     def calculate_peak_allowable_gw_concentration(self, 
                                     stagnation_time_hours = 8,
                                     tolerance = 0.01, #ah_todo should we have these as defaults?
-                                    relaxation_factor = 0.1,
+                                    relaxation_factor = 0.5,
                                     max_iterations = 1000
 
                                     ):
