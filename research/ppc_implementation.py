@@ -66,6 +66,7 @@ pipe1.set_flow_rate(flow_rate=0.5)
 pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.030176781719745787,
                                 chemical_name="Benzene", 
                                 temperature_groundwater=12, 
+                                tolerance = 0.001
                                 )
 pipe1.pipe_permeability_dict
 #%%

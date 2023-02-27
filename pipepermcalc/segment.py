@@ -103,7 +103,7 @@ class Segment:
         plastics (PE40, PE80, SBR, EPDM) per chemical groups. 
         Used to calculate the specifice partitioning or diffusion coefficient 
         from the reference value. 
-        Chemical group numbers: Expert opinion (Martin Meerkerk), 
+        Chemical group numbers: Expert opinion (M. Meerkerk), 
         see table 5-4 KWR 2016.056, Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk
         Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE
 
@@ -163,7 +163,6 @@ class Segment:
             Direction of permeation through the pipe segment. Options are 
             'perpendicular' or 'parallel'. Default permeation is perpendicular 
             to the flow direction. See schematic XX in read the docs.
-            @AH_todo add schematic of permeation for parallel vs. perpendicular
         diffusion_path_length: float
             In the case of permeation perpendicular to the flow direction, a 
             diffusion path length is required to calculate the permeation 

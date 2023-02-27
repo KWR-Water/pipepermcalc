@@ -258,7 +258,7 @@ class Pipe:
 
 
     def calculate_mean_dw_concentration(self, 
-                                        tolerance = 0.01, #ah_todo should we not have these as defaults?
+                                        tolerance = 0.01, #ah_todo should we have these as defaults?
                                         relaxation_factor = 0.5,
                                         max_iterations = 1000):
         '''
@@ -382,11 +382,9 @@ class Pipe:
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
             
-                concentration_pipe_drinking_water = (sum_mass_segment / #ah_todo check1
+                concentration_pipe_drinking_water = (sum_mass_segment / 
                                                 self.total_volume ) #volume of water in the pipe during stagnation time
                 
-                #AH_todo @MartinvdS, is the formula M = C * V * time??
-
                 counter +=1
                 
                 if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) / relaxation_factor <= tolerance:
@@ -404,7 +402,7 @@ class Pipe:
             self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
 
-    def calculate_mean_allowable_gw_concentration(self, 
+    def calculate_mean_allowable_gw_concentration(self, #ah_todo write test
                                         concentration_drinking_water,
                                         chemical_name,
                                         temperature_groundwater,
@@ -502,7 +500,7 @@ class Pipe:
 
 
 
-    def calculate_peak_allowable_gw_concentration(self, 
+    def calculate_peak_allowable_gw_concentration(self, #ah_todo write test
                                     concentration_drinking_water,
                                     chemical_name,
                                     temperature_groundwater,
@@ -590,10 +588,8 @@ class Pipe:
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm
-                mass_drinkingwater_norm = (concentration_drinking_water * self.total_volume) #ah_todo check1
+                mass_drinkingwater_norm = (concentration_drinking_water * self.total_volume)
                 
-                #AH_todo @MartinvdS, is the formula M = C * V * time??
-
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
                                                                     concentration_drinking_water = concentration_drinking_water,

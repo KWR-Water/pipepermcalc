@@ -36,17 +36,11 @@ from pipepermcalc.segment import *
 def raise_exception_two_values(answer, ref_answer, round_values=None):
     ''' Raise exception if two values are not equal.'''
     if round_values is None:
-        try:
-            assert answer == ref_answer
-        except AssertionError:
-            print("Assertion Exception Raised.")
+        assert answer == ref_answer
     else:
         answer_round = round(answer, round_values)
         ref_answer = round(ref_answer, round_values)
-        try:
-            assert answer_round == ref_answer
-        except AssertionError:
-            print("Assertion Exception Raised.")
+        assert answer_round == ref_answer
 
 
 def test_logKpw_ref():
