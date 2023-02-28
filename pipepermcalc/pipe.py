@@ -35,26 +35,16 @@ class Pipe:
     -------
     segment_list: list
         list of the pipe segment objects which make up the pipe
-   
-    pipe_dictionary: dictionary
-        number_segments: float
-            total number of pipe segments
-        segment_list: list
-            list of the names of the different pipe sements
-        total_length: float
-            sum of the lengths of the pipe segments
-        total_volume: float
-            sum of the volumes of the pipe segments
-        total_outer_surface_area: float,
-            sum of the surface area of the pipe segments
-        flow_rate: float
-            flow rate in the pipe, m3/day 
-        segments: dictionary
-            dictionary of the individual pipe segments, containing the 
-            segment material, segment length (m), inner_diameter (m), thickness (m), 
-            volume (m3) and surface area (m2), permeation_direction and
-            diffusion_path_length (m).
-
+    _groundwater_conditions_set: Boolean
+        Default False, True when the groundwater conditions have been set.
+    _flow_rate_set: Boolean
+        Default False, True when the flow rate has been set.
+    total_volume: float
+        Total volume of the pipe, summed from the pipe segments, m3
+    total_length': float
+        Total length of the pipe, summed from the pipe segments, m
+    flow_rate: float
+        flow_rate through pipe. Default of 0.5 m3/day.    
     pipe_permeability_dict: dictionary
         CAS_number: string
             CAS is a unique identification number assigned by the Chemical 
@@ -81,61 +71,48 @@ class Pipe:
             Integer corresponding to the chemical group 
         molecular_volume: float
             Volume occupied by one mole of the substance at a given 
-            temperature and pressure, cm3/mol
+            temperature and pressure, cm3/mol.
         Drinking_water_norm: float
-            Concentration allowable in the Dutch Drinking water decree, g/m3
+            Concentration allowable in the Dutch Drinking water decree, g/m3.
         concentration_groundwater: float
-            Concentration of the given chemical in groundwater, g/m3
+            Concentration of the given chemical in groundwater, g/m3.
         temperature_groundwater: float
-            Temperature of the groundwater, degrees Celcius
-        
+            Temperature of the groundwater, degrees Celcius.
         tolerance: float 
-            the allowable difference between the calculated and actual drinking water concentration
+            The allowable difference between the calculated and actual drinking 
+            water concentration, [-].
         relaxation_factor: float
-            used to iterate and calculate the new drinking water concentration
+            Used to iterate and calculate the new drinking water concentration, 
+            recommended 0.3-0.7 [-].
         max_iterations: int
-            Maximum number of iterations allowed in the optimization scheme
-                    
-        #ah_todo update these after finished these functions.
-            
-        # stagnation_time_hours:float
-        #     Time in hours which water in pipe is stagnant, hours.
-        # flux_max_stagnation: float
-        #     Maximum flux during stagnation period to remain below the drinking 
-        #     water standard, mg/day
-        # flux_max_stagnation_per_m2: float
-        #     Maximum flux per square meter (surface area) of pipe during 
-        #     stagnation period to remain below the drinking water standard, g/day
-        # flux_max_per_day: float
-        #     Maximum flux in a day (24 hours) to remain below the drinking 
-        #     water standard, g/day
-        # flux_max_per_day_per_m2: float
-        #     Maximum flux per square meter (surface area) of pipe in one day 
-        #     (24 hours) to remain below the drinking water standard, g/day        
-        
-        # concentration_gw_peak_without_stagnation: float
-        #     Concentration in groundwater which, wihtout a stagnation period, 
-        #     would not result in a peak concentration in drinking water exceeding 
-        #     the drinking water norm, g/m3
-        # concentration_gw_peak_after_stagnation: float
-        #     Concentration in groundwater which, after a stagnation period, 
-        #     would not result in a peak concentration in drinking water exceeding 
-        #     the drinking water norm, g/m3
-        # concentration_peak_soil: float
-        #     Concentration in soil which, after a stagnation period, 
-        #     would not result in a peak concentration in drinking water exceeding 
-        #     the drinking water norm, mg/kg
-        # concentration_gw_mean:float
-        #     Mean concentration in groundwater which would would not result in 
-        #     a mean daily (24 horus) concentration in drinking water exceeding 
-        #     the drinking water norm, g/m3
-        # concentration_mean_soil: float     
-        #     Mean concentration in soil which would would not result in 
-        #     a mean daily (24 horus) concentration in drinking water exceeding 
-        #     the drinking water norm, mg/kg
-    '''
+            Maximum number of iterations allowed in the optimization scheme.                    
+    stagnation_time_hours: float
+        Time in hours which water in pipe is stagnant, hours.
+    stagnation_time: float
+        Time in days which water in pipe is stagnant, days.
+    concentration_peak_allowable_groundwater: float
+        Concentration in groundwater which, after a stagnation period, 
+        would not result in a peak concentration in drinking water exceeding 
+        the drinking water norm, g/m3.
+    concentration_mean_allowable_groundwater: float
+        Mean concentration in groundwater which would would not result in 
+        a mean daily (24 hours) concentration in drinking water exceeding 
+        the drinking water norm, g/m3.
+    mean_concentration_pipe_drinking_water: float
+        Calculates the mean concentration in drinking water for a 24 hour period
+        given a groundwater concentration.
+    peak_concentration_pipe_drinking_water: float
+        Calculates the peak (maximum) concentration in drinking water for a 
+        given a stagnation period given a groundwater concentration.
+
+        '''
     #ah_todo change input variables to restrict the type (e.g. only float, 
     # only integer, only positive values etc)
+    
+    #Constants for iterative calculations
+    tolerance_default = 0.01
+    relaxation_factor_default = 0.5
+    max_iterations_default = 1000
     
     def __init__(self, 
                  segment_list,
@@ -144,7 +121,10 @@ class Pipe:
         segment_list: list
             list of the segments objects
             
-        '''       
+        ''' 
+
+
+
         self.segment_list = segment_list
         self._groundwater_conditions_set = False
         self._flow_rate_set = False
@@ -312,6 +292,11 @@ class Pipe:
             Name of the chemical for which to calculate the permeation, in Dutch
         suppress_print: Boolean
             Suppress printing the chemical name and matching name, e.g. in loop calculations
+
+        Returns
+        -------
+        pipe_permeability_dict: dictionary
+            Dictionary of the chemical and permeability related coefficients.
         '''
         
         ppc_database = read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
@@ -320,32 +305,32 @@ class Pipe:
         
         matching_chemical_name = self._extract_matching_chemical_name(chemical_name=chemical_name, 
                                              database=database)
-        #ah_todo, @Bram what kind of check here?
+        
+        #ah_todo, @Bram what kind of check here for the chemical name match
         if suppress_print:
             pass
         else:
             print("Input chemical name:", chemical_name, "- Matched chemical name:", matching_chemical_name)
 
         df = ppc_database[ppc_database['chemical_name'].str.contains(matching_chemical_name)]
-        chemical_dict = df.to_dict('records')[0]
+        pipe_permeability_dict = df.to_dict('records')[0]
 
         # convert drinking water norm from ug/L to g/m3
-        chemical_dict['Drinking_water_norm'] = chemical_dict['Drinking_water_norm']/1000 
+        pipe_permeability_dict['Drinking_water_norm'] = pipe_permeability_dict['Drinking_water_norm']/1000 
 
-        return chemical_dict
+        return pipe_permeability_dict
 
     # def _view_database_chemical_names():
-        #ah_todo add a function to view a list of the possible chemical names
+        #ah_todo add a function to view a list of the possible chemical names?
 
 
     def calculate_mean_dw_concentration(self, 
-                                        tolerance = 0.01, #ah_todo should we have these as defaults?
-                                        relaxation_factor = 0.5,
-                                        max_iterations = 1000):
+                                        tolerance = tolerance_default,
+                                        relaxation_factor = relaxation_factor_default,
+                                        max_iterations = max_iterations_default):
         '''
         Calculates the mean concentration in drinking water for a 24 hour period
-        given a groundwater concentration. Mean concentrations in drinking 
-        water added to the pipe_permeability_dict.
+        given a groundwater concentration. 
         
         Parameters
         ----------
@@ -355,6 +340,12 @@ class Pipe:
             Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
+        
+        Returns
+        -------
+        mean_concentration_pipe_drinking_water: float
+            Calculates the mean concentration in drinking water for a 24 hour period
+            given a groundwater concentration.
 
         '''
         self.max_iterations = int(max_iterations)
@@ -404,15 +395,15 @@ class Pipe:
                                                     * concentration_drinking_water)
                 # if counter % 10 ==0 : print(concentration_drinking_water) #for debugging
                 
-            self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
+            self.mean_concentration_pipe_drinking_water = concentration_pipe_drinking_water
 
-        return concentration_pipe_drinking_water #@Martin, do we want this value returned?
+        return concentration_pipe_drinking_water 
 
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, 
-                                        tolerance = 0.01, #ah_todo should we have these as defaults?
-                                        relaxation_factor = 0.5,
-                                        max_iterations = 1000):
+                                        tolerance = tolerance_default,
+                                        relaxation_factor = relaxation_factor_default,
+                                        max_iterations = max_iterations_default):
 
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
@@ -430,6 +421,12 @@ class Pipe:
             Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
+
+        Returns
+        -------
+        peak_concentration_pipe_drinking_water: float
+            Calculates the peak (maximum) concentration in drinking water for a 
+            given a stagnation period given a groundwater concentration.
 
         '''
 
@@ -481,25 +478,26 @@ class Pipe:
                                                     * concentration_drinking_water)
                 # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
                 
-            self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
+            self.peak_concentration_pipe_drinking_water = concentration_pipe_drinking_water
 
-        return concentration_pipe_drinking_water #@Martin, do we want this value returned?
+        return concentration_pipe_drinking_water 
 
 
     def calculate_mean_allowable_gw_concentration(self, #ah_todo write test
                                         concentration_drinking_water,
                                         chemical_name,
                                         temperature_groundwater,
-                                        tolerance = 0.01, #ah_todo should we have these as defaults?
-                                        relaxation_factor = 0.5,
-                                        max_iterations = 1000, 
+                                        tolerance = tolerance_default,
+                                        relaxation_factor = relaxation_factor_default,
+                                        max_iterations = max_iterations_default, 
                                         ):
         '''
         Calculates the mean 24 hour concentration in groundwater which would not 
         result in a drinking water concentration exceeding the drinking water
-        norm. Mean concentrations in groundwater and soil added to the 
-        pipe_permeability_dict. If the distribution coefficient it unknown for 
-        a given chemical, no soil concentration is calculated.
+        norm. If the distribution coefficient it unknown for 
+        a given chemical, no soil concentration is calculated. 
+        
+        #ah_todo add soil
 
         Parameters
         ----------
@@ -512,7 +510,14 @@ class Pipe:
             Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
-        
+
+        Returns
+        -------
+        concentration_mean_allowable_groundwater: float
+            Mean concentration in groundwater which would would not result in 
+            a mean daily (24 hours) concentration in drinking water exceeding 
+            the drinking water norm, g/m3.
+                    
         '''
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
@@ -582,8 +587,10 @@ class Pipe:
                     new_groundwater = concentration_groundwater * (1 - relaxation_factor + relaxation_factor * (mass_drinkingwater_norm / sum_mass_segment))
                     concentration_groundwater = new_groundwater
                     # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
-        return concentration_groundwater #@Martin, do we want this value returned?
+        
+        self.concentration_mean_allowable_groundwater = concentration_groundwater
 
+        return concentration_groundwater 
 
 
     def calculate_peak_allowable_gw_concentration(self, #ah_todo write test
@@ -591,20 +598,21 @@ class Pipe:
                                     chemical_name,
                                     temperature_groundwater,
                                     stagnation_time_hours = 8,
-                                    tolerance = 0.01, #ah_todo should we have these as defaults?
-                                    relaxation_factor = 0.5,
-                                    max_iterations = 1000
+                                    tolerance = tolerance_default,
+                                    relaxation_factor = relaxation_factor_default,
+                                    max_iterations = max_iterations_default
 
                                     ):
         '''
         Calculates the peak (maximum) concentration in groundwater water for a 
         given a stagnation period that would not result in a peak concentration 
         in drinking water exceeding the drinking water norm for each pipe segment.
-        Stagnation period default of 8 hours. Peak concentrations in groundwater 
-        water and soil added to the pipe_permeability_dict. If the distribution 
+        Stagnation period default of 8 hours. If the distribution 
         coefficient it unknown for a given chemical, no soil concentration is 
         calculated.
-        
+
+        #ah_todo add soil
+
         Parameters
         ----------
         stagnation_time_hours: float
@@ -616,6 +624,13 @@ class Pipe:
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
 
+        Returns
+        -------
+        concentration_peak_allowable_groundwater: float
+            Concentration in groundwater which, after a stagnation period, 
+            would not result in a peak concentration in drinking water exceeding 
+            the drinking water norm, g/m3.
+            
         '''
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
@@ -663,8 +678,7 @@ class Pipe:
             concentration_groundwater = concentration_drinking_water * (1 
                                         + self.total_volume * segment.assessment_factor_groundwater 
                                         / self.stagnation_time / sum_KDA_d)
-            #ah_todo, cannot have conc. groundwater == concentration_drinking_water
-            
+           
             counter = 0
 
             while True:
@@ -697,7 +711,9 @@ class Pipe:
                     new_groundwater = concentration_groundwater * (1 - relaxation_factor + relaxation_factor * (mass_drinkingwater_norm / sum_mass_segment))
                     concentration_groundwater = new_groundwater
                     # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
-        
-        return concentration_groundwater #@Martin, do we want this value returned?
+
+        self.concentration_peak_allowable_groundwater = concentration_groundwater
+
+        return concentration_groundwater 
 
 

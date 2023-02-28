@@ -73,7 +73,7 @@ class Segment:
 
     name: string
         name of the pipe segment
-    material: enum?? @Bram -> set choice of materials
+    material: enum?? #ah_todo @Bram -> set choice of materials
         e.g. PE40, PE80, PVC, EPDM, rubber etc.
     length: float
         Length of pipe segment, meters 
@@ -81,11 +81,10 @@ class Segment:
         Inner diameter of pipe segment, meters
     thickness: float
         Thickness of pipe segment, meters
-        permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
+    permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
         Direction of permeation through the pipe segment. Options are 
         'perpendicular' or 'parallel'. Default permeation is perpendicular 
         to the flow direction. See schematic XX in read the docs.
-        @AH_todo add schematic of permeation for parallel vs. perpendicular
         #ah_todo limit input to enum value
     diffusion_path_length: float
         In the case of permeation perpendicular to the flow direction, a 
@@ -152,7 +151,7 @@ class Segment:
         ----------
         name: string
             name of the pipe segment
-        material: string enum?? @Bram -> set choice of materials
+        material: string #ah_todo enum?? @Bram -> set choice of materials
             e.g. PE40, PE80, PVC, EPDM, rubber etc.
         length: float
             Length of pipe segment, meters 
