@@ -1,4 +1,4 @@
-CAS_number,chemical_name_NL,chemical_name,molecular_weight,solubility,log_octanol_water_partitioning_coefficient,log_distribution_coefficient,chemical_group,chemical_group_number,molecular_volume,Drinking_water_norm
+CAS_number,chemical_name,chemical_name_EN,molecular_weight,solubility,log_octanol_water_partitioning_coefficient,log_distribution_coefficient,chemical_group,chemical_group_number,molecular_volume,Drinking_water_norm
 ,,,M,Cwsat,LOG Kow,LOG Kd,group,,Vm,
 ,,,g/mol,g/m3,(-),(-),,,cm3/mol,ug/L
 ,PCB #1,PCB #1,,,4.46,,PCB,2,163.2,
