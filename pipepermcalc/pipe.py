@@ -91,7 +91,7 @@ class Pipe:
         
         tolerance: float 
             the allowable difference between the calculated and actual drinking water concentration
-        relaxatoin_factor: float
+        relaxation_factor: float
             used to iterate and calculate the new drinking water concentration
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
@@ -233,7 +233,9 @@ class Pipe:
     def set_groundwater_conditions(self,
                                    chemical_name=None,                                    
                                    concentration_groundwater=None,
-                                   temperature_groundwater=None):
+                                   temperature_groundwater=None, 
+                                   suppress_print = False, 
+                                    ):
         ''' 
         Specifies the chemical of interest, concentration and temperature in the 
         groundwater and returns the parameters as attributes of the class. 
@@ -248,6 +250,9 @@ class Pipe:
             Concentration of the given chemical in groundwater, g/m3
         temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
+        suppress_print: Boolean
+            Suppress printing the chemical name and matching name, e.g. in loop calculations
+
         '''
 
         self.concentration_groundwater = concentration_groundwater
@@ -259,7 +264,8 @@ class Pipe:
         self.chemical_name = chemical_name
         self._groundwater_conditions_set = True
 
-        self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name)
+        self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name, 
+                                                                    suppress_print=suppress_print)
         self.pipe_permeability_dict['chemical_name'] = self.chemical_name
         self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
         self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
@@ -290,6 +296,7 @@ class Pipe:
 
     def _fetch_chemical_database(self,
                                 chemical_name=None,
+                                suppress_print=False,
                                 #ah_todo add something to fetch chemical_name_EN 
                                 # instead of NL name (default)?
                                 ):
@@ -303,6 +310,8 @@ class Pipe:
         ----------
         chemical_name: string 
             Name of the chemical for which to calculate the permeation, in Dutch
+        suppress_print: Boolean
+            Suppress printing the chemical name and matching name, e.g. in loop calculations
         '''
         
         ppc_database = read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
@@ -311,9 +320,11 @@ class Pipe:
         
         matching_chemical_name = self._extract_matching_chemical_name(chemical_name=chemical_name, 
                                              database=database)
-        
         #ah_todo, @Bram what kind of check here?
-        print("Input chemical name:", chemical_name, "- Matched chemical name:", matching_chemical_name)
+        if suppress_print:
+            pass
+        else:
+            print("Input chemical name:", chemical_name, "- Matched chemical name:", matching_chemical_name)
 
         df = ppc_database[ppc_database['chemical_name'].str.contains(matching_chemical_name)]
         chemical_dict = df.to_dict('records')[0]
@@ -322,6 +333,9 @@ class Pipe:
         chemical_dict['Drinking_water_norm'] = chemical_dict['Drinking_water_norm']/1000 
 
         return chemical_dict
+
+    # def _view_database_chemical_names():
+        #ah_todo add a function to view a list of the possible chemical names
 
 
     def calculate_mean_dw_concentration(self, 
@@ -337,7 +351,7 @@ class Pipe:
         ----------
         tolerance: float 
             the allowable difference between the calculated and actual drinking water concentration
-        relaxatoin_factor: float
+        relaxation_factor: float
             used to iterate and calculate the new drinking water concentration
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
@@ -392,6 +406,7 @@ class Pipe:
                 
             self.pipe_permeability_dict['mean_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
+        return concentration_pipe_drinking_water #@Martin, do we want this value returned?
 
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, 
@@ -411,7 +426,7 @@ class Pipe:
             time in hours, default 8 hours
         tolerance: float 
             the allowable difference between the calculated and actual drinking water concentration
-        relaxatoin_factor: float
+        relaxation_factor: float
             used to iterate and calculate the new drinking water concentration
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
@@ -468,6 +483,8 @@ class Pipe:
                 
             self.pipe_permeability_dict['peak_concentration_pipe_drinking_water'] = concentration_pipe_drinking_water
 
+        return concentration_pipe_drinking_water #@Martin, do we want this value returned?
+
 
     def calculate_mean_allowable_gw_concentration(self, #ah_todo write test
                                         concentration_drinking_water,
@@ -475,7 +492,7 @@ class Pipe:
                                         temperature_groundwater,
                                         tolerance = 0.01, #ah_todo should we have these as defaults?
                                         relaxation_factor = 0.5,
-                                        max_iterations = 1000
+                                        max_iterations = 1000, 
                                         ):
         '''
         Calculates the mean 24 hour concentration in groundwater which would not 
@@ -491,7 +508,7 @@ class Pipe:
             allowable groundwater concentration, g/m^3
         tolerance: float 
             the allowable difference between the calculated and actual drinking water concentration
-        relaxatoin_factor: float
+        relaxation_factor: float
             used to iterate and calculate the new drinking water concentration
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
@@ -512,7 +529,7 @@ class Pipe:
             To set flow rate use .set_flow_rate()')
         else: 
             pipe_permeability_dict = self._fetch_chemical_database(
-                                            chemical_name=chemical_name)
+                                            chemical_name=chemical_name, suppress_print = True, )
 
             # calculate initial guess for gw concentration
             sum_KDA_d = 0
@@ -539,7 +556,8 @@ class Pipe:
             while True:
                 self.set_groundwater_conditions(chemical_name=chemical_name, 
                                             temperature_groundwater=temperature_groundwater, 
-                                            concentration_groundwater=concentration_groundwater, 
+                                            concentration_groundwater=concentration_groundwater,
+                                            suppress_print = True, 
                                             )
                 sum_mass_segment = 0
 
@@ -564,6 +582,7 @@ class Pipe:
                     new_groundwater = concentration_groundwater * (1 - relaxation_factor + relaxation_factor * (mass_drinkingwater_norm / sum_mass_segment))
                     concentration_groundwater = new_groundwater
                     # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+        return concentration_groundwater #@Martin, do we want this value returned?
 
 
 
@@ -592,7 +611,7 @@ class Pipe:
             time in hours, default 8 hours
         tolerance: float 
             the allowable difference between the calculated and actual drinking water concentration
-        relaxatoin_factor: float
+        relaxation_factor: float
             used to iterate and calculate the new drinking water concentration
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
@@ -614,7 +633,7 @@ class Pipe:
             To set flow rate use .set_flow_rate()')
         else: 
 
-            pipe_permeability_dict = self._fetch_chemical_database(chemical_name=chemical_name)
+            pipe_permeability_dict = self._fetch_chemical_database(chemical_name=chemical_name, suppress_print = True, )
             self.stagnation_time = stagnation_time_hours / 24
 
             # calculate initial guess for gw concentration
@@ -644,6 +663,7 @@ class Pipe:
             concentration_groundwater = concentration_drinking_water * (1 
                                         + self.total_volume * segment.assessment_factor_groundwater 
                                         / self.stagnation_time / sum_KDA_d)
+            #ah_todo, cannot have conc. groundwater == concentration_drinking_water
             
             counter = 0
 
@@ -651,6 +671,7 @@ class Pipe:
                 self.set_groundwater_conditions(chemical_name=chemical_name, 
                                             temperature_groundwater=temperature_groundwater, 
                                             concentration_groundwater=concentration_groundwater, 
+                                            suppress_print = True, 
                                             )
                 sum_mass_segment = 0
 
@@ -676,5 +697,7 @@ class Pipe:
                     new_groundwater = concentration_groundwater * (1 - relaxation_factor + relaxation_factor * (mass_drinkingwater_norm / sum_mass_segment))
                     concentration_groundwater = new_groundwater
                     # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
-                
+        
+        return concentration_groundwater #@Martin, do we want this value returned?
+
 

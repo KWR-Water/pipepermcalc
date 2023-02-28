@@ -86,6 +86,7 @@ class Segment:
         'perpendicular' or 'parallel'. Default permeation is perpendicular 
         to the flow direction. See schematic XX in read the docs.
         @AH_todo add schematic of permeation for parallel vs. perpendicular
+        #ah_todo limit input to enum value
     diffusion_path_length: float
         In the case of permeation perpendicular to the flow direction, a 
         diffusion path length is required to calculate the permeation 
@@ -407,9 +408,20 @@ class Segment:
                            pipe_permeability_dict):
         '''Calculate the reference log K'''
 
-        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
-        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
-        log_Dp_ref = a_ref * pipe_permeability_dict['molecular_weight'] + b_ref
+        if self.material == 'PE40' or self.material == "PE80":
+
+            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
+            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
+            log_Dp_ref = a_ref * pipe_permeability_dict['molecular_weight'] + b_ref
+        
+        else:
+            PE40_a_ref = self.reference_pipe_material_dict["PE40"]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
+            PE40_b_ref = self.reference_pipe_material_dict["PE40"]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
+            PE40_log_Dp_ref = PE40_a_ref * pipe_permeability_dict['molecular_weight'] + PE40_b_ref
+
+            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
+            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
+            log_Dp_ref = a_ref * PE40_log_Dp_ref + b_ref
 
         return log_Dp_ref    
 

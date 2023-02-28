@@ -7,10 +7,10 @@ Pipepermcalc calculates the permeation of organic chemicals into plastic drinkin
 
 License
 -------
-This package is ??? licensed. See `License File <https://github.com/KWR-Water/package_name/blob/master/LICENSE/>`_ .
+This package is pipepermcalc licensed. See `License File <https://github.com/KWR-Water/pipepermcalc/blob/master/LICENSE/>`_ .
 
 Acknowledgements
 -----------------
 
 This tool was co-financed by the BTO Joint Research Programme of the Dutch and Flemish Water Utilities.
-The main contributors are: Alex Hockin, Bram Hillebrand, Lennar Brokx and Martin van der Schans.
+The main contributors are: Alex Hockin, Martin van der Schans, Bram Hillebrand and Lennar Brokx.

@@ -19,9 +19,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = pipepermcalc
-copyright = '2019, KWR Water Research Institute'
-author = 'Martin Korevaar, Martin van der Schans, Erwin Vonk'
+project = 'pipepermcalc'
+copyright = '2023, KWR Water Research Institute'
+author = 'Alex Hockin, Martin van der Schans, Bram Hillebrand and Lennar Brokx'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1'

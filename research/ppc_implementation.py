@@ -64,22 +64,44 @@ pipe1.set_groundwater_conditions(chemical_name="Benzeen",
 pipe1.set_flow_rate(flow_rate=0.5)
 # pipe1.calculate_mean_dw_concentration()
 pipe1.calculate_peak_dw_concentration()
-pipe1.pipe_permeability_dict
+# pipe1.pipe_permeability_dict
 
 #%%
 
 seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                thickness=0.0027,
+            material='PE40',
+            length=5,
+            inner_diameter=0.0196,
+            thickness=0.0027,
+            )
+
+seg2 = Segment(name='seg2',
+                material='EPDM',
+                length=0.06,
+                inner_diameter=0.025,
+                thickness=0.001,
+                diffusion_path_length = 0.06, 
+                permeation_direction = 'parallel'
                 )
 
+seg3 = Segment(name='seg3',
+            material='PE40',
+            length=6,
+            inner_diameter=0.0196,
+            thickness=0.0027,
+            )
 
-pipe1 = Pipe(segment_list=[seg1])
+pipe1 = Pipe(segment_list=[seg1, seg2, seg3])
+
+# pipe1 = Pipe(segment_list=[seg2])
 pipe1.set_flow_rate(flow_rate=0.5)
-#%%
-pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.030176781719745787,
+
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
+                                temperature_groundwater=12, 
+                                concentration_groundwater = 1.8)
+seg2.__dict__
+
+pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
                                 chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 tolerance = 0.001
