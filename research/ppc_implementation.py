@@ -31,6 +31,35 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 #%%
+
+seg1 = Segment(name='seg1',
+
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027)
+pipe4 = Pipe(segment_list=[seg1])
+pipe4.set_flow_rate(flow_rate=0.5)
+
+mean_conc = pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
+                            chemical_name="Benzeen", 
+                            temperature_groundwater=12,
+                            tolerance = 0.1, 
+                            relaxation_factor=0.7, 
+                            max_iterations=1000)
+
+print("The mean concentration is:", round(mean_conc,5), "g/m3")
+
+mean_conc = pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
+                            chemical_name="Benzeen", 
+                            temperature_groundwater=12,
+                            tolerance = 0.01, 
+                            relaxation_factor=0.7, 
+                            max_iterations=1000)
+
+print("The peak concentration is:", round(mean_conc,5), "g/m3")
+
+#%%
 # # Test the fuzzy-wuzzy matching
 # seg1 = Segment(name='seg1',
 #                 material='PE40',
@@ -62,10 +91,19 @@ pipe1.set_groundwater_conditions(chemical_name="Benzeen",
                                 concentration_groundwater=1.8, 
                                 )
 pipe1.set_flow_rate(flow_rate=0.5)
+k1 = seg1.log_Kpw
+perm1 = seg1.permeation_coefficient
+seg1._update_partitioning_coefficient(new_log_Kpw= 0.9116730996845103,)
+
 # pipe1.calculate_mean_dw_concentration()
 pipe1.calculate_peak_dw_concentration()
 # pipe1.pipe_permeability_dict
+perm2 = seg1.permeation_coefficient
+k2 = seg1.log_Kpw
 
+
+perm1, perm2
+k1, k2
 #%%
 
 seg1 = Segment(name='seg1',

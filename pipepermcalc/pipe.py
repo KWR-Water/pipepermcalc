@@ -283,7 +283,7 @@ class Pipe:
         Parameters
         ----------        
         flow_rate: float
-            flow_rate through pipe. Defaul of 0.5 m3/day.
+            flow_rate through pipe. Default of 0.5 m3/day.
         '''
         self.flow_rate = flow_rate
 
@@ -350,9 +350,9 @@ class Pipe:
         Parameters
         ----------
         tolerance: float 
-            the allowable difference between the calculated and actual drinking water concentration
+            The allowable difference between the calculated and actual drinking water concentration, [-]
         relaxation_factor: float
-            used to iterate and calculate the new drinking water concentration
+            Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
 
@@ -425,9 +425,9 @@ class Pipe:
         stagnation_time_hours: float
             time in hours, default 8 hours
         tolerance: float 
-            the allowable difference between the calculated and actual drinking water concentration
+            The allowable difference between the calculated and actual drinking water concentration, [-]
         relaxation_factor: float
-            used to iterate and calculate the new drinking water concentration
+            Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
 
@@ -507,9 +507,9 @@ class Pipe:
             Concentration in the drinking water for which to calculate the mean 
             allowable groundwater concentration, g/m^3
         tolerance: float 
-            the allowable difference between the calculated and actual drinking water concentration
+            The allowable difference between the calculated and actual drinking water concentration, [-]
         relaxation_factor: float
-            used to iterate and calculate the new drinking water concentration
+            Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
         
@@ -610,9 +610,9 @@ class Pipe:
         stagnation_time_hours: float
             time in hours, default 8 hours
         tolerance: float 
-            the allowable difference between the calculated and actual drinking water concentration
+            The allowable difference between the calculated and actual drinking water concentration, [-]
         relaxation_factor: float
-            used to iterate and calculate the new drinking water concentration
+            Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
 

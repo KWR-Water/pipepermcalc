@@ -406,7 +406,11 @@ class Segment:
 
     def _calculate_ref_logD(self,
                            pipe_permeability_dict):
-        '''Calculate the reference log K'''
+        '''Calculate the reference log D based on the pipe material. A fixed 
+        ratio between the log of the diffusion coefficient of PE-40 (logD_p) 
+        and of SBR/EPDM (logD_s, logD_e) in m2/s is assumed for SBR and 
+        EPDM for the determination of the diffusion coefficient, see memo 2022 
+        "Permeatie door rubber afdichtingen van drinkwaterleidingen."  '''
 
         if self.material == 'PE40' or self.material == "PE80":
 

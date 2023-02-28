@@ -37,8 +37,7 @@ For this example there is only one pipe segment made of PE40. We define the leng
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
-                    )
+                    thickness=0.0027,)
 Step 2: Create a pipe from the segment(s)
 =========================================
 We create a pipe from the segment using the Pipe() class by inputing the list of segment name(s).
@@ -140,8 +139,7 @@ In the following example we create a pipe made from two 5m PE40 pipe segments, j
                 material='PE40',
                 length=5,
                 inner_diameter=0.0196,
-                thickness=0.0027,
-                )
+                thickness=0.0027)
 
     seg2 = Segment(name='seg2',
                     material = 'EPDM',
@@ -149,15 +147,13 @@ In the following example we create a pipe made from two 5m PE40 pipe segments, j
                     inner_diameter=0.025,
                     thickness=0.001,
                     diffusion_path_length = 0.06, 
-                    permeation_direction = 'parallel'
-                    )
+                    permeation_direction = 'parallel')
 
     seg3 = Segment(name='seg3',
                 material='PE40',
                 length=5,
                 inner_diameter=0.0196,
-                thickness=0.0027,
-                )
+                thickness=0.0027)
 
     pipe2 = Pipe(segment_list=[seg1, seg2, seg3])
 
@@ -181,13 +177,72 @@ The remaining calculations are done the same as for the simple example:
     print("The mean daily concentration is:", round(mean_conc,4), "g/m3")
 
 
-Example 3 - Specify the K and D used
+Example 3 - Advanced settings
 ------------------------------------
+Change the partitioning and diffusion coefficient
+=================================================
+
+The model contains a chemical databsae from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possibe to input a specific a partitioning and diffusion coefficient for a pipe segment. The permeation coefficient is also automatically updated when either the partitioning or diffusion coefficient are changed.
+
+.. ipython:: python
+
+    seg1 = Segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    inner_diameter=0.0196,
+                    thickness=0.0027,
+                    )
+
+    pipe3 = Pipe(segment_list=[seg1])
+    pipe3.set_groundwater_conditions(chemical_name="Benzeen", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater=1.8,)
+    print(seg1.log_Kpw, seg1.log_Dp)
+    
+    seg1._update_partitioning_coefficient(new_log_Kpw= 0.912)
+    seg1._update_diffusion_coefficient(new_log_Dp= -10.63)
+
+    print(seg1.log_Kpw, seg1.log_Dp)
 
 
+Change the tolerance, relaxation_factor and max_iterations
+==========================================================
 
-.. Advanced tutorials: 
-.. 1) set tolerance, relaxation factor, max iterations etc., 
-.. 2) mutliple segments w/diagram (also add to glossary?), 
-.. 3) change the K, D used
-.. other: view the pipe segment information, view pipe permeability information 
+When calculating the concentration in drinking water or the allowable concentration in groundwater, the calculations are iterative and it is possible to specify the tolerance, relaxation factor and maximum number of iterations. 
+
+* The *tolerance* is the degree of acceptable error in the accuracy of the calculation, default value of 0.01 (1%). 
+* The *relaxation factor* is used to calculate the next input concentration in the iterative calculation, default of 0.5. It is used to improve the stability of the calculation. Values between 0.3 - 0.7 are generally recommended - a too small relaxation factor will slow the calculation down, while a too large relaxation factor will cause too much divergence in the solution. 
+* The *maximum number of iterations* is the maximum number of calculations allowed before the calculation stops. A default value of 1000 is used.
+
+Each of these values can be manually changed in the four concentration calculations using the tolerance, relaxation_factor and max_iterations keywords.
+
+.. ipython:: python
+
+    seg1 = Segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    inner_diameter=0.0196,
+                    thickness=0.0027)
+    pipe4 = Pipe(segment_list=[seg1])
+    pipe4.set_flow_rate(flow_rate=0.5)
+
+    mean_conc = pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
+                                chemical_name="Benzeen", 
+                                temperature_groundwater=12,
+                                tolerance = 0.1, 
+                                relaxation_factor=0.7, 
+                                max_iterations=1000)
+
+    print("The mean concentration is:", round(mean_conc,3), "g/m3")
+
+    mean_conc = pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
+                                chemical_name="Benzeen", 
+                                temperature_groundwater=12,
+                                tolerance = 0.001, 
+                                relaxation_factor=0.7, 
+                                max_iterations=1000)
+
+    print("The peak concentration is:", round(mean_conc,3), "g/m3")
+
+
+.. Other examples? @MartinvdS ah_todo
