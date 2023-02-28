@@ -36,7 +36,7 @@ Step 1: Define a Pipe and set groundwater conditions
 .. ipython:: python
     
     pipe1 = Pipe()
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 1.8)
 

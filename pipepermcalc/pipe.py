@@ -19,6 +19,8 @@ from pandas import read_excel
 import math
 import datetime
 from datetime import timedelta
+import fuzzywuzzy.fuzz as fwf
+import fuzzywuzzy.process as fwp
 
 from project_path import file_path, module_path
 
@@ -57,10 +59,10 @@ class Pipe:
         CAS_number: string
             CAS is a unique identification number assigned by the Chemical 
             Abstracts Service (CAS)
-        chemical_name_NL: string
+        chemical_name_EN: string
             Name of the chemical given in Dutch
         chemical_name: string
-            @Bram to be replaced by the function restricting input of names
+            Name of the chemical for which to calculate the permeation, in Dutch
         molecular_weight: float
             Mass of one mole of a given chemical, g/mol
         solubility:	float
@@ -170,7 +172,63 @@ class Pipe:
             value = getattr(self, check_value)
             if value <= 0:
                 raise ValueError(f'{check_value} must be > 0 ')
+
+    def _fuzzy_min_score(self, chemical_name): #From Vincent Post
+        """
+        This function calculates the minimum score required for a valid
+        match in fuzzywuzzy's extractOne function. The minimum score depends
+        on the length of 's' and is calculated based on the string lengths and
+        scores in the DEFAULT_MINSCORES dictionary.
+
+        Parameters
+        ----------
+        chemical_name : str
+            String for which the minimum score must be determined.
+
+        Returns
+        -------
+        result : float
+            The minimum score for 's'.
+        """
+        #ah_todo - does this have to have min scores for all lengths of chemicals?
+        DEFAULT_FUZZY_MINSCORES = {1: 100, 3: 100, 4: 90, 5: 85, 6: 80, 8: 75}
+
+        xp = list(DEFAULT_FUZZY_MINSCORES.keys())
+        fp = [v for v in DEFAULT_FUZZY_MINSCORES.values()]
+        # Use the interp function from NumPy. By default this function
+        # yields fp[0] for x < xp[0] and fp[-1] for x > xp[-1]
+        return np.interp(len(chemical_name), xp, fp)
+
+    def _extract_matching_chemical_name(self, chemical_name, database):
+        ''' Search and extract the highest matching chemical name from the database for the given input
+        Parameters
+        ----------
+        chemical_name : str
+            String for which the minimum score/highest matching chemical name 
+            must be determined.
+
+        Returns
+        -------
+        matching_chemical_name : str
+            Name with the highest match for the input chemical name from the 
+            database.
+        '''
+
+        # Exctract the highest scoring chemical name matching the 
+        minscore = self._fuzzy_min_score(chemical_name=chemical_name)
+
+        # Return only the highest scoring item
+        fuzzy_score = fwp.extractOne(
+            query=chemical_name,
+            choices=database,
+            scorer=fwf.token_sort_ratio,
+            score_cutoff=minscore,
+        )
         
+        matching_chemical_name = fuzzy_score[0]
+
+        return matching_chemical_name
+
 
     def set_groundwater_conditions(self,
                                    chemical_name=None,                                    
@@ -185,7 +243,7 @@ class Pipe:
         Parameters
         ----------
         chemical_name: string
-            @Bram to be replaced by the function restricting input of names
+            Name of the chemical for which to calculate the permeation, in Dutch
         concentration_groundwater: float
             Concentration of the given chemical in groundwater, g/m3
         temperature_groundwater: float
@@ -233,7 +291,10 @@ class Pipe:
 
 
     def _fetch_chemical_database(self,
-                                chemical_name=None,):
+                                chemical_name=None,
+                                #ah_todo add something to fetch chemical_name_EN 
+                                # instead of NL name (default)?
+                                ):
         ''' 
         Fetch the pipe and chemical information corresponding to the given 
         pipe material and chemical choice and creates a dictionary 
@@ -243,15 +304,23 @@ class Pipe:
         Parameters
         ----------
         chemical_name: string 
-            @Bram to be replaced by the function restricting input of names
+            Name of the chemical for which to calculate the permeation, in Dutch
         '''
         
         ppc_database = read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
 
-        df = ppc_database[ppc_database['chemical_name'].str.contains(chemical_name)]
+        database = list(ppc_database['chemical_name'])
+        
+        matching_chemical_name = self._extract_matching_chemical_name(chemical_name=chemical_name, 
+                                             database=database)
+        
+        #ah_todo, @Bram what kind of check here?
+        print("Input chemical name:", chemical_name, "- Matched chemical name:", matching_chemical_name)
 
+        df = ppc_database[ppc_database['chemical_name'].str.contains(matching_chemical_name)]
         chemical_dict = df.to_dict('records')[0]
-        # convert to g/m3
+
+        # convert drinking water norm from ug/L to g/m3
         chemical_dict['Drinking_water_norm'] = chemical_dict['Drinking_water_norm']/1000 
 
         return chemical_dict

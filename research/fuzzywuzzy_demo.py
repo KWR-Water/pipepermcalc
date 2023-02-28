@@ -16,16 +16,16 @@ database = ["Benzene", "Methylbenzene", "Toluene", "Ethylbenzene", "Xylene"]
 # Set a value for the minimum score (100% is a perfect match)
 minscore = 60
 
+#%%
 # Extract all matches for which the score > minscore
 fuzzy_score = fwp.extract(
     s,
     database,
     scorer=fwf.token_sort_ratio,
-        # score_cutoff=minscore, ?? ah
-
 )
 print(fuzzy_score)
 
+#%%
 # Return only the highest scoring item
 fuzzy_score = fwp.extractOne(
     s,
@@ -41,6 +41,14 @@ print(fuzzy_score)
 
 DEFAULT_FUZZY_MINSCORES = {1: 100, 3: 100, 4: 90, 5: 85, 6: 80, 8: 75}
 import numpy as np
+
+# Define the search string
+s = "benzeen"
+# Your database items
+database = ["Benzene", "Methylbenzene", "Toluene", "Ethylbenzene", "Xylene"]
+# Set a value for the minimum score (100% is a perfect match)
+minscore = 60
+
 
 def fuzzy_min_score(s):
     """
@@ -75,4 +83,6 @@ fuzzy_score = fwp.extractOne(
     score_cutoff=minscore,
 )
 
-print(f"Minimum required score: {minscore}", fuzzy_score)
+# print(f"Minimum required score: {minscore}", fuzzy_score)
+
+#%%

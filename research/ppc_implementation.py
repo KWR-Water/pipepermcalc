@@ -30,6 +30,22 @@ from project_path import file_path
 
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
+#%%
+# # Test the fuzzy-wuzzy matching
+# seg1 = Segment(name='seg1',
+#                 material='PE40',
+#                 length=25,
+#                 inner_diameter=0.0196,
+#                 thickness=0.0027,
+#                 )
+
+# pipe1 = Pipe(segment_list=[seg1])
+
+# database = ["Benzene", "Benzeen", "Methylbenzene", "Toluene", "Ethylbenzene", "Xylene"]
+
+# chemical_name = "Methylbenzeene"
+
+# pipe1._extract_matching_chemical_name(chemical_name=chemical_name, database=database)
 
 #%%
 
@@ -41,7 +57,7 @@ seg1 = Segment(name='seg1',
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater=1.8, 
                                 )
@@ -64,7 +80,7 @@ pipe1 = Pipe(segment_list=[seg1])
 pipe1.set_flow_rate(flow_rate=0.5)
 #%%
 pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.030176781719745787,
-                                chemical_name="Benzene", 
+                                chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 tolerance = 0.001
                                 )
@@ -80,7 +96,7 @@ seg1 = Segment(name='seg1',
 pipe1 = Pipe(segment_list=[seg1])
 pipe1.segment_list
 
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater = 0.112980124482)
 pipe1.set_flow_rate(flow_rate=0.5)
@@ -99,7 +115,7 @@ seg1 = Segment(name='seg1',
 pipe1 = Pipe(segment_list=[seg1])
 pipe1.segment_list
 
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater = 0.112980124482)
 pipe1.set_flow_rate(flow_rate=0.5)
@@ -133,7 +149,7 @@ diffusion_Cref_Sw = 0.5 #see section 5.4.6 in KWR 2016.056
 
 
 pipe_permeability_dict = pipe1._fetch_chemical_database(
-                                chemical_name='Benzene',)
+                                chemical_name='Benzeen',)
 
 pipe_permeability_dict['temperature_groundwater'] = 12
 pipe_permeability_dict['concentration_groundwater'] = 1.8
@@ -142,7 +158,7 @@ pipe_permeability_dict
 seg1._calculate_pipe_K_D(pipe_permeability_dict, _groundwater_conditions_set=True)
 #%%
 pipe1 = Pipe()
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                  temperature_groundwater=12, 
                                  concentration_groundwater = 0.31)
 pipe1.add_segment(name='seg1',

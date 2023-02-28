@@ -49,7 +49,7 @@ seg2 = Segment(name='seg2',
 pipe1 = Pipe(segment_list=[seg1])
 pipe1.set_flow_rate(flow_rate=0.5)
 pipe1.calculate_peak_allowable_gw_concentration (concentration_drinking_water = 0.001,
-                                        chemical_name='Benzene',
+                                        chemical_name='Benzeen',
                                         temperature_groundwater=12,)
 
 pipe1.pipe_permeability_dict
@@ -74,7 +74,7 @@ seg1 = Segment(name='seg1',
 pipe1 = Pipe(segment_list=[seg1])
 pipe1.set_flow_rate(flow_rate=0.5)
 
-chemical_name = 'Benzene'
+chemical_name = 'Benzeen'
 concentration_drinking_water = 0.001 #norm for drinking water
 tolerance = 0.01
 relaxation_factor = 0.1
@@ -167,7 +167,7 @@ pipe1 = Pipe(segment_list=[seg1])
 
 pipe1.set_flow_rate(flow_rate=0.5)
 
-chemical_name = 'Benzene'
+chemical_name = 'Benzeen'
 concentration_drinking_water = 0.001 #norm for drinking water
 tolerance = 0.01
 relaxation_factor = 0.1
@@ -195,7 +195,7 @@ for segment in pipe1.segment_list:
 concentration_groundwater = (concentration_drinking_water + (concentration_drinking_water * pipe1.flow_rate * segment.assessment_factor_groundwater ) / sum_KDA_d )
 
 while True:
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater=concentration_groundwater, 
                                 )
@@ -254,7 +254,7 @@ seg2 = Segment(name='seg2',
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater=1.8, 
                                 )
@@ -273,7 +273,7 @@ max_iterations = 1000
 concentration_drinking_water = 0.01 #initial guess
 counter = 0
 
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater=1.8, 
                                 )
@@ -328,7 +328,7 @@ seg1 = Segment(name='seg1',
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater=1.8, 
                                 )
@@ -342,7 +342,7 @@ max_iterations = 1000
 concentration_drinking_water = 0.001 #initial guess
 counter = 0
 
-pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater=1.8, 
                                 )
@@ -411,7 +411,7 @@ counter = 0
 
 while True:
     guess_gw = new_groundwater
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
                                 concentration_groundwater=guess_gw, #*** initial guess dw concentration
                                 )

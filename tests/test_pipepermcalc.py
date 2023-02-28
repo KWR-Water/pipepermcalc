@@ -56,7 +56,7 @@ def test_logKpw_ref():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -78,7 +78,7 @@ def test_logDp_ref():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -102,7 +102,7 @@ def test_logKp_ref_temperature_correction():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -126,7 +126,7 @@ def test_logDp_ref_temperature_correction():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -150,7 +150,7 @@ def test_logKp_ref_concentration_correction():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -174,7 +174,7 @@ def test_logDp_ref_concentration_correction():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater =1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -197,7 +197,7 @@ def test_logKpw():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -220,7 +220,7 @@ def test_logDpw():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -243,7 +243,7 @@ def test_stagnation_factor():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -265,7 +265,7 @@ def test_updating_partitioning_coefficient():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -294,7 +294,7 @@ def test_updating_diffusion_coefficient():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -324,7 +324,7 @@ def test_calculate_peak_dw_concentration():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -348,7 +348,7 @@ def test_calculate_mean_dw_concentration():
     pipe1 = Pipe(segment_list=[seg1])
     pipe1.segment_list
 
-    pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+    pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
@@ -406,7 +406,7 @@ def test_segment_surface_area_calculations():
 #     '''test the calculatiion of the peak without stagnation'''
 
 #     pipe1 = Pipe()
-#     pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+#     pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
 #                                     temperature_groundwater=12, 
 #                                     concentration_groundwater = 1.8)
     
@@ -429,7 +429,7 @@ def test_segment_surface_area_calculations():
 #     '''test the calculatiion of the peak without stagnation'''
 
 #     pipe1 = Pipe()
-#     pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+#     pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
 #                                     temperature_groundwater=12, 
 #                                     concentration_groundwater = 1.8)
     
@@ -452,7 +452,7 @@ def test_segment_surface_area_calculations():
 #     '''test the calculatiion of the peak soil concentration'''
 
 #     pipe1 = Pipe()
-#     pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+#     pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
 #                                     temperature_groundwater=12, 
 #                                     concentration_groundwater = 1.8)
     
@@ -474,7 +474,7 @@ def test_segment_surface_area_calculations():
 #     '''test the calculatiion of the mean gw concentration'''
 
 #     pipe1 = Pipe()
-#     pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+#     pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
 #                                     temperature_groundwater=12, 
 #                                     concentration_groundwater = 1.8)
     
@@ -496,7 +496,7 @@ def test_segment_surface_area_calculations():
 #     '''test the calculatiion of the mean soil concentration'''
 
 #     pipe1 = Pipe()
-#     pipe1.set_groundwater_conditions(chemical_name="Benzene", 
+#     pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
 #                                     temperature_groundwater=12, 
 #                                     concentration_groundwater = 1.8)
     
