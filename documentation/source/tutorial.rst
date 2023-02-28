@@ -4,11 +4,11 @@ Tutorial
 Practical examples
 
 
-We always start by importing package_name:
+We always start by importing pipepermcalc:
 
 .. ipython:: python
 
-    import package_name
+    import pipepermcalc
 
 Steps
 -----

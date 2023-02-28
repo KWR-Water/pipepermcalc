@@ -1,6 +1,6 @@
-Use this repository as a template. Do a global search in all files to 'package_name' and replace it with the actual package name.
+Use this repository as a template. Do a global search in all files to pipepermcalc and replace it with the actual package name.
 
-rename the folder 'package_name' to the name of your package as well
+rename the folder pipepermcalc to the name of your package as well
 
 Make a list of all the packages required to run your code in requirements.txt. If this repository depends on any package
 that should be installed by conda instead of pip, add that package in requirements_conda.yml; also specify your

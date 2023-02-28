@@ -5,7 +5,7 @@ def read(fname):
     with open(os.path.join(os.path.dirname(__file__), fname)) as f:
         return f.read()
 
-package_name = 'package_name'
+package_name = 'pipepermcalc'
 setup(
     name=package_name,
     version='0.1',

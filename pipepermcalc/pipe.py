@@ -250,7 +250,6 @@ class Pipe:
             Temperature of the groundwater, degrees Celcius
         '''
 
-
         self.concentration_groundwater = concentration_groundwater
         self.temperature_groundwater = temperature_groundwater
         # Checks here that input concentration and temperature > 0
@@ -268,7 +267,6 @@ class Pipe:
         for segment in self.segment_list:
             segment._calculate_pipe_K_D(pipe_permeability_dict=self.pipe_permeability_dict, 
                                  _groundwater_conditions_set=self._groundwater_conditions_set, )
-
     
 
     def set_flow_rate(self, 
@@ -397,7 +395,7 @@ class Pipe:
 
     def calculate_peak_dw_concentration(self, 
                                         stagnation_time_hours = 8, 
-                                        tolerance = 0.01, #ah_todo should we not have these as defaults?
+                                        tolerance = 0.01, #ah_todo should we have these as defaults?
                                         relaxation_factor = 0.5,
                                         max_iterations = 1000):
 

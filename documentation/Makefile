@@ -1,4 +1,4 @@
-# Minimal makefile for Sphinx documentation
+mka# Minimal makefile for Sphinx documentation
 #
 
 # You can set these variables from the command line, and also
@@ -18,5 +18,5 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 
-	@sphinx-apidoc -f -o $(SOURCEDIR)/api ../package_name
+	@sphinx-apidoc -f -o $(SOURCEDIR)/api ../pipepermcalc
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

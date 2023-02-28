@@ -1,14 +1,12 @@
 Introduction
 ===============================
-package_name - A python package for
+pipepermcalc - A python package for ... ah_todo
 
 .. toctree::
     :maxdepth: 2
     :glob:
 
     getting-started.rst
-    import_data.rst
-    IO_and_named_entity_recognition.rst
     tutorial.rst
     faq.rst
     glossary.rst
