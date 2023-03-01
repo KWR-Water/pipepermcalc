@@ -34,47 +34,46 @@ class Pipe:
         Total length of the pipe, summed from the pipe segments, m
     flow_rate: float
         flow_rate through pipe. Default of 0.5 m3/day.    
-    pipe_permeability_dict: dictionary
-        CAS_number: string
-            CAS is a unique identification number assigned by the Chemical 
-            Abstracts Service (CAS)
-        chemical_name_EN: string
-            Name of the chemical given in Dutch
-        chemical_name: string
-            Name of the chemical for which to calculate the permeation, in Dutch
-        molecular_weight: float
-            Mass of one mole of a given chemical, g/mol
-        solubility:	float
-            solubility of given chemical in water, g/m3
-        log_octanol_water_partitioning_coefficient:	float,
-            Partition coefficient for the two-phase system consisting of 
-            n-octanol and water, Log Kow, [-]
-        log_distribution_coefficient: float
-            Ratio of the amount of chemical  adsorbed onto soil per amount 
-            of water, m3/g
-        chemical_group: string
-            Grouping of chemicals (expert opinion) with similar properties
-            for permeation: Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk, 
-            Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE. See KWR 2016.056
-        chemical_group_number: integer
-            Integer corresponding to the chemical group 
-        molecular_volume: float
-            Volume occupied by one mole of the substance at a given 
-            temperature and pressure, cm3/mol.
-        Drinking_water_norm: float
-            Concentration allowable in the Dutch Drinking water decree, g/m3.
-        concentration_groundwater: float
-            Concentration of the given chemical in groundwater, g/m3.
-        temperature_groundwater: float
-            Temperature of the groundwater, degrees Celcius.
-        tolerance: float 
-            The allowable difference between the calculated and actual drinking 
-            water concentration, [-].
-        relaxation_factor: float
-            Used to iterate and calculate the new drinking water concentration, 
-            recommended 0.3-0.7 [-].
-        max_iterations: int
-            Maximum number of iterations allowed in the optimization scheme.                    
+    CAS_number: string
+        CAS is a unique identification number assigned by the Chemical 
+        Abstracts Service (CAS)
+    chemical_name_EN: string
+        Name of the chemical given in Dutch
+    chemical_name: string
+        Name of the chemical for which to calculate the permeation, in Dutch
+    molecular_weight: float
+        Mass of one mole of a given chemical, g/mol
+    solubility:	float
+        solubility of given chemical in water, g/m3
+    log_octanol_water_partitioning_coefficient:	float,
+        Partition coefficient for the two-phase system consisting of 
+        n-octanol and water, Log Kow, [-]
+    log_distribution_coefficient: float
+        Ratio of the amount of chemical  adsorbed onto soil per amount 
+        of water, m3/g
+    chemical_group: string
+        Grouping of chemicals (expert opinion) with similar properties
+        for permeation: Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk, 
+        Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE. See KWR 2016.056
+    chemical_group_number: integer
+        Integer corresponding to the chemical group 
+    molecular_volume: float
+        Volume occupied by one mole of the substance at a given 
+        temperature and pressure, cm3/mol.
+    Drinking_water_norm: float
+        Concentration allowable in the Dutch Drinking water decree, g/m3.
+    concentration_groundwater: float
+        Concentration of the given chemical in groundwater, g/m3.
+    temperature_groundwater: float
+        Temperature of the groundwater, degrees Celcius.
+    tolerance: float 
+        The allowable difference between the calculated and actual drinking 
+        water concentration, [-].
+    relaxation_factor: float
+        Used to iterate and calculate the new drinking water concentration, 
+        recommended 0.3-0.7 [-].
+    max_iterations: int
+        Maximum number of iterations allowed in the optimization scheme.                    
     stagnation_time_hours: float
         Time in hours which water in pipe is stagnant, hours.
     stagnation_time: float
@@ -238,12 +237,12 @@ class Pipe:
         self.flow_rate = flow_rate
         self._flow_rate_set = True
 
-        pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name, 
+        self._fetch_chemical_database(chemical_name=self.chemical_name, 
                                                                     suppress_print=suppress_print)
 
         # The default value for the concentration_drinking_water is the drinking water norm
         if concentration_drinking_water is None:
-            self.concentration_drinking_water = pipe_permeability_dict['Drinking_water_norm']
+            self.concentration_drinking_water = self.Drinking_water_norm
         else: 
             self.concentration_drinking_water = concentration_drinking_water
 
@@ -276,10 +275,6 @@ class Pipe:
         suppress_print: Boolean
             Suppress printing the chemical name and matching name, e.g. in loop calculations
 
-        Returns
-        -------
-        pipe_permeability_dict: dictionary
-            Dictionary of the chemical and permeability related coefficients.
         '''
         
         ppc_database = pd.read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
@@ -298,14 +293,11 @@ class Pipe:
         df = ppc_database.loc[ppc_database['chemical_name'] == matching_chemical_name]
         pipe_permeability_dict = df.to_dict('records')[0]
 
-        # convert drinking water norm from ug/L to g/m3 #ah_todo, remove this and change the database itself
-        pipe_permeability_dict['Drinking_water_norm'] = pipe_permeability_dict['Drinking_water_norm']/1000 
-
         #assign dict items as attribute of class
         for k, v in pipe_permeability_dict.items():
             setattr(self, k, v)
 
-        return pipe_permeability_dict
+
 
     # def _view_database_chemical_names():
         #ah_todo add a function to view a list of the possible chemical names?
@@ -517,8 +509,7 @@ class Pipe:
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
-            pipe_permeability_dict = self._fetch_chemical_database(
-                                            chemical_name=chemical_name, suppress_print = True, )
+            self._fetch_chemical_database(chemical_name=chemical_name, suppress_print = True, )
 
             # calculate initial guess for gw concentration
             sum_KDA_d = 0
@@ -634,7 +625,7 @@ class Pipe:
             To set flow rate use .set_flow_rate()')
         else: 
 
-            pipe_permeability_dict = self._fetch_chemical_database(chemical_name=chemical_name, suppress_print = True, )
+            self._fetch_chemical_database(chemical_name=chemical_name, suppress_print = True, )
             self.stagnation_time = stagnation_time_hours / 24
 
             # calculate initial guess for gw concentration

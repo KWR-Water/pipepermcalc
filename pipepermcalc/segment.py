@@ -551,7 +551,6 @@ class Segment:
     
 
     def _calculate_mean_dw_mass_per_segment(self, 
-                                            # pipe_permeability_dict,
                                             concentration_drinking_water,
                                             _groundwater_conditions_set,
                                             flow_rate=None,
@@ -564,8 +563,6 @@ class Segment:
         ----------
         #ah_todo finish
         '''
-
-        # concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
          
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 
@@ -578,7 +575,6 @@ class Segment:
 
 
     def _calculate_peak_dw_mass_per_segment(self, 
-                                        # pipe_permeability_dict, 
                                         concentration_drinking_water,
                                         _groundwater_conditions_set,
                                         stagnation_time_hours = 8, 
@@ -599,8 +595,6 @@ class Segment:
 
         '''
         stagnation_time = stagnation_time_hours / 24 # days
-
-        # concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
 
         self.stagnation_factor = self._calculate_stagnation_factor()
         delta_c = self.concentration_groundwater - concentration_drinking_water
