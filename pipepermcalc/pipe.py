@@ -524,8 +524,10 @@ class Pipe:
             sum_KDA_d = 0
             for segment in self.segment_list:
                 # calculate the sum of the Kpw * DP * SA / d for all pipe segments
-                log_Dp_ref = segment._calculate_ref_logD()
-                log_Kpw_ref = segment._calculate_ref_logK()
+                log_Dp_ref = segment._calculate_ref_logD(chemical_group_number=self.chemical_group_number,
+                            molecular_weight=self.molecular_weight)
+                log_Kpw_ref = segment._calculate_ref_logK(chemical_group_number=self.chemical_group_number,
+                            log_octanol_water_partitioning_coefficient=self.log_octanol_water_partitioning_coefficient)
                 
                 Dp_ref = 10 ** log_Dp_ref
                 Kpw_ref = 10 ** log_Kpw_ref
@@ -543,9 +545,10 @@ class Pipe:
             counter = 0
 
             while True:
-                self.set_groundwater_conditions(chemical_name=chemical_name, 
+                self.set_conditions(chemical_name=chemical_name, 
                                             temperature_groundwater=temperature_groundwater, 
                                             concentration_groundwater=concentration_groundwater,
+                                            flow_rate = self.flow_rate,
                                             suppress_print = True, 
                                             )
                 sum_mass_segment = 0
@@ -638,8 +641,10 @@ class Pipe:
             sum_KDA_d = 0
             for segment in self.segment_list:
                 # calculate the sum of the Kpw * DP * SA *f_stag / d for all pipe segments
-                log_Dp_ref = segment._calculate_ref_logD()
-                log_Kpw_ref = segment._calculate_ref_logK()
+                log_Dp_ref = segment._calculate_ref_logD(chemical_group_number=self.chemical_group_number,
+                            molecular_weight=self.molecular_weight)
+                log_Kpw_ref = segment._calculate_ref_logK(chemical_group_number=self.chemical_group_number,
+                            log_octanol_water_partitioning_coefficient=self.log_octanol_water_partitioning_coefficient)
                 
                 Dp_ref = 10 ** log_Dp_ref
                 Kpw_ref = 10 ** log_Kpw_ref
@@ -665,9 +670,10 @@ class Pipe:
             counter = 0
 
             while True:
-                self.set_groundwater_conditions(chemical_name=chemical_name, 
+                self.set_conditions(chemical_name=chemical_name, 
                                             temperature_groundwater=temperature_groundwater, 
                                             concentration_groundwater=concentration_groundwater, 
+                                            flow_rate = self.flow_rate,
                                             suppress_print = True, 
                                             )
                 sum_mass_segment = 0

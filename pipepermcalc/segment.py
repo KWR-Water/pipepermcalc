@@ -285,14 +285,14 @@ class Segment:
         },  
         "EPDM": {
             "ref_log_D_a": {
-                1: 0.920996123470591,	
-                2: 0.920996123470591,
-                3: 0.920996123470591,
+                1: -0.011* 0.920996123470591,	
+                2: -0.00629 * 0.920996123470591,
+                3: -0.006 * 0.920996123470591,
                 },
             "ref_log_D_b": {
-                1: 0.0,
-                2: 0.0,
-                3: 0.0,
+                1: -10.688 * 0.920996123470591,
+                2: -11.000 * 0.920996123470591,
+                3: -11.000 * 0.920996123470591,
                 },
             "ref_log_K_a": {
                 1: 1.0675,	
@@ -400,11 +400,9 @@ class Segment:
         EPDM for the determination of the diffusion coefficient, see memo 2022 
         "Permeatie door rubber afdichtingen van drinkwaterleidingen."  '''
 
-        if self.material == 'PE40' or self.material == "PE80":
-
-            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][chemical_group_number]
-            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][chemical_group_number]
-            log_Dp_ref = a_ref * molecular_weight + b_ref
+        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][chemical_group_number]
+        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][chemical_group_number]
+        log_Dp_ref = a_ref * molecular_weight + b_ref
 
         return log_Dp_ref    
 

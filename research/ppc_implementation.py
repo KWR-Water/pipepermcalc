@@ -40,6 +40,49 @@ class Pet():
         self.owner = owner.name
 #%%
 
+seg1 = Segment(name='seg1',
+            material='PE40',
+            length=5,
+            inner_diameter=0.0196,
+            thickness=0.0027,
+            )
+
+seg2 = Segment(name='seg2',
+                material='EPDM',
+                length=0.06,
+                inner_diameter=0.025,
+                thickness=0.001,
+                diffusion_path_length = 0.06, 
+                permeation_direction = 'parallel'
+                )
+
+seg3 = Segment(name='seg3',
+            material='PE40',
+            length=6,
+            inner_diameter=0.0196,
+            thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1, seg2, seg3])
+
+# pipe1 = Pipe(segment_list=[seg2])
+
+pipe1.set_conditions(chemical_name="Benzeen", 
+                                temperature_groundwater=12, 
+                                concentration_groundwater = 1.8,
+                                flow_rate=0.5)
+pipe1.calculate_mean_dw_concentration()   
+#%%
+seg2.__dict__
+
+pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
+                                chemical_name="Benzeen", 
+                                temperature_groundwater=12, 
+                                tolerance = 0.001
+                                )
+pipe1.__dict__
+#%%
+
 Bob = Person(name = 'Bob')
 dog = Pet(pet_name='Spot')
 
@@ -129,47 +172,7 @@ k2 = seg1.log_Kpw
 
 perm1, perm2
 k1, k2
-#%%
 
-seg1 = Segment(name='seg1',
-            material='PE40',
-            length=5,
-            inner_diameter=0.0196,
-            thickness=0.0027,
-            )
-
-seg2 = Segment(name='seg2',
-                material='EPDM',
-                length=0.06,
-                inner_diameter=0.025,
-                thickness=0.001,
-                diffusion_path_length = 0.06, 
-                permeation_direction = 'parallel'
-                )
-
-seg3 = Segment(name='seg3',
-            material='PE40',
-            length=6,
-            inner_diameter=0.0196,
-            thickness=0.0027,
-            )
-
-pipe1 = Pipe(segment_list=[seg1, seg2, seg3])
-
-# pipe1 = Pipe(segment_list=[seg2])
-pipe1.set_flow_rate(flow_rate=0.5)
-
-pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater = 1.8)
-seg2.__dict__
-
-pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
-                                chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                tolerance = 0.001
-                                )
-pipe1.pipe_permeability_dict
 #%%
 seg1 = Segment(name='seg1',
                 material='PE40',
