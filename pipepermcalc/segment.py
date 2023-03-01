@@ -265,12 +265,12 @@ class Segment:
             "ref_log_D_a": {
                 1: -0.011 * 0.950647410867427,	#ah_todo change these to the see notes, replace formulas in _calculate_ref_logD
                 2: -0.00629 * 0.950647410867427,
-                3: 0.950647410867427,
+                3: -0.006 * 0.950647410867427,
                 },
             "ref_log_D_b": {
                 1: -10.688 * 0.950647410867427,
-                2: 0.0,
-                3: 0.0,
+                2: -11.000 * 0.950647410867427,
+                3: -11.000 * 0.950647410867427,
                 },
             "ref_log_K_a": {
                 1: 1.0452,	
@@ -308,6 +308,7 @@ class Segment:
         }
 
     def _correct_for_temperature(self,
+                                temperature_groundwater,
                                 coefficient_name=None, 
                                 a_dh=None,
                                 b_dh=None,
@@ -338,11 +339,13 @@ class Segment:
         R = 0.008314 #universal gas constant
         reference_temperature = 25 # deg. C
         dh = a_dh * np.log10(coefficient_name) + b_dh
-        f_temp = dh / (R * np.log(10)) * (1 / (reference_temperature + 273) - 1 / (self.temperature_groundwater + 273))
+        f_temp = dh / (R * np.log(10)) * (1 / (reference_temperature + 273) - 1 / (temperature_groundwater + 273))
         return f_temp
 
 
     def _concentration_correction(self,
+                        solubility, 
+                        concentration_groundwater,
                         a_c=None,
                         Cref_Sw=None):
         '''
@@ -362,7 +365,7 @@ class Segment:
             coefficient
         '''
 
-        Cg_Sw = min(self.concentration_groundwater / self.solubility, 1)
+        Cg_Sw = min(concentration_groundwater / solubility, 1)
         f_conc = a_c * (Cg_Sw - Cref_Sw)
 
         return f_conc
@@ -376,17 +379,21 @@ class Segment:
         return f_age
 
 
-    def _calculate_ref_logK(self,):
+    def _calculate_ref_logK(self,
+                            chemical_group_number,
+                            log_octanol_water_partitioning_coefficient):
         '''Calculate the reference log K'''
 
-        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_a'][self.chemical_group_number]
-        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_b'][self.chemical_group_number]
-        log_Kpw_ref = a_ref * self.log_octanol_water_partitioning_coefficient + b_ref
+        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_a'][chemical_group_number]
+        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_b'][chemical_group_number]
+        log_Kpw_ref = a_ref * log_octanol_water_partitioning_coefficient + b_ref
 
         return log_Kpw_ref
 
 
-    def _calculate_ref_logD(self,):
+    def _calculate_ref_logD(self,
+                            chemical_group_number,
+                            molecular_weight):
         '''Calculate the reference log D based on the pipe material. A fixed 
         ratio between the log of the diffusion coefficient of PE-40 (logD_p) 
         and of SBR/EPDM (logD_s, logD_e) in m2/s is assumed for SBR and 
@@ -395,23 +402,14 @@ class Segment:
 
         if self.material == 'PE40' or self.material == "PE80":
 
-            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][self.chemical_group_number]
-            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][self.chemical_group_number]
-            log_Dp_ref = a_ref * self.molecular_weight + b_ref
-        
-        else:
-            PE40_a_ref = self.reference_pipe_material_dict["PE40"]['ref_log_D_a'][self.chemical_group_number]
-            PE40_b_ref = self.reference_pipe_material_dict["PE40"]['ref_log_D_b'][self.chemical_group_number]
-            PE40_log_Dp_ref = PE40_a_ref * self.molecular_weight + PE40_b_ref
-
-            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][self.chemical_group_number]
-            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][self.chemical_group_number]
-            log_Dp_ref = a_ref * PE40_log_Dp_ref + b_ref
+            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][chemical_group_number]
+            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][chemical_group_number]
+            log_Dp_ref = a_ref * molecular_weight + b_ref
 
         return log_Dp_ref    
 
 
-    def _calculate_logK(self,):
+    def _calculate_logK(self, pipe):
         ''' 
         Calculate the LogK value for the pipe material, correct for temperature,
         concentration and age. 
@@ -421,14 +419,18 @@ class Segment:
         '''
 
         # calculate reference log K plastic-water (log kpw) 
-        log_Kpw_ref = self._calculate_ref_logK()
+        log_Kpw_ref = self._calculate_ref_logK(chemical_group_number=pipe.chemical_group_number,
+                                               log_octanol_water_partitioning_coefficient= pipe.log_octanol_water_partitioning_coefficient)
 
         # correct for temperature, concentration, age
-        f_Ktemp = self._correct_for_temperature(coefficient_name = self.solubility,
+        f_Ktemp = self._correct_for_temperature(coefficient_name = pipe.solubility,
+                            temperature_groundwater = pipe.temperature_groundwater, 
                             a_dh = self._partitioning_a_dh, 
                             b_dh = self._partitioning_b_dh, )
 
-        f_Kconc = self._concentration_correction(a_c = self.partitioning_a_c,
+        f_Kconc = self._concentration_correction(solubility=pipe.solubility, 
+                                concentration_groundwater = pipe.concentration_groundwater,
+                                a_c = self.partitioning_a_c,
                                 Cref_Sw = self.partitioning_Cref_Sw) 
         
         f_Kage = self._correct_for_age()
@@ -444,7 +446,7 @@ class Segment:
         return log_Kpw
 
 
-    def _calculate_logD(self,):
+    def _calculate_logD(self, pipe):
         ''' 
         Calculate the LogK value for the pipe material, correct for temperature,
         concentration and age. 
@@ -454,14 +456,18 @@ class Segment:
         '''
         
         # calculate reference log D plastic (log Dp) 
-        log_Dp_ref = self._calculate_ref_logD()#
+        log_Dp_ref = self._calculate_ref_logD(chemical_group_number=pipe.chemical_group_number,
+                            molecular_weight=pipe.molecular_weight)
 
         # correct for temperature, concentration, age
-        f_Dtemp = self._correct_for_temperature(coefficient_name =self.molecular_weight, 
+        f_Dtemp = self._correct_for_temperature(coefficient_name =pipe.molecular_weight,
+                            temperature_groundwater = pipe.temperature_groundwater, 
                             a_dh = self._diffusion_a_dh, 
                             b_dh = self._diffusion_b_dh,)
 
         f_Dconc = self._concentration_correction(
+                                solubility=pipe.solubility, 
+                                concentration_groundwater = pipe.concentration_groundwater,
                                 a_c = self.diffusion_a_c , 
                                 Cref_Sw = self.diffusion_Cref_Sw) 
         
@@ -489,6 +495,7 @@ class Segment:
         return permeation_coefficient
 
     def _calculate_pipe_K_D(self,
+                            pipe,
                             _groundwater_conditions_set, 
         ):
         '''
@@ -506,7 +513,6 @@ class Segment:
         concentration_groundwater: float
             concentration of given chemical in groundwater, in mg/L
         '''
-
         # Check if the groundwater conditions have been set, if not raise error
         if _groundwater_conditions_set is None:
             raise ValueError('Error, groundwater conditions have not been set. \
@@ -514,10 +520,10 @@ class Segment:
         else:           
 
             # calculate log K plastic-water (log kpw) 
-            self.log_Kpw = self._calculate_logK()
+            self.log_Kpw = self._calculate_logK(pipe = pipe)
 
             # calculate log D plastic (log Dp) 
-            self.log_Dp = self._calculate_logD()
+            self.log_Dp = self._calculate_logD(pipe = pipe)
 
             #Permeation coefficient for plastic-water (Ppw), unit: m2/day
             #ah_todo remove this, use K and D directly in equations

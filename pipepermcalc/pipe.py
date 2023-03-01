@@ -204,6 +204,7 @@ class Pipe:
                     concentration_groundwater=None,
                     temperature_groundwater=None, 
                     flow_rate=None,
+                    concentration_drinking_water=None,
                     suppress_print = False, 
                     ):
         ''' 
@@ -227,46 +228,33 @@ class Pipe:
         self.chemical_name = chemical_name
         self.concentration_groundwater = concentration_groundwater
         self.temperature_groundwater = temperature_groundwater
-        # Checks here that input concentration and temperature > 0
-        check_values = ['concentration_groundwater', 'temperature_groundwater',]
-        self.check_input_values(check_values)
+        # # Checks here that input concentration and temperature > 0
+        # check_values = ['concentration_groundwater', 'temperature_groundwater',]
+        # self.check_input_values(check_values)
 
+        #return to these checks...
         self._groundwater_conditions_set = True
+
         self.flow_rate = flow_rate
         self._flow_rate_set = True
-
 
         pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name, 
                                                                     suppress_print=suppress_print)
 
+        # The default value for the concentration_drinking_water is the drinking water norm
+        if concentration_drinking_water is None:
+            self.concentration_drinking_water = pipe_permeability_dict['Drinking_water_norm']
+        else: 
+            self.concentration_drinking_water = concentration_drinking_water
+
         for segment in self.segment_list:
             segment.temperature_groundwater = temperature_groundwater
             segment.concentration_groundwater = concentration_groundwater
-            #assign dict items as attribute of segment
-            for k, v in pipe_permeability_dict.items():
-                setattr(segment, k, v)
+            segment.concentration_drinking_water = self.concentration_drinking_water
             
             #ah_todo move to the individual calculations
-            segment._calculate_pipe_K_D(_groundwater_conditions_set=self._groundwater_conditions_set, )
-    
-
-    # def set_flow_rate(self, 
-    #                   flow_rate=0.5): 
-    #     ''' set this in function by itself
-    #     , also add check, same as groundwater conditions
-        
-    #     Parameters
-    #     ----------        
-    #     flow_rate: float
-    #         flow_rate through pipe. Default of 0.5 m3/day.
-    #     '''
-    #     self.flow_rate = flow_rate
-
-    #     # Checks here that input flow_rate > 0
-    #     check_values = ['flow_rate', ]
-    #     self.check_input_values(check_values)
-
-    #     self._flow_rate_set = True
+            segment._calculate_pipe_K_D(pipe = self, 
+                                        _groundwater_conditions_set=self._groundwater_conditions_set, )
 
 
     def _fetch_chemical_database(self,

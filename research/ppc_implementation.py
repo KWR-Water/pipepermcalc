@@ -24,23 +24,28 @@ from pipepermcalc.segment import *
 
 # import pipepermcalc
 #%%
-seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                thickness=0.0027,
-                )
+class Person():
+    def __init__(self, name):
+        self.name = name
+    
+    def set_pet(self, pet):
+        self.pet = pet.name
+        self.owner = pet.owner
 
-pipe1 = Pipe(segment_list=[seg1])
-pipe1.segment_list
+class Pet():
+    def __init__(self, pet_name):
+        self.name = pet_name
 
-pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater = 0.112980124482)
-pipe1.set_flow_rate(flow_rate=0.5)
-seg1.log_Kpw_ref 
-# pipe1.calculate_peak_dw_concentration() 
+    def set_owner(self, owner):
+        self.owner = owner.name
+#%%
 
+Bob = Person(name = 'Bob')
+dog = Pet(pet_name='Spot')
+
+dog.set_owner(Bob)
+Bob.set_pet(dog)
+Bob.owner
 #%%
 
 seg1 = Segment(name='seg1',
@@ -50,7 +55,8 @@ seg1 = Segment(name='seg1',
                 inner_diameter=0.0196,
                 thickness=0.0027)
 pipe4 = Pipe(segment_list=[seg1])
-pipe4.set_flow_rate(flow_rate=0.5)
+pipe4.set_conditions(flow_rate=0.5,chemical_name="Benzeen", temperature_groundwater=12, 
+                                concentration_groundwater=1.8,)
 # pipe4.set_groundwater_conditions(chemical_name="Benzeen", 
 #                                 temperature_groundwater=12, 
 #                                 concentration_groundwater=1.8,)
@@ -58,6 +64,8 @@ pipe4.set_flow_rate(flow_rate=0.5)
 # pipe4.calculate_peak_dw_concentration()   
 # pipe4.calculate_mean_dw_concentration()   
 
+# seg1._calculate_pipe_K_D(pipe = pipe4, _groundwater_conditions_set=True)
+#%%
 mean_conc = pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
                             chemical_name="Benzeen", 
                             temperature_groundwater=12,
