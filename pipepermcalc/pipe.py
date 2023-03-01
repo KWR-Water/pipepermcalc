@@ -199,12 +199,13 @@ class Pipe:
         return matching_chemical_name
 
 
-    def set_groundwater_conditions(self,
-                                   chemical_name=None,                                    
-                                   concentration_groundwater=None,
-                                   temperature_groundwater=None, 
-                                   suppress_print = False, 
-                                    ):
+    def set_conditions(self,
+                    chemical_name=None,                                    
+                    concentration_groundwater=None,
+                    temperature_groundwater=None, 
+                    flow_rate=None,
+                    suppress_print = False, 
+                    ):
         ''' 
         Specifies the chemical of interest, concentration and temperature in the 
         groundwater and returns the parameters as attributes of the class. 
@@ -223,45 +224,49 @@ class Pipe:
             Suppress printing the chemical name and matching name, e.g. in loop calculations
 
         '''
-
+        self.chemical_name = chemical_name
         self.concentration_groundwater = concentration_groundwater
         self.temperature_groundwater = temperature_groundwater
         # Checks here that input concentration and temperature > 0
         check_values = ['concentration_groundwater', 'temperature_groundwater',]
         self.check_input_values(check_values)
 
-        self.chemical_name = chemical_name
         self._groundwater_conditions_set = True
+        self.flow_rate = flow_rate
+        self._flow_rate_set = True
 
-        self.pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name, 
+
+        pipe_permeability_dict = self._fetch_chemical_database(chemical_name=self.chemical_name, 
                                                                     suppress_print=suppress_print)
-        self.pipe_permeability_dict['chemical_name'] = self.chemical_name
-        self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
-        self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
 
-        #ah_todo move to the individual calculations
         for segment in self.segment_list:
-            segment._calculate_pipe_K_D(pipe_permeability_dict=self.pipe_permeability_dict, 
-                                 _groundwater_conditions_set=self._groundwater_conditions_set, )
+            segment.temperature_groundwater = temperature_groundwater
+            segment.concentration_groundwater = concentration_groundwater
+            #assign dict items as attribute of segment
+            for k, v in pipe_permeability_dict.items():
+                setattr(segment, k, v)
+            
+            #ah_todo move to the individual calculations
+            segment._calculate_pipe_K_D(_groundwater_conditions_set=self._groundwater_conditions_set, )
     
 
-    def set_flow_rate(self, 
-                      flow_rate=0.5): 
-        ''' set this in function by itself
-        , also add check, same as groundwater conditions
+    # def set_flow_rate(self, 
+    #                   flow_rate=0.5): 
+    #     ''' set this in function by itself
+    #     , also add check, same as groundwater conditions
         
-        Parameters
-        ----------        
-        flow_rate: float
-            flow_rate through pipe. Default of 0.5 m3/day.
-        '''
-        self.flow_rate = flow_rate
+    #     Parameters
+    #     ----------        
+    #     flow_rate: float
+    #         flow_rate through pipe. Default of 0.5 m3/day.
+    #     '''
+    #     self.flow_rate = flow_rate
 
-        # Checks here that input flow_rate > 0
-        check_values = ['flow_rate', ]
-        self.check_input_values(check_values)
+    #     # Checks here that input flow_rate > 0
+    #     check_values = ['flow_rate', ]
+    #     self.check_input_values(check_values)
 
-        self._flow_rate_set = True
+    #     self._flow_rate_set = True
 
 
     def _fetch_chemical_database(self,
@@ -302,11 +307,15 @@ class Pipe:
         else:
             print("Input chemical name:", chemical_name, "- Matched chemical name:", matching_chemical_name)
 
-        df = ppc_database[ppc_database['chemical_name'].str.contains(matching_chemical_name)]
+        df = ppc_database.loc[ppc_database['chemical_name'] == matching_chemical_name]
         pipe_permeability_dict = df.to_dict('records')[0]
 
-        # convert drinking water norm from ug/L to g/m3
+        # convert drinking water norm from ug/L to g/m3 #ah_todo, remove this and change the database itself
         pipe_permeability_dict['Drinking_water_norm'] = pipe_permeability_dict['Drinking_water_norm']/1000 
+
+        #assign dict items as attribute of class
+        for k, v in pipe_permeability_dict.items():
+            setattr(self, k, v)
 
         return pipe_permeability_dict
 
@@ -360,8 +369,7 @@ class Pipe:
                 sum_mass_segment = 0
 
                 for segment in self.segment_list:
-                    segment._calculate_mean_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
-                                                                concentration_drinking_water = concentration_drinking_water,
+                    segment._calculate_mean_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
                                                                 _groundwater_conditions_set = self._groundwater_conditions_set,
                                                                 flow_rate = self.flow_rate)
 
@@ -398,8 +406,7 @@ class Pipe:
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
         given a stagnation period given a groundwater concentration.
-        Stagnation period default of 8 hours. Peak concentrations in drinking 
-        water added to the pipe_permeability_dict.
+        Stagnation period default of 8 hours. 
         
         Parameters
         ----------
@@ -443,8 +450,7 @@ class Pipe:
                 sum_mass_segment = 0
 
                 for segment in self.segment_list:
-                    segment._calculate_peak_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
-                                                                concentration_drinking_water = concentration_drinking_water,
+                    segment._calculate_peak_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
                                                                 _groundwater_conditions_set = self._groundwater_conditions_set,
                                                                 stagnation_time_hours = stagnation_time_hours, 
                                                                 flow_rate = self.flow_rate)
@@ -530,8 +536,8 @@ class Pipe:
             sum_KDA_d = 0
             for segment in self.segment_list:
                 # calculate the sum of the Kpw * DP * SA / d for all pipe segments
-                log_Dp_ref = segment._calculate_ref_logD(pipe_permeability_dict=pipe_permeability_dict, )
-                log_Kpw_ref = segment._calculate_ref_logK(pipe_permeability_dict=pipe_permeability_dict, )
+                log_Dp_ref = segment._calculate_ref_logD()
+                log_Kpw_ref = segment._calculate_ref_logK()
                 
                 Dp_ref = 10 ** log_Dp_ref
                 Kpw_ref = 10 ** log_Kpw_ref
@@ -560,8 +566,7 @@ class Pipe:
                 mass_drinkingwater_norm = concentration_drinking_water * self.flow_rate
 
                 for segment in self.segment_list:
-                    segment._calculate_mean_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
-                                                                    concentration_drinking_water = concentration_drinking_water,
+                    segment._calculate_mean_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
                                                                     _groundwater_conditions_set = self._groundwater_conditions_set,
                                                                     flow_rate = self.flow_rate)
                     sum_mass_segment += segment.mass_chemical_drinkwater
@@ -645,8 +650,8 @@ class Pipe:
             sum_KDA_d = 0
             for segment in self.segment_list:
                 # calculate the sum of the Kpw * DP * SA *f_stag / d for all pipe segments
-                log_Dp_ref = segment._calculate_ref_logD(pipe_permeability_dict=pipe_permeability_dict, )
-                log_Kpw_ref = segment._calculate_ref_logK(pipe_permeability_dict=pipe_permeability_dict, )
+                log_Dp_ref = segment._calculate_ref_logD()
+                log_Kpw_ref = segment._calculate_ref_logK()
                 
                 Dp_ref = 10 ** log_Dp_ref
                 Kpw_ref = 10 ** log_Kpw_ref
@@ -683,8 +688,7 @@ class Pipe:
                 mass_drinkingwater_norm = (concentration_drinking_water * self.total_volume)
                 
                 for segment in self.segment_list:
-                    segment._calculate_peak_dw_mass_per_segment(pipe_permeability_dict=self.pipe_permeability_dict,
-                                                                    concentration_drinking_water = concentration_drinking_water,
+                    segment._calculate_peak_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
                                                                     _groundwater_conditions_set = self._groundwater_conditions_set,
                                                                     stagnation_time_hours = stagnation_time_hours,
                                                                     flow_rate = self.flow_rate)

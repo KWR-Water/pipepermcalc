@@ -60,7 +60,7 @@ def test_logKpw_ref():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
-    pipe1.calculate_peak_dw_concentration()    
+    # pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.log_Kpw_ref, 
                                ref_answer = 1.64761000, 
                                round_values=5)
@@ -82,7 +82,7 @@ def test_logDp_ref():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
-    pipe1.calculate_peak_dw_concentration()    
+    # pipe1.calculate_peak_dw_concentration()    
    
     raise_exception_two_values(answer=seg1.log_Dp_ref, 
                                ref_answer = -11.54717, 
@@ -106,7 +106,7 @@ def test_logKp_ref_temperature_correction():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
-    pipe1.calculate_peak_dw_concentration()    
+    # pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.f_Ktemp, 
                                ref_answer = -0.071506, 
                                round_values=6)
@@ -130,7 +130,7 @@ def test_logDp_ref_temperature_correction():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482)
     pipe1.set_flow_rate(flow_rate=0.5)
-    pipe1.calculate_peak_dw_concentration()    
+    # pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.f_Dtemp, 
                                ref_answer = -0.305084,
                                round_values=6)
@@ -154,7 +154,7 @@ def test_logKp_ref_concentration_correction():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
-    pipe1.calculate_peak_dw_concentration()    
+    # pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.f_Kconc,
                                ref_answer = -0.103871,
                                round_values=6)
@@ -178,7 +178,7 @@ def test_logDp_ref_concentration_correction():
                                     temperature_groundwater=12, 
                                     concentration_groundwater =1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
-    pipe1.calculate_peak_dw_concentration()    
+    # pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.f_Dconc,
                                ref_answer =  -0.391329, 
                                round_values=6)
@@ -201,7 +201,7 @@ def test_logKpw():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
-    pipe1.calculate_peak_dw_concentration()    
+    # pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.log_Kpw,
                                ref_answer = 1.472233,
                                round_values=6)
@@ -224,7 +224,7 @@ def test_logDpw():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8)
     pipe1.set_flow_rate(flow_rate=0.5)
-    pipe1.calculate_peak_dw_concentration()    
+    # pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.log_Dp, 
                                ref_answer = -12.243587, 
                                round_values=6)
@@ -330,8 +330,8 @@ def test_calculate_peak_dw_concentration():
     pipe1.set_flow_rate(flow_rate=0.5)
     pipe1.calculate_peak_dw_concentration()    
 
-    raise_exception_two_values(answer=pipe1.pipe_permeability_dict['peak_concentration_pipe_drinking_water'], 
-                               ref_answer = 0.0018865325623111913, 
+    raise_exception_two_values(answer=pipe1.peak_concentration_pipe_drinking_water, 
+                               ref_answer = 0.0018895450941979206, 
                                round_values=4)
     #ah_todo check this...
 
@@ -354,7 +354,7 @@ def test_calculate_mean_dw_concentration():
     pipe1.set_flow_rate(flow_rate=0.5)
     pipe1.calculate_mean_dw_concentration()    
 
-    raise_exception_two_values(answer=pipe1.pipe_permeability_dict['mean_concentration_pipe_drinking_water'], 
+    raise_exception_two_values(answer=pipe1.mean_concentration_pipe_drinking_water, 
                                ref_answer = 0.001, 
                                round_values=5)
 
@@ -398,6 +398,29 @@ def test_segment_surface_area_calculations():
                                ref_answer = 0.002615375884, 
                                round_values=12)
 
+
+def test_calculate_mean_allowable_gw_concentration():
+    ''' Test the calculation for the mean concentration in drinking water given 
+    a groundwater concentration '''
+    seg1 = Segment(name='seg1',
+
+                    material='PE40',
+                    length=25,
+                    inner_diameter=0.0196,
+                    thickness=0.0027)
+    pipe4 = Pipe(segment_list=[seg1])
+    pipe4.set_flow_rate(flow_rate=0.5)
+
+    pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
+                                chemical_name="Benzeen", 
+                                temperature_groundwater=12,
+                                tolerance = 0.1, 
+                                relaxation_factor=0.7, 
+                                max_iterations=1000)
+
+    raise_exception_two_values(answer=pipe4.mean_concentration_pipe_drinking_water, 
+                               ref_answer = 1.67596, 
+                               round_values=5)
 
 #%%
 # These tests use incomplete functions, ignore for now 

@@ -1,4 +1,4 @@
-#%% ----------------------------------------------------------------------------
+#%% ----------------------------------------------------------attributes------------------
 # A. Hockin, January 2023
 # KWR 403230-003
 # Pipe permeation calculator
@@ -308,7 +308,6 @@ class Segment:
         }
 
     def _correct_for_temperature(self,
-                                pipe_permeability_dict=None, 
                                 coefficient_name=None, 
                                 a_dh=None,
                                 b_dh=None,
@@ -320,8 +319,6 @@ class Segment:
 
         Parameters
         ----------
-        pipe_permeability_dict: dictionary
-            Dictionary of permeability coefficients
         temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
         coefficient_name: string
@@ -337,17 +334,15 @@ class Segment:
             Temperature correction factor for the partitioning or diffusion 
             coefficient
         '''
-        temperature_groundwater=pipe_permeability_dict['temperature_groundwater']
 
         R = 0.008314 #universal gas constant
         reference_temperature = 25 # deg. C
-        dh = a_dh * np.log10(pipe_permeability_dict[coefficient_name]) + b_dh
-        f_temp = dh / (R * np.log(10)) * (1 / (reference_temperature + 273) - 1 / (temperature_groundwater + 273))
+        dh = a_dh * np.log10(coefficient_name) + b_dh
+        f_temp = dh / (R * np.log(10)) * (1 / (reference_temperature + 273) - 1 / (self.temperature_groundwater + 273))
         return f_temp
 
 
     def _concentration_correction(self,
-                         pipe_permeability_dict=None, 
                         a_c=None,
                         Cref_Sw=None):
         '''
@@ -358,8 +353,7 @@ class Segment:
 
         Parameters
         ----------
-        pipe_permeability_dict: dictionary
-            Dictionary of permeability coefficients
+        #ah_todo finish
 
         Returns
         -------
@@ -368,7 +362,7 @@ class Segment:
             coefficient
         '''
 
-        Cg_Sw = min(pipe_permeability_dict['concentration_groundwater'] / pipe_permeability_dict['solubility'], 1)
+        Cg_Sw = min(self.concentration_groundwater / self.solubility, 1)
         f_conc = a_c * (Cg_Sw - Cref_Sw)
 
         return f_conc
@@ -382,19 +376,17 @@ class Segment:
         return f_age
 
 
-    def _calculate_ref_logK(self,
-                           pipe_permeability_dict):
+    def _calculate_ref_logK(self,):
         '''Calculate the reference log K'''
 
-        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_a'][pipe_permeability_dict['chemical_group_number']]
-        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_b'][pipe_permeability_dict['chemical_group_number']]
-        log_Kpw_ref = a_ref * pipe_permeability_dict['log_octanol_water_partitioning_coefficient'] + b_ref
+        a_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_a'][self.chemical_group_number]
+        b_ref = self.reference_pipe_material_dict[self.material]['ref_log_K_b'][self.chemical_group_number]
+        log_Kpw_ref = a_ref * self.log_octanol_water_partitioning_coefficient + b_ref
 
         return log_Kpw_ref
 
 
-    def _calculate_ref_logD(self,
-                           pipe_permeability_dict):
+    def _calculate_ref_logD(self,):
         '''Calculate the reference log D based on the pipe material. A fixed 
         ratio between the log of the diffusion coefficient of PE-40 (logD_p) 
         and of SBR/EPDM (logD_s, logD_e) in m2/s is assumed for SBR and 
@@ -403,44 +395,40 @@ class Segment:
 
         if self.material == 'PE40' or self.material == "PE80":
 
-            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
-            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
-            log_Dp_ref = a_ref * pipe_permeability_dict['molecular_weight'] + b_ref
+            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][self.chemical_group_number]
+            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][self.chemical_group_number]
+            log_Dp_ref = a_ref * self.molecular_weight + b_ref
         
         else:
-            PE40_a_ref = self.reference_pipe_material_dict["PE40"]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
-            PE40_b_ref = self.reference_pipe_material_dict["PE40"]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
-            PE40_log_Dp_ref = PE40_a_ref * pipe_permeability_dict['molecular_weight'] + PE40_b_ref
+            PE40_a_ref = self.reference_pipe_material_dict["PE40"]['ref_log_D_a'][self.chemical_group_number]
+            PE40_b_ref = self.reference_pipe_material_dict["PE40"]['ref_log_D_b'][self.chemical_group_number]
+            PE40_log_Dp_ref = PE40_a_ref * self.molecular_weight + PE40_b_ref
 
-            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][pipe_permeability_dict['chemical_group_number']]
-            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][pipe_permeability_dict['chemical_group_number']]
+            a_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_a'][self.chemical_group_number]
+            b_ref = self.reference_pipe_material_dict[self.material]['ref_log_D_b'][self.chemical_group_number]
             log_Dp_ref = a_ref * PE40_log_Dp_ref + b_ref
 
         return log_Dp_ref    
 
 
-    def _calculate_logK(self, 
-                        pipe_permeability_dict):
+    def _calculate_logK(self,):
         ''' 
         Calculate the LogK value for the pipe material, correct for temperature,
-        concentration and age. Assign the values to the pipe_permeability_dict
+        concentration and age. 
         
         See table 5-3 in KWR 2016.056 for explanation of calculations
         
         '''
 
         # calculate reference log K plastic-water (log kpw) 
-        log_Kpw_ref = self._calculate_ref_logK(pipe_permeability_dict=pipe_permeability_dict, )
+        log_Kpw_ref = self._calculate_ref_logK()
 
         # correct for temperature, concentration, age
-        f_Ktemp = self._correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
-                        coefficient_name = 'solubility',
+        f_Ktemp = self._correct_for_temperature(coefficient_name = self.solubility,
                             a_dh = self._partitioning_a_dh, 
-                            b_dh = self._partitioning_b_dh, 
-                        )
+                            b_dh = self._partitioning_b_dh, )
 
-        f_Kconc = self._concentration_correction(pipe_permeability_dict=pipe_permeability_dict,
-                                a_c = self.partitioning_a_c,
+        f_Kconc = self._concentration_correction(a_c = self.partitioning_a_c,
                                 Cref_Sw = self.partitioning_Cref_Sw) 
         
         f_Kage = self._correct_for_age()
@@ -456,27 +444,24 @@ class Segment:
         return log_Kpw
 
 
-    def _calculate_logD(self, 
-                        pipe_permeability_dict):
+    def _calculate_logD(self,):
         ''' 
         Calculate the LogK value for the pipe material, correct for temperature,
-        concentration and age. Assign the values to the pipe_permeability_dict
+        concentration and age. 
 
         See table 5-3 in KWR 2016.056 for explanation of calculations
         
         '''
         
         # calculate reference log D plastic (log Dp) 
-        log_Dp_ref = self._calculate_ref_logD(pipe_permeability_dict=pipe_permeability_dict, )
+        log_Dp_ref = self._calculate_ref_logD()#
 
         # correct for temperature, concentration, age
-        f_Dtemp = self._correct_for_temperature(pipe_permeability_dict=pipe_permeability_dict, 
-                        coefficient_name ='molecular_weight', 
+        f_Dtemp = self._correct_for_temperature(coefficient_name =self.molecular_weight, 
                             a_dh = self._diffusion_a_dh, 
-                            b_dh = self._diffusion_b_dh, 
-                        )
+                            b_dh = self._diffusion_b_dh,)
 
-        f_Dconc = self._concentration_correction(pipe_permeability_dict=pipe_permeability_dict,
+        f_Dconc = self._concentration_correction(
                                 a_c = self.diffusion_a_c , 
                                 Cref_Sw = self.diffusion_Cref_Sw) 
         
@@ -504,14 +489,11 @@ class Segment:
         return permeation_coefficient
 
     def _calculate_pipe_K_D(self,
-                            pipe_permeability_dict,
                             _groundwater_conditions_set, 
         ):
         '''
         Fetch the pipe and chemical information corresponding to the given pipe 
-        material and chemical choice. Creates the pipe_permeability_dict, 
-        which consists of chemical and permeability related coefficients for the
-        different pipe segments.
+        material and chemical choice, assign as attributes of the class.
 
         See table 5-3 in KWR 2016.056 for explanation of calculations
 
@@ -532,12 +514,13 @@ class Segment:
         else:           
 
             # calculate log K plastic-water (log kpw) 
-            self.log_Kpw = self._calculate_logK(pipe_permeability_dict = pipe_permeability_dict)
+            self.log_Kpw = self._calculate_logK()
 
             # calculate log D plastic (log Dp) 
-            self.log_Dp = self._calculate_logD(pipe_permeability_dict = pipe_permeability_dict)
+            self.log_Dp = self._calculate_logD()
 
             #Permeation coefficient for plastic-water (Ppw), unit: m2/day
+            #ah_todo remove this, use K and D directly in equations
             self.permeation_coefficient = self._calculate_permeation_coefficient()
             
 
@@ -564,7 +547,7 @@ class Segment:
     
 
     def _calculate_mean_dw_mass_per_segment(self, 
-                                            pipe_permeability_dict,
+                                            # pipe_permeability_dict,
                                             concentration_drinking_water,
                                             _groundwater_conditions_set,
                                             flow_rate=None,
@@ -572,17 +555,17 @@ class Segment:
         '''
         Calculates the mean mass in drinking water for a 24 hour period given a 
         groundwater concentration, for each pipe segment.
-        Mean mass in drinking water added to the pipe_permeability_dict.
         
         Parameters
         ----------
+        #ah_todo finish
         '''
 
-        concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
+        # concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
          
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 
-        delta_c = concentration_groundwater - concentration_drinking_water
+        delta_c = self.concentration_groundwater - concentration_drinking_water
 
         self.mass_chemical_drinkwater = ((self.permeation_coefficient 
                                           * self.permeation_surface_area 
@@ -591,7 +574,7 @@ class Segment:
 
 
     def _calculate_peak_dw_mass_per_segment(self, 
-                                        pipe_permeability_dict, 
+                                        # pipe_permeability_dict, 
                                         concentration_drinking_water,
                                         _groundwater_conditions_set,
                                         stagnation_time_hours = 8, 
@@ -600,8 +583,7 @@ class Segment:
         '''
         Calculates the peak (maximum) mass in drinking water for a 
         given a stagnation period given a groundwater concentration, for each pipe segment.
-        Stagnation period default of 8 hours. Peak mass in drinking 
-        water added to the pipe_permeability_dict.
+        Stagnation period default of 8 hours. 
         
         Parameters
         ----------
@@ -609,14 +591,15 @@ class Segment:
             name of the pipe segment        
         stagnation_time_hours: float
             time in hours, default 8 hours
+        #ah_todo finish
 
         '''
         stagnation_time = stagnation_time_hours / 24 # days
 
-        concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
+        # concentration_groundwater = pipe_permeability_dict['concentration_groundwater'] 
 
         self.stagnation_factor = self._calculate_stagnation_factor()
-        delta_c = concentration_groundwater - concentration_drinking_water
+        delta_c = self.concentration_groundwater - concentration_drinking_water
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation       
