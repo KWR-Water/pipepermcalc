@@ -224,7 +224,8 @@ class Segment:
 
 
     # @ah_todo revert back to csv? seperate file? 
-    # From Bram, @MartinvdS-> suggest to implement the "named tuple" method, leave for now do at the end
+    # From Bram, @MartinK-> suggest to implement the "named tuple" method, leave for now do at the end
+    # SBR, EPDM refer to memo, ask m. meerkerk for memo #, include project number for the memo
     reference_pipe_material_dict = \
         {
         "PE40": {
@@ -273,12 +274,12 @@ class Segment:
         },
         "SBR": {
             "ref_log_D_a": {
-                1: 0.950647410867427,	
-                2: 0.950647410867427,
+                1: -0.011 * 0.950647410867427,	#ah_todo change these to the see notes, replace formulas in _calculate_ref_logD
+                2: -0.00629 * 0.950647410867427,
                 3: 0.950647410867427,
                 },
             "ref_log_D_b": {
-                1: 0.0,
+                1: -10.688 * 0.950647410867427,
                 2: 0.0,
                 3: 0.0,
                 },
@@ -636,7 +637,8 @@ class Segment:
                                              * stagnation_time * self.stagnation_factor) 
                                             / self.assessment_factor_groundwater)
 
-
+    #replace the permeatin coefficient with K D and the time adjustment everywhere #ah_todo, 
+    # remove these functions
     def _update_partitioning_coefficient(self, 
                                         new_log_Kpw=None,):
         ''' Function to update the partitioning coefficient and the associated 

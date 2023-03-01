@@ -30,6 +30,8 @@ from project_path import file_path
 
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
+
+# import pipepermcalc
 #%%
 
 seg1 = Segment(name='seg1',
@@ -47,23 +49,21 @@ pipe4.set_groundwater_conditions(chemical_name="Benzeen",
 pipe4.calculate_peak_dw_concentration()   
 pipe4.calculate_mean_dw_concentration()   
 
-mean_conc = pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
+pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
                             chemical_name="Benzeen", 
                             temperature_groundwater=12,)
                             # tolerance = 0.1, 
                             # relaxation_factor=0.7, 
                             # max_iterations=1000)
 
-print("The mean concentration is:", round(mean_conc,5), "g/m3")
-
-mean_conc = pipe4.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
+pipe4.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
                             chemical_name="Benzeen", 
                             temperature_groundwater=12,
                             tolerance = 0.01, 
                             relaxation_factor=0.7, 
                             max_iterations=1000)
 
-print("The peak concentration is:", round(mean_conc,5), "g/m3")
+# print("The peak concentration is:", round(mean_conc,5), "g/m3")
 
 pipe4.__dict__
 #%%

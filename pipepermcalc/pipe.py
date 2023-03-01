@@ -250,6 +250,7 @@ class Pipe:
         self.pipe_permeability_dict['concentration_groundwater'] = self.concentration_groundwater
         self.pipe_permeability_dict['temperature_groundwater'] = self.temperature_groundwater
 
+        #ah_todo move to the individual calculations
         for segment in self.segment_list:
             segment._calculate_pipe_K_D(pipe_permeability_dict=self.pipe_permeability_dict, 
                                  _groundwater_conditions_set=self._groundwater_conditions_set, )
