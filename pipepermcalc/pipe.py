@@ -6,19 +6,8 @@
 #
 # ------------------------------------------------------------------------------
 
-import matplotlib.pyplot as plt
-import matplotlib
-import matplotlib.colors as colors
-
 import numpy as np
 import pandas as pd
-import os
-import sys
-from pandas import read_csv
-from pandas import read_excel
-import math
-import datetime
-from datetime import timedelta
 import fuzzywuzzy.fuzz as fwf
 import fuzzywuzzy.process as fwp
 
@@ -300,7 +289,7 @@ class Pipe:
             Dictionary of the chemical and permeability related coefficients.
         '''
         
-        ppc_database = read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
+        ppc_database = pd.read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
 
         database = list(ppc_database['chemical_name'])
         

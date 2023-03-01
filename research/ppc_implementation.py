@@ -10,19 +10,10 @@
 # INITIALISATION OF PYTHON e.g. packages, etc.
 # ------------------------------------------------------------------------------
 
-# Plotting modules
-import matplotlib.pyplot as plt
-import matplotlib
-import matplotlib.colors as colors
-
 import numpy as np
 import pandas as pd
-import os
-import sys
 from pandas import read_csv
 from pandas import read_excel
-import math
-import datetime
 from datetime import timedelta
 from scipy.optimize import minimize
 
@@ -32,6 +23,30 @@ from pipepermcalc.pipe import *
 from pipepermcalc.segment import * 
 
 # import pipepermcalc
+#%%
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                thickness=0.0027,
+                )
+
+pipe1 = Pipe(segment_list=[seg1])
+pipe1.segment_list
+
+pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
+                                temperature_groundwater=12, 
+                                concentration_groundwater = 1.8)
+pipe1.set_flow_rate(flow_rate=0.5)
+pipe1.calculate_mean_dw_concentration()    
+
+# raise_exception_two_values(answer=pipe1.pipe_permeability_dict['mean_concentration_pipe_drinking_water'], 
+#                             ref_answer = 0.001, 
+#                             round_values=5)
+
+# raise_exception_two_values(answer=pipe1.pipe_permeability_dict['peak_concentration_pipe_drinking_water'], 
+#                             ref_answer = 0.0018865325623111913, 
+#                             round_values=4)
 #%%
 
 seg1 = Segment(name='seg1',

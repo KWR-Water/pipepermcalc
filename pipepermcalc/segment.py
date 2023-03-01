@@ -5,19 +5,8 @@
 # With Martin vd Schans, Bram Hillebrand, Lennart Brokx
 #
 # ------------------------------------------------------------------------------
-import matplotlib.pyplot as plt
-import matplotlib
-import matplotlib.colors as colors
-
 import numpy as np
 import pandas as pd
-import os
-import sys
-from pandas import read_csv
-from pandas import read_excel
-import math
-import datetime
-from datetime import timedelta
 
 from project_path import file_path
 
@@ -211,10 +200,10 @@ class Segment:
 
         if permeation_direction == 'parallel':
             volume = 0 
-            permeation_surface_area = (math.pi * ((inner_diameter + thickness) ** 2 - inner_diameter ** 2) )/4
+            permeation_surface_area = (np.pi * ((inner_diameter + thickness) ** 2 - inner_diameter ** 2) )/4
         elif permeation_direction == 'perpendicular':
-            volume = math.pi * (inner_diameter / 2) ** 2 * length
-            permeation_surface_area =(math.pi * inner_diameter * length)
+            volume = np.pi * (inner_diameter / 2) ** 2 * length
+            permeation_surface_area =(np.pi * inner_diameter * length)
 
                    
         self.volume = volume
@@ -352,8 +341,8 @@ class Segment:
 
         R = 0.008314 #universal gas constant
         reference_temperature = 25 # deg. C
-        dh = a_dh * math.log10(pipe_permeability_dict[coefficient_name]) + b_dh
-        f_temp = dh / (R * math.log(10)) * (1 / (reference_temperature + 273) - 1 / (temperature_groundwater + 273))
+        dh = a_dh * np.log10(pipe_permeability_dict[coefficient_name]) + b_dh
+        f_temp = dh / (R * np.log(10)) * (1 / (reference_temperature + 273) - 1 / (temperature_groundwater + 273))
         return f_temp
 
 
