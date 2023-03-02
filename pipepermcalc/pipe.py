@@ -24,7 +24,7 @@ class Pipe:
     -------
     segment_list: list
         list of the pipe segment objects which make up the pipe
-    _groundwater_conditions_set: Boolean
+    _conditions_set: Boolean
         Default False, True when the groundwater conditions have been set.
     _flow_rate_set: Boolean
         Default False, True when the flow rate has been set.
@@ -106,6 +106,45 @@ class Pipe:
     TOLERANCE_DEFAULT = 0.01
     RELAXATION_FACTOR_DEFAULT = 0.5
     MAX_ITERATIONS_DEFAULT = 1000
+
+    #dictionary to check input parameter value and dtype
+    parameter_validation_dictionary = \
+        {
+        'name':     {'value_dtype': [str]}, 
+        'material': {'str_options': ['PE40', 'PE80', 'PVC', 'EPDM'],
+                    'value_dtype': [str]}, 
+        'permeation_direction': {'str_options': ['perpendicular', 'parallel'],
+                    'value_dtype': [str]}, 
+        'length': {'min_value': 0, 
+                'value_dtype': [float, int]}, 
+        'inner_diameter': {'min_value': 0, 
+                        'value_dtype': [float, int]}, 
+        'wall_thickness': {'min_value': 0, 
+                        'value_dtype': [float, int]},  
+        'diffusion_path_length': {'min_value': 0, 
+                                'value_dtype': [float, int]},
+        'max_iterations': {'min_value': 0, 
+                        'value_dtype': [float, int]}, 
+        'tolerance': {'min_value': 0,
+                    'max_value': 1, 
+                    'value_dtype': [float]},  
+        'relaxation_factor': {'min_value': 0, 
+                            'max_value': 1, 
+                            'value_dtype': [float]},  
+        'stagnation_time': {'min_value': 0, 
+                            'value_dtype': [float, int]},  
+        'flow_rate': {'min_value': 0, 
+                    'value_dtype': [float, int]},  
+        'concentration_groundwater': {'min_value': 0, 
+                                    'value_dtype': [float, int]},  
+        'temperature_groundwater': {'min_value': 0, 
+                                    'value_dtype': [float, int]},  
+        'concentration_drinking_water': {'min_value': 0, 
+                                        'value_dtype': [float, int]},  
+        'chemical_name': {'value_dtype': [str]},  
+        'language': {'str_options': ['NL', 'EN'],
+                    'value_dtype': [str]}, 
+        }
     
     def __init__(self, 
                  segment_list,
@@ -116,11 +155,10 @@ class Pipe:
             
         ''' 
 
-
-
         self.segment_list = segment_list
-        self._groundwater_conditions_set = False
+        self._conditions_set = False
         self._flow_rate_set = False
+        self._is_validated = False
 
         sum_total_volume = 0
         sum_total_length = 0
@@ -130,21 +168,37 @@ class Pipe:
 
         self.total_length = sum_total_length
         self.total_volume = sum_total_volume
+    
+    def _validate_object(self, check_object):
+        ''' Check that the input parameters are valid values and types for the 
+        input object'''
 
+        for k, v in self.parameter_validation_dictionary.items():
+            # print(getattr(seg1, k))
+            if hasattr(check_object, k):
+                if type(getattr(check_object, k)) not in v['value_dtype']:
+                    raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be a {v['value_dtype']}.")
+                if 'min_value' in v.keys():
+                    if getattr(check_object, k) < v['min_value']:
+                        raise ValueError(f"Invalid value {getattr(check_object, k)} for parameter {k}. Input value should be a > {v['min_value']}.")
+                if 'max_value' in v.keys():
+                    if getattr(check_object, k) > v['max_value']:
+                        raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be a < {v['max_value']}.")
+                if 'str_options' in v.keys():
+                    if getattr(check_object, k) not in v['str_options']:
+                        raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be one of {v['str_options']}.")
 
-    def _check_input_values(self, check_values):
-        '''Checks that the input values are > 0
+    def validate_input_parameters(self,):
+        ''' Check that the input parameters are valid values and types for the 
+        Pipe and Segment objects'''
+
+        for segment in self.segment_list:
+            self._validate_object(segment)
         
-        Parameters
-        ----------
-        check_values: list,
-            List (string) of the variables to check 
-        '''
-        
-        for check_value in check_values:
-            value = getattr(self, check_value)
-            if value <= 0:
-                raise ValueError(f'{check_value} must be > 0 ')
+        self._validate_object(self)
+
+        self._is_validated=True
+
 
     def _fuzzy_min_score(self, chemical_name): #From Vincent Post
         """
@@ -237,12 +291,9 @@ class Pipe:
         self.chemical_name = chemical_name
         self.concentration_groundwater = concentration_groundwater
         self.temperature_groundwater = temperature_groundwater
-        # # Checks here that input concentration and temperature > 0
-        # check_values = ['concentration_groundwater', 'temperature_groundwater',]
-        # self._check_input_values(check_values)
 
         #return to these checks...
-        self._groundwater_conditions_set = True
+        self._conditions_set = True
 
         self.flow_rate = flow_rate
         self._flow_rate_set = True
@@ -258,13 +309,13 @@ class Pipe:
             self.concentration_drinking_water = concentration_drinking_water
 
         for segment in self.segment_list:
-            segment.temperature_groundwater = temperature_groundwater
-            segment.concentration_groundwater = concentration_groundwater
-            segment.concentration_drinking_water = self.concentration_drinking_water
+            # segment.temperature_groundwater = temperature_groundwater
+            # segment.concentration_groundwater = concentration_groundwater
+            # segment.concentration_drinking_water = self.concentration_drinking_water
             
             #ah_todo move to the individual calculations
             segment._calculate_pipe_K_D(pipe = self, 
-                                        _groundwater_conditions_set=self._groundwater_conditions_set, )
+                                        _conditions_set=self._conditions_set, )
 
 
     def _fetch_chemical_database(self,
@@ -312,7 +363,6 @@ class Pipe:
             setattr(self, k, v)
 
 
-
     # def _view_database_chemical_names():
         #ah_todo add a function to view a list of the possible chemical names?
 
@@ -345,15 +395,20 @@ class Pipe:
         self.tolerance = tolerance
         self.relaxation_factor = relaxation_factor
         
-        # Checks here that input 'max_iterations', 'tolerance', 'relaxation_factor' > 0
-        check_values = ['max_iterations', 'tolerance', 'relaxation_factor' ]
-        self._check_input_values(check_values)
-
-
-        # Check if the flow rate has been set, if not raise error
+        # Check if the flow rate, conditions have been set and parameters 
+        # validated, if not raise error
         if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
+
+        elif self._conditions_set is False:
+            raise ValueError('Error, the pipe conditions must first be set. \
+            To set pipe conditions use .set_conditions() ')
+
+        elif self._is_validated is False: 
+            raise ValueError('Error, the input parameters must first be validated. \
+            To set validate use .validate_input_parameters() ')
+
         else: 
             concentration_drinking_water = 0 #initial guess for drinking water 
             counter = 0
@@ -363,8 +418,9 @@ class Pipe:
                 sum_mass_segment = 0
 
                 for segment in self.segment_list:
-                    segment._calculate_mean_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
-                                                                _groundwater_conditions_set = self._groundwater_conditions_set,
+                    segment._calculate_mean_dw_mass_per_segment(concentration_groundwater=self.concentration_groundwater,
+                                                                concentration_drinking_water = concentration_drinking_water,
+                                                                _conditions_set = self._conditions_set,
                                                                 flow_rate = self.flow_rate)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
@@ -432,15 +488,20 @@ class Pipe:
             print("Warning: the stagnation factor is only valid for a stagnation \
                   time of 8 hours. Using a different stagnation time is not advised.")
 
-        # Checks here that input 'stagnation_time', 'max_iterations', 
-        # 'tolerance', 'relaxation_factor' > 0
-        check_values = ['stagnation_time', 'max_iterations', 'tolerance', 'relaxation_factor' ]
-        self._check_input_values(check_values)
-
-        # Check if the flow rate has been set, if not raise error
+        # Check if the flow rate, conditions have been set and parameters 
+        # validated, if not raise error
         if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
+
+        elif self._conditions_set is False:
+            raise ValueError('Error, the pipe conditions must first be set. \
+            To set pipe conditions use .set_conditions() ')
+
+        elif self._is_validated is False: 
+            raise ValueError('Error, the input parameters must first be validated. \
+            To set validate use .validate_input_parameters() ')
+
         else: 
             concentration_drinking_water = 0.0 #initial guess for drinking water
             counter = 0
@@ -450,8 +511,9 @@ class Pipe:
                 sum_mass_segment = 0
 
                 for segment in self.segment_list:
-                    segment._calculate_peak_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
-                                                                _groundwater_conditions_set = self._groundwater_conditions_set,
+                    segment._calculate_peak_dw_mass_per_segment(concentration_groundwater=self.concentration_groundwater,
+                                                                concentration_drinking_water = concentration_drinking_water,
+                                                                _conditions_set = self._conditions_set,
                                                                 stagnation_time = stagnation_time, 
                                                                 flow_rate = self.flow_rate)
 
@@ -523,16 +585,21 @@ class Pipe:
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
         self.relaxation_factor = relaxation_factor
-        
-        # Checks here that input 'max_iterations', 'tolerance', 'relaxation_factor' > 0
-        check_values = ['max_iterations', 'tolerance', 'relaxation_factor' ]
-        self._check_input_values(check_values)
 
-
-        # Check if the flow rate has been set, if not raise error
+        # Check if the flow rate, conditions have been set and parameters 
+        # validated, if not raise error
         if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
+
+        elif self._conditions_set is False:
+            raise ValueError('Error, the pipe conditions must first be set. \
+            To set pipe conditions use .set_conditions() ')
+
+        elif self._is_validated is False: 
+            raise ValueError('Error, the input parameters must first be validated. \
+            To set validate use .validate_input_parameters() ')
+        
         else: 
             self._fetch_chemical_database(chemical_name=chemical_name, 
                                           suppress_print = True,
@@ -570,8 +637,9 @@ class Pipe:
                 mass_drinkingwater_norm = concentration_drinking_water * self.flow_rate
 
                 for segment in self.segment_list:
-                    segment._calculate_mean_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
-                                                                    _groundwater_conditions_set = self._groundwater_conditions_set,
+                    segment._calculate_mean_dw_mass_per_segment(concentration_groundwater=self.concentration_groundwater,
+                                                                concentration_drinking_water = concentration_drinking_water,
+                                                                    _conditions_set = self._conditions_set,
                                                                     flow_rate = self.flow_rate)
                     sum_mass_segment += segment.mass_chemical_drinkwater
 
@@ -649,15 +717,20 @@ class Pipe:
             print("Warning: the stagnation factor is only valid for a stagnation \
                   time of 8 hours. Using a different stagnation time is not advised.")
 
-        # Checks here that input 'stagnation_time', 'max_iterations', 
-        # 'tolerance', 'relaxation_factor' > 0
-        check_values = ['stagnation_time', 'max_iterations', 'tolerance', 'relaxation_factor' ]
-        self._check_input_values(check_values)
-
-        # Check if the flow rate has been set, if not raise error
+        # Check if the flow rate, conditions have been set and parameters 
+        # validated, if not raise error
         if self._flow_rate_set is False: 
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
+
+        elif self._conditions_set is False:
+            raise ValueError('Error, the pipe conditions must first be set. \
+            To set pipe conditions use .set_conditions() ')
+
+        elif self._is_validated is False: 
+            raise ValueError('Error, the input parameters must first be validated. \
+            To set validate use .validate_input_parameters() ')
+
         else: 
 
             self._fetch_chemical_database(chemical_name=chemical_name, 
@@ -704,8 +777,9 @@ class Pipe:
                 mass_drinkingwater_norm = (concentration_drinking_water * self.total_volume)
                 
                 for segment in self.segment_list:
-                    segment._calculate_peak_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
-                                                                    _groundwater_conditions_set = self._groundwater_conditions_set,
+                    segment._calculate_peak_dw_mass_per_segment(concentration_groundwater=self.concentration_groundwater,
+                                                                concentration_drinking_water = concentration_drinking_water,
+                                                                    _conditions_set = self._conditions_set,
                                                                     stagnation_time = stagnation_time,
                                                                     flow_rate = self.flow_rate)
                     sum_mass_segment += segment.mass_chemical_drinkwater

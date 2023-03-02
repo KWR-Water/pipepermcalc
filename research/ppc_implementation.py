@@ -39,7 +39,82 @@ class Pet():
     def set_owner(self, owner):
         self.owner = owner.name
 #%%
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            # permeation_direction='backwards'
+            )
 
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(chemical_name="Benzeen", 
+                                temperature_groundwater=12, 
+                                concentration_groundwater = 1.8,
+                                flow_rate=0.5)
+
+pipe1.calculate_mean_dw_concentration(tolerance = 0.1)   
+
+pipe1._validate_input_parameters()
+#%%
+
+parameter_validation_dictionary = \
+    {
+    'name':     {'value_dtype': [str]}, 
+    'material': {'str_options': ['PE40', 'PE80', 'PVC', 'EPDM'],
+                'value_dtype': [str]}, 
+    'permeation_direction': {'str_options': ['perpendicular', 'parallel'],
+                'value_dtype': [str]}, 
+    'length': {'min_value': 0, 
+            'value_dtype': [float, int]}, 
+    'inner_diameter': {'min_value': 0, 
+                    'value_dtype': [float, int]}, 
+    'wall_thickness': {'min_value': 0, 
+                    'value_dtype': [float, int]},  
+    'diffusion_path_length': {'min_value': 0, 
+                            'value_dtype': [float, int]},
+    'max_iterations': {'min_value': 0, 
+                    'value_dtype': [float, int]}, 
+    'tolerance': {'min_value': 0,
+                'max_value': 1, 
+                'value_dtype': [float]},  
+    'relaxation_factor': {'min_value': 0, 
+                        'max_value': 1, 
+                        'value_dtype': [float]},  
+    'stagnation_time': {'min_value': 0, 
+                        'value_dtype': [float, int]},  
+    'flow_rate': {'min_value': 0, 
+                'value_dtype': [float, int]},  
+    'concentration_groundwater': {'min_value': 0, 
+                                'value_dtype': [float, int]},  
+    'temperature_groundwater': {'min_value': 0, 
+                                'value_dtype': [float, int]},  
+    'concentration_drinking_water': {'min_value': 0, 
+                                    'value_dtype': [float, int]},  
+    'chemical_name': {'value_dtype': [str]},  
+    'language': {'str_options': ['NL', 'EN'],
+                'value_dtype': [str]}, 
+    }
+
+check_object = pipe1
+for k, v in parameter_validation_dictionary.items():
+    # print(getattr(seg1, k))
+    if hasattr(check_object, k):
+        if type(getattr(check_object, k)) not in v['value_dtype']:
+            raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be a {v['value_dtype']}.")
+        if 'min_value' in v.keys():
+            if getattr(check_object, k) < v['min_value']:
+                raise ValueError(f"Invalid value {getattr(check_object, k)} for parameter {k}. Input value should be a > {v['min_value']}.")
+        if 'max_value' in v.keys():
+            if getattr(check_object, k) > v['max_value']:
+                raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be a < {v['max_value']}.")
+        if 'str_options' in v.keys():
+            if getattr(check_object, k) not in v['str_options']:
+                raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be one of {v['str_options']}.")
+
+
+#%%
 seg1 = Segment(name='seg1',
             material='PE40',
             length=25,

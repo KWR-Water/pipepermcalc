@@ -65,24 +65,22 @@ class Segment:
     material: enum?? #ah_todo @Bram -> set choice of materials
         e.g. PE40, PE80, PVC, EPDM, rubber etc.
     length: float
-        Length of pipe segment, meters 
+        Length of the pipe segment, meters 
     inner_diameter: float
-        Inner diameter of pipe segment, meters
+        Inner diameter of the pipe segment, meters
     wall_thickness: float
-        wall_thickness of pipe segment, meters
+        wall_thickness of the pipe segment, meters
     permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
         Direction of permeation through the pipe segment. Options are 
         'perpendicular' or 'parallel'. Default permeation is perpendicular 
-        to the flow direction. See schematic XX in read the docs.
+        to the flow direction. See schematic XX in read the docs. #ah_todo how to reference schematic
         #ah_todo limit input to enum value
     diffusion_path_length: float
-        In the case of permeation perpendicular to the flow direction, a 
+        In the case of permeation parallel to the flow direction, a 
         diffusion path length is required to calculate the permeation 
         through the pipe segment. For example in the case of a pipe 
-        coupling rings. If no value is given, diffusion is assumed 
-        perpendicular to the flow direction and the wall_thickness is 
-        used to calculate the diffusion through the pipe segment. 
-        Unit meters.
+        coupling rings. If no value is given, the default value is the 
+        wall_thickness, unit meters.
     volume: float
         Volume of the pipe segment
 
@@ -186,35 +184,25 @@ class Segment:
         self.inner_diameter = float(inner_diameter)
         self.wall_thickness = float(wall_thickness)
         self.permeation_direction = permeation_direction
-    
+
         if diffusion_path_length is None:
             self.diffusion_path_length = self.wall_thickness
         else:
             self.diffusion_path_length = float(diffusion_path_length)    
-        
-        # Checks here that length, inner diameter, wall_thickness, diffusion path length > 0
-        check_values = ['length', 'inner_diameter', 'wall_thickness', 'diffusion_path_length']
-        for check_value in check_values:
-            value = getattr(self, check_value)
-            if value <= 0:
-                raise ValueError(f'{check_value} must be > 0 ')
 
         outer_diameter = inner_diameter + wall_thickness
+        volume = np.pi * (inner_diameter / 2) ** 2 * length
+        permeation_surface_area =(np.pi * inner_diameter * length)
 
         if permeation_direction == 'parallel':
             volume = 0 
             permeation_surface_area = ((np.pi * ((inner_diameter + wall_thickness) ** 2 
                                                 - inner_diameter ** 2) ) / 4)
-        elif permeation_direction == 'perpendicular':
-            volume = np.pi * (inner_diameter / 2) ** 2 * length
-            permeation_surface_area =(np.pi * inner_diameter * length)
-
                    
         self.volume = volume
         self.permeation_surface_area = permeation_surface_area
         self.outer_diameter = outer_diameter
         self.inner_diameter = inner_diameter
-
 
     # @ah_todo revert back to csv? seperate file? 
     # From Bram, @MartinK-> suggest to implement the "named tuple" method, leave for now do at the end
@@ -311,7 +299,7 @@ class Segment:
         },      
         }
 
-    def _correct_for_temperature(self,
+    def _correct_for_temperature(self, #ah_todo @Bram, when to use or not use self in functions?
                                 temperature_groundwater,
                                 coefficient_name=None, 
                                 a_dh=None,
@@ -498,7 +486,7 @@ class Segment:
 
     def _calculate_pipe_K_D(self,
                             pipe,
-                            _groundwater_conditions_set, 
+                            _conditions_set, 
         ):
         '''
         Fetch the pipe and chemical information corresponding to the given pipe 
@@ -516,7 +504,7 @@ class Segment:
             concentration of given chemical in groundwater, in mg/L
         '''
         # Check if the groundwater conditions have been set, if not raise error
-        if _groundwater_conditions_set is None:
+        if _conditions_set is None:
             raise ValueError('Error, groundwater conditions have not been set. \
                              To set groundwater conditions use .set_groundwater_conditions()')
         else:           
@@ -555,8 +543,9 @@ class Segment:
     
 
     def _calculate_mean_dw_mass_per_segment(self, 
+                                            concentration_groundwater,
                                             concentration_drinking_water,
-                                            _groundwater_conditions_set,
+                                            _conditions_set, #ah_todo remove these
                                             flow_rate=None,
                                         ): 
         '''
@@ -570,7 +559,7 @@ class Segment:
          
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 
-        delta_c = self.concentration_groundwater - concentration_drinking_water
+        delta_c = concentration_groundwater - concentration_drinking_water
 
         self.mass_chemical_drinkwater = (((10 ** self.log_Dp * 10 ** self.log_Kpw)
                                           * self.permeation_surface_area 
@@ -580,8 +569,9 @@ class Segment:
 
 
     def _calculate_peak_dw_mass_per_segment(self, 
+                                            concentration_groundwater,
                                         concentration_drinking_water,
-                                        _groundwater_conditions_set,
+                                        _conditions_set,
                                         stagnation_time = 8 * 60 * 60, #8 hours
                                         flow_rate=None,
                                         ):
@@ -603,7 +593,7 @@ class Segment:
         '''
 
         self.stagnation_factor = self._calculate_stagnation_factor()
-        delta_c = self.concentration_groundwater - concentration_drinking_water
+        delta_c = concentration_groundwater - concentration_drinking_water
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation       
@@ -612,43 +602,4 @@ class Segment:
                                              * delta_c / self.diffusion_path_length 
                                              * stagnation_time * self.stagnation_factor) 
                                             / self.ASSESSMENT_FACTOR_GROUNDWATER)
-
-    # #replace the permeatin coefficient with K D and the time adjustment everywhere #ah_todo, 
-    # # remove these functions
-    # def _update_partitioning_coefficient(self, 
-    #                                     new_log_Kpw=None,):
-    #     ''' Function to update the partitioning coefficient and the associated 
-    #     permeation coefficient
-
-    #     Parameters
-    #     ----------
-    #     new_log_Kpw:float
-    #         New value for the partitioning coefficient for the given pipe segment
-    #     segment_name: string
-    #         name of the pipe segment        
-    #     '''
-
-    #     self.log_Kpw = new_log_Kpw
-
-    #     #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-    #     # self.permeation_coefficient = self._calculate_permeation_coefficient()
-       
-        
-    # def _update_diffusion_coefficient(self, 
-    #                                     new_log_Dp=None, ):
-    #     ''' Function to update the diffusion coefficient and the associated 
-    #     permeation coefficient
-
-    #     Parameters
-    #     ----------
-    #     new_log_Dp:float
-    #         New value for the diffusion coefficient for the given pipe segment
-    #     segment_name: string
-    #         name of the pipe segment        
-    #     '''
-
-    #     self.log_Dp = new_log_Dp
-
-    #     #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-    #     self.permeation_coefficient = self._calculate_permeation_coefficient()
 

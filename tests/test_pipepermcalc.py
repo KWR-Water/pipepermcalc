@@ -247,6 +247,8 @@ def test_stagnation_factor():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8,
                                     flow_rate=0.5)
+    
+    pipe1.validate_input_parameters()
     pipe1.calculate_peak_dw_concentration()    
 
     raise_exception_two_values(answer=seg1.stagnation_factor,
@@ -328,6 +330,8 @@ def test_calculate_peak_dw_concentration():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482,
                                     flow_rate=0.5)
+    pipe1.validate_input_parameters()
+    
     pipe1.calculate_peak_dw_concentration()    
 
     raise_exception_two_values(answer=pipe1.peak_concentration_pipe_drinking_water, 
@@ -352,6 +356,8 @@ def test_calculate_mean_dw_concentration():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8,
                                     flow_rate=0.5)
+    pipe1.validate_input_parameters()
+    
     pipe1.calculate_mean_dw_concentration()    
 
     raise_exception_two_values(answer=pipe1.mean_concentration_pipe_drinking_water, 
