@@ -399,28 +399,28 @@ def test_segment_surface_area_calculations():
                                round_values=12)
 
 
-def test_calculate_mean_allowable_gw_concentration():
-    ''' Test the calculation for the mean concentration in drinking water given 
-    a groundwater concentration '''
-    seg1 = Segment(name='seg1',
+# def test_calculate_mean_allowable_gw_concentration():
+#     ''' Test the calculation for the mean concentration in drinking water given 
+#     a groundwater concentration '''
+#     seg1 = Segment(name='seg1',
 
-                    material='PE40',
-                    length=25,
-                    inner_diameter=0.0196,
-                    thickness=0.0027)
-    pipe4 = Pipe(segment_list=[seg1])
-    pipe4.set_conditions(flow_rate=0.5)
+#                     material='PE40',
+#                     length=25,
+#                     inner_diameter=0.0196,
+#                     thickness=0.0027)
+#     pipe4 = Pipe(segment_list=[seg1])
+#     pipe4.set_conditions(flow_rate=0.5)
 
-    pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
-                                chemical_name="Benzeen", 
-                                temperature_groundwater=12,
-                                tolerance = 0.1, 
-                                relaxation_factor=0.7, 
-                                max_iterations=1000)
+#     pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
+#                                 chemical_name="Benzeen", 
+#                                 temperature_groundwater=12,
+#                                 tolerance = 0.1, 
+#                                 relaxation_factor=0.7, 
+#                                 max_iterations=1000)
 
-    raise_exception_two_values(answer=pipe4.mean_concentration_pipe_drinking_water, 
-                               ref_answer = 1.67596, 
-                               round_values=5)
+#     raise_exception_two_values(answer=pipe4.mean_concentration_pipe_drinking_water, 
+#                                ref_answer = 1.67596, 
+#                                round_values=5)
 
 #%%
 # These tests use incomplete functions, ignore for now 

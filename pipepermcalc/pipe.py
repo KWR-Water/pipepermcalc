@@ -38,9 +38,9 @@ class Pipe:
         CAS is a unique identification number assigned by the Chemical 
         Abstracts Service (CAS)
     chemical_name_EN: string
-        Name of the chemical given in Dutch
-    chemical_name: string
-        Name of the chemical for which to calculate the permeation, in Dutch
+        Name of the chemical in English
+    chemical_name_NL: string
+        Name of the chemical in Dutch
     molecular_weight: float
         Mass of one mole of a given chemical, g/mol
     solubility:	float
@@ -132,7 +132,7 @@ class Pipe:
         self.total_volume = sum_total_volume
 
 
-    def check_input_values(self, check_values):
+    def _check_input_values(self, check_values):
         '''Checks that the input values are > 0
         
         Parameters
@@ -156,7 +156,8 @@ class Pipe:
         Parameters
         ----------
         chemical_name : str
-            String for which the minimum score must be determined.
+            String for which the minimum score must be determined, in our case 
+            the chemical name
 
         Returns
         -------
@@ -210,6 +211,7 @@ class Pipe:
                     flow_rate=None,
                     concentration_drinking_water=None,
                     suppress_print = False, 
+                    language = 'NL'
                     ):
         ''' 
         Specifies the chemical of interest, concentration and temperature in the 
@@ -220,13 +222,16 @@ class Pipe:
         Parameters
         ----------
         chemical_name: string
-            Name of the chemical for which to calculate the permeation, in Dutch
+            Name of the chemical for which to calculate the permeation
         concentration_groundwater: float
             Concentration of the given chemical in groundwater, g/m3
         temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
         suppress_print: Boolean
             Suppress printing the chemical name and matching name, e.g. in loop calculations
+        language: str
+            Language fo the chemical name to search for, default is Dutch ('NL'), 
+            English ('EN') also possible
 
         '''
         self.chemical_name = chemical_name
@@ -234,7 +239,7 @@ class Pipe:
         self.temperature_groundwater = temperature_groundwater
         # # Checks here that input concentration and temperature > 0
         # check_values = ['concentration_groundwater', 'temperature_groundwater',]
-        # self.check_input_values(check_values)
+        # self._check_input_values(check_values)
 
         #return to these checks...
         self._groundwater_conditions_set = True
@@ -243,7 +248,8 @@ class Pipe:
         self._flow_rate_set = True
 
         self._fetch_chemical_database(chemical_name=self.chemical_name, 
-                                        suppress_print=suppress_print)
+                                        suppress_print=suppress_print, 
+                                        language=language)
 
         # The default value for the concentration_drinking_water is the drinking water norm
         if concentration_drinking_water is None:
@@ -264,6 +270,7 @@ class Pipe:
     def _fetch_chemical_database(self,
                                 chemical_name=None,
                                 suppress_print=False,
+                                language = 'NL'
                                 #ah_todo add something to fetch chemical_name_EN 
                                 # instead of NL name (default)?
                                 ):
@@ -275,16 +282,18 @@ class Pipe:
 
         Parameters
         ----------
-        chemical_name: string 
-            Name of the chemical for which to calculate the permeation, in Dutch
+        chemical_name: str
+            Name of the chemical for which to calculate the permeation
         suppress_print: Boolean
             Suppress printing the chemical name and matching name, e.g. in loop calculations
-
+        language: str
+            Language fo the chemical name to search for, default is Dutch ('NL'), 
+            English ('EN') also possible
         '''
         
         ppc_database = pd.read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
 
-        database = list(ppc_database['chemical_name'])
+        database = list(ppc_database['chemical_name_'+language])
         
         matching_chemical_name = self._extract_matching_chemical_name(chemical_name=chemical_name, 
                                              database=database)
@@ -295,7 +304,7 @@ class Pipe:
         else:
             print("Input chemical name:", chemical_name, "- Matched chemical name:", matching_chemical_name)
 
-        df = ppc_database.loc[ppc_database['chemical_name'] == matching_chemical_name]
+        df = ppc_database.loc[ppc_database['chemical_name_'+language] == matching_chemical_name]
         pipe_permeability_dict = df.to_dict('records')[0]
 
         #assign dict items as attribute of class
@@ -338,7 +347,7 @@ class Pipe:
         
         # Checks here that input 'max_iterations', 'tolerance', 'relaxation_factor' > 0
         check_values = ['max_iterations', 'tolerance', 'relaxation_factor' ]
-        self.check_input_values(check_values)
+        self._check_input_values(check_values)
 
 
         # Check if the flow rate has been set, if not raise error
@@ -426,7 +435,7 @@ class Pipe:
         # Checks here that input 'stagnation_time', 'max_iterations', 
         # 'tolerance', 'relaxation_factor' > 0
         check_values = ['stagnation_time', 'max_iterations', 'tolerance', 'relaxation_factor' ]
-        self.check_input_values(check_values)
+        self._check_input_values(check_values)
 
         # Check if the flow rate has been set, if not raise error
         if self._flow_rate_set is False: 
@@ -474,6 +483,7 @@ class Pipe:
                                         concentration_drinking_water,
                                         chemical_name,
                                         temperature_groundwater,
+                                        language = 'NL',
                                         tolerance = TOLERANCE_DEFAULT,
                                         relaxation_factor = RELAXATION_FACTOR_DEFAULT,
                                         max_iterations = MAX_ITERATIONS_DEFAULT, 
@@ -491,6 +501,10 @@ class Pipe:
         concentration_drinking_water: float
             Concentration in the drinking water for which to calculate the mean 
             allowable groundwater concentration, g/m^3
+        temperature_groundwater #ah_todo finish
+        language: str
+            Language fo the chemical name to search for, default is Dutch ('NL'), 
+            English ('EN') also possible
         tolerance: float 
             The allowable difference between the calculated and actual drinking water concentration, [-]
         relaxation_factor: float
@@ -512,7 +526,7 @@ class Pipe:
         
         # Checks here that input 'max_iterations', 'tolerance', 'relaxation_factor' > 0
         check_values = ['max_iterations', 'tolerance', 'relaxation_factor' ]
-        self.check_input_values(check_values)
+        self._check_input_values(check_values)
 
 
         # Check if the flow rate has been set, if not raise error
@@ -520,7 +534,9 @@ class Pipe:
             raise ValueError('Error, the flow rate in the pipe has not been set. \
             To set flow rate use .set_flow_rate()')
         else: 
-            self._fetch_chemical_database(chemical_name=chemical_name, suppress_print = True, )
+            self._fetch_chemical_database(chemical_name=chemical_name, 
+                                          suppress_print = True,
+                                           language=language )
 
             # calculate initial guess for gw concentration
             sum_KDA_d = 0
@@ -580,6 +596,7 @@ class Pipe:
                                     concentration_drinking_water,
                                     chemical_name,
                                     temperature_groundwater,
+                                    language = 'NL',
                                     stagnation_time = 8 * 60 * 60,
                                     tolerance = TOLERANCE_DEFAULT,
                                     relaxation_factor = RELAXATION_FACTOR_DEFAULT,
@@ -598,6 +615,11 @@ class Pipe:
 
         Parameters
         ----------
+        language: str
+            Language fo the chemical name to search for, default is Dutch ('NL'), 
+            English ('EN') also possible
+
+        temperature_groundwater  #ah_todo finish      
         stagnation_time: float
             Time in seconds which water in pipe is stagnant, unit of seconds. The 
             stagnation factor is only valid for a stagnation time of 8 hours 
@@ -630,7 +652,7 @@ class Pipe:
         # Checks here that input 'stagnation_time', 'max_iterations', 
         # 'tolerance', 'relaxation_factor' > 0
         check_values = ['stagnation_time', 'max_iterations', 'tolerance', 'relaxation_factor' ]
-        self.check_input_values(check_values)
+        self._check_input_values(check_values)
 
         # Check if the flow rate has been set, if not raise error
         if self._flow_rate_set is False: 
@@ -638,7 +660,9 @@ class Pipe:
             To set flow rate use .set_flow_rate()')
         else: 
 
-            self._fetch_chemical_database(chemical_name=chemical_name, suppress_print = True, )
+            self._fetch_chemical_database(chemical_name=chemical_name, 
+                                          suppress_print = True, 
+                                          language=language)
 
             # calculate initial guess for gw concentration
             sum_KDA_d = 0
