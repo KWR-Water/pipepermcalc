@@ -107,6 +107,8 @@ class Pipe:
     RELAXATION_FACTOR_DEFAULT = 0.5
     MAX_ITERATIONS_DEFAULT = 1000
 
+    ppc_database = pd.read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
+
     #dictionary to check input parameter value and dtype
     parameter_validation_dictionary = \
         {
@@ -169,6 +171,7 @@ class Pipe:
         self.total_length = sum_total_length
         self.total_volume = sum_total_volume
     
+
     def _validate_object(self, check_object):
         ''' Check that the input parameters are valid values and types for the 
         input object'''
@@ -187,6 +190,7 @@ class Pipe:
                 if 'str_options' in v.keys():
                     if getattr(check_object, k) not in v['str_options']:
                         raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be one of {v['str_options']}.")
+
 
     def validate_input_parameters(self,):
         ''' Check that the input parameters are valid values and types for the 
@@ -221,11 +225,12 @@ class Pipe:
         #ah_todo - does this have to have min scores for all lengths of chemicals?
         DEFAULT_FUZZY_MINSCORES = {1: 100, 3: 100, 4: 90, 5: 85, 6: 80, 8: 75}
 
-        xp = list(DEFAULT_FUZZY_MINSCORES.keys())
+        xp = list(DEFAULT_FUZZY_MINSCORES.keys()) #@martin comment: #@@ maybe it's easier to enter a list directly, instead of extract the dictionary.
         fp = [v for v in DEFAULT_FUZZY_MINSCORES.values()]
         # Use the interp function from NumPy. By default this function
         # yields fp[0] for x < xp[0] and fp[-1] for x > xp[-1]
         return np.interp(len(chemical_name), xp, fp)
+
 
     def _extract_matching_chemical_name(self, chemical_name, database):
         ''' Search and extract the highest matching chemical name from the database for the given input
@@ -258,66 +263,6 @@ class Pipe:
         return matching_chemical_name
 
 
-    def set_conditions(self,
-                    chemical_name=None,                                    
-                    concentration_groundwater=None,
-                    temperature_groundwater=None, 
-                    flow_rate=None,
-                    concentration_drinking_water=None,
-                    suppress_print = False, 
-                    language = 'NL'
-                    ):
-        ''' 
-        Specifies the chemical of interest, concentration and temperature in the 
-        groundwater and returns the parameters as attributes of the class. 
-        Calculates the segment permeation parameters based on the groundwater 
-        conditions.
-        
-        Parameters
-        ----------
-        chemical_name: string
-            Name of the chemical for which to calculate the permeation
-        concentration_groundwater: float
-            Concentration of the given chemical in groundwater, g/m3
-        temperature_groundwater: float
-            Temperature of the groundwater, degrees Celcius
-        suppress_print: Boolean
-            Suppress printing the chemical name and matching name, e.g. in loop calculations
-        language: str
-            Language fo the chemical name to search for, default is Dutch ('NL'), 
-            English ('EN') also possible
-
-        '''
-        self.chemical_name = chemical_name
-        self.concentration_groundwater = concentration_groundwater
-        self.temperature_groundwater = temperature_groundwater
-
-        #return to these checks...
-        self._conditions_set = True
-
-        self.flow_rate = flow_rate
-        self._flow_rate_set = True
-
-        self._fetch_chemical_database(chemical_name=self.chemical_name, 
-                                        suppress_print=suppress_print, 
-                                        language=language)
-
-        # The default value for the concentration_drinking_water is the drinking water norm
-        if concentration_drinking_water is None:
-            self.concentration_drinking_water = self.Drinking_water_norm
-        else: 
-            self.concentration_drinking_water = concentration_drinking_water
-
-        for segment in self.segment_list:
-            # segment.temperature_groundwater = temperature_groundwater
-            # segment.concentration_groundwater = concentration_groundwater
-            # segment.concentration_drinking_water = self.concentration_drinking_water
-            
-            #ah_todo move to the individual calculations
-            segment._calculate_pipe_K_D(pipe = self, 
-                                        _conditions_set=self._conditions_set, )
-
-
     def _fetch_chemical_database(self,
                                 chemical_name=None,
                                 suppress_print=False,
@@ -342,9 +287,7 @@ class Pipe:
             English ('EN') also possible
         '''
         
-        ppc_database = pd.read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
-
-        database = list(ppc_database['chemical_name_'+language])
+        database = list(self.ppc_database['chemical_name_'+language])
         
         matching_chemical_name = self._extract_matching_chemical_name(chemical_name=chemical_name, 
                                              database=database)
@@ -355,7 +298,7 @@ class Pipe:
         else:
             print("Input chemical name: ", str(chemical_name), "- Matched chemical name: ", str(matching_chemical_name))
 
-        df = ppc_database.loc[ppc_database['chemical_name_'+language] == matching_chemical_name]
+        df = self.ppc_database.loc[self.ppc_database['chemical_name_'+language] == matching_chemical_name]
         pipe_permeability_dict = df.to_dict('records')[0]
 
         #assign dict items as attribute of class
@@ -363,6 +306,70 @@ class Pipe:
             setattr(self, k, v)
 
 
+    def set_conditions(self,
+                    chemical_name=None,                                    
+                    concentration_groundwater=None,
+                    temperature_groundwater=None, 
+                    flow_rate=None,
+                    concentration_drinking_water=None, #ah_todo finish  add to param list
+                    stagnation_time = 8 * 60 * 60,
+                    suppress_print = False, 
+                    language = 'NL'
+                    ):
+        ''' 
+        Specifies the chemical of interest, concentration and temperature in the 
+        groundwater and returns the parameters as attributes of the class. 
+        Calculates the segment permeation parameters based on the groundwater 
+        conditions.
+        
+        Parameters
+        ----------
+        chemical_name: string
+            Name of the chemical for which to calculate the permeation
+        concentration_groundwater: float
+            Concentration of the given chemical in groundwater, g/m3
+        temperature_groundwater: float
+            Temperature of the groundwater, degrees Celcius
+        stagnation_time: float
+            Time in seconds which water in pipe is stagnant, unit of seconds. The 
+            stagnation factor is only valid for a stagnation time of 8 hours 
+            (28800 seconds), therefore using another other stagnation time is not advised.
+        suppress_print: Boolean
+            Suppress printing the chemical name and matching name, e.g. in loop calculations
+        language: str
+            Language fo the chemical name to search for, default is Dutch ('NL'), 
+            English ('EN') also possible
+
+        '''
+        self.chemical_name = chemical_name
+        self.concentration_groundwater = concentration_groundwater
+        self.temperature_groundwater = temperature_groundwater
+        self.stagnation_time = stagnation_time
+
+        #return to these checks...
+        self._conditions_set = True
+
+        self.flow_rate = flow_rate
+        self._flow_rate_set = True
+
+        self._fetch_chemical_database(chemical_name=self.chemical_name, 
+                                        suppress_print=suppress_print, 
+                                        language=language)
+
+        # The default value for the concentration_drinking_water is the drinking water norm
+        if concentration_drinking_water is None:
+            self.concentration_drinking_water = self.Drinking_water_norm
+        else: 
+            self.concentration_drinking_water = concentration_drinking_water
+
+        # #ah_todo move to the individual calculations 
+        # @martin, if we leave this here, then it is ok, we validate after and 
+        # any errors are caught before the calculations and then we can override
+        # see tag ah_removehere
+        for segment in self.segment_list:          
+            segment._calculate_pipe_K_D(pipe = self, 
+                                        _conditions_set=self._conditions_set, )
+            
     # def _view_database_chemical_names():
         #ah_todo add a function to view a list of the possible chemical names?
 
@@ -418,6 +425,7 @@ class Pipe:
                 sum_mass_segment = 0
 
                 for segment in self.segment_list:
+
                     segment._calculate_mean_dw_mass_per_segment(concentration_groundwater=self.concentration_groundwater,
                                                                 concentration_drinking_water = concentration_drinking_water,
                                                                 _conditions_set = self._conditions_set,
@@ -448,7 +456,6 @@ class Pipe:
         return concentration_pipe_drinking_water 
 
     def calculate_peak_dw_concentration(self, 
-                                        stagnation_time = 8 * 60 * 60, 
                                         tolerance = TOLERANCE_DEFAULT,
                                         relaxation_factor = RELAXATION_FACTOR_DEFAULT,
                                         max_iterations = MAX_ITERATIONS_DEFAULT):
@@ -460,10 +467,6 @@ class Pipe:
         
         Parameters
         ----------
-        stagnation_time: float
-            Time in seconds which water in pipe is stagnant, unit of seconds. The 
-            stagnation factor is only valid for a stagnation time of 8 hours 
-            (28800 seconds), therefore using another other stagnation time is not advised.
         tolerance: float 
             The allowable difference between the calculated and actual drinking water concentration, [-]
         relaxation_factor: float
@@ -482,9 +485,8 @@ class Pipe:
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
         self.relaxation_factor = relaxation_factor
-        self.stagnation_time = stagnation_time
 
-        if stagnation_time != 8 * 60 * 60: #ah_todo write test for this
+        if self.stagnation_time != 8 * 60 * 60: #ah_todo write test for this
             print("Warning: the stagnation factor is only valid for a stagnation \
                   time of 8 hours. Using a different stagnation time is not advised.")
 
@@ -514,7 +516,7 @@ class Pipe:
                     segment._calculate_peak_dw_mass_per_segment(concentration_groundwater=self.concentration_groundwater,
                                                                 concentration_drinking_water = concentration_drinking_water,
                                                                 _conditions_set = self._conditions_set,
-                                                                stagnation_time = stagnation_time, 
+                                                                stagnation_time = self.stagnation_time, 
                                                                 flow_rate = self.flow_rate)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
@@ -620,7 +622,7 @@ class Pipe:
                 sum_KDA_d += sum_KDA_d_segment
 
             concentration_groundwater = (concentration_drinking_water * (1
-                                         + self.flow_rate * segment.assessment_factor_groundwater ) 
+                                         + self.flow_rate * segment.ASSESSMENT_FACTOR_GROUNDWATER ) 
                                             / sum_KDA_d )
             counter = 0
 
@@ -629,8 +631,8 @@ class Pipe:
                                             temperature_groundwater=temperature_groundwater, 
                                             concentration_groundwater=concentration_groundwater,
                                             flow_rate = self.flow_rate,
-                                            suppress_print = True, 
-                                            )
+                                            suppress_print = True, )
+                               
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm
@@ -759,7 +761,7 @@ class Pipe:
 
             # initial guess concentration in groundwater
             concentration_groundwater = concentration_drinking_water * (1 
-                                        + self.total_volume * segment.assessment_factor_groundwater 
+                                        + self.total_volume * segment.ASSESSMENT_FACTOR_GROUNDWATER 
                                         / self.stagnation_time / sum_KDA_d)
            
             counter = 0
@@ -769,8 +771,7 @@ class Pipe:
                                             temperature_groundwater=temperature_groundwater, 
                                             concentration_groundwater=concentration_groundwater, 
                                             flow_rate = self.flow_rate,
-                                            suppress_print = True, 
-                                            )
+                                            suppress_print = True,)               
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm

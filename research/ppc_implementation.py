@@ -24,20 +24,21 @@ from pipepermcalc.segment import *
 
 # import pipepermcalc
 #%%
-class Person():
-    def __init__(self, name):
-        self.name = name
+# class Person():
+#     def __init__(self, name):
+#         self.name = name
     
-    def set_pet(self, pet):
-        self.pet = pet.name
-        self.owner = pet.owner
+#     def set_pet(self, pet):
+#         self.pet = pet.name
+#         self.owner = pet.owner
 
-class Pet():
-    def __init__(self, pet_name):
-        self.name = pet_name
+# class Pet():
+#     def __init__(self, pet_name):
+#         self.name = pet_name
 
-    def set_owner(self, owner):
-        self.owner = owner.name
+#     def set_owner(self, owner):
+#         self.owner = owner.name
+
 #%%
 seg1 = Segment(name='seg1',
             material= 'PE40',
@@ -54,64 +55,13 @@ pipe1.set_conditions(chemical_name="Benzeen",
                                 concentration_groundwater = 1.8,
                                 flow_rate=0.5)
 
-pipe1.calculate_mean_dw_concentration(tolerance = 0.1)   
+pipe1.validate_input_parameters()
 
-pipe1._validate_input_parameters()
-#%%
-
-parameter_validation_dictionary = \
-    {
-    'name':     {'value_dtype': [str]}, 
-    'material': {'str_options': ['PE40', 'PE80', 'PVC', 'EPDM'],
-                'value_dtype': [str]}, 
-    'permeation_direction': {'str_options': ['perpendicular', 'parallel'],
-                'value_dtype': [str]}, 
-    'length': {'min_value': 0, 
-            'value_dtype': [float, int]}, 
-    'inner_diameter': {'min_value': 0, 
-                    'value_dtype': [float, int]}, 
-    'wall_thickness': {'min_value': 0, 
-                    'value_dtype': [float, int]},  
-    'diffusion_path_length': {'min_value': 0, 
-                            'value_dtype': [float, int]},
-    'max_iterations': {'min_value': 0, 
-                    'value_dtype': [float, int]}, 
-    'tolerance': {'min_value': 0,
-                'max_value': 1, 
-                'value_dtype': [float]},  
-    'relaxation_factor': {'min_value': 0, 
-                        'max_value': 1, 
-                        'value_dtype': [float]},  
-    'stagnation_time': {'min_value': 0, 
-                        'value_dtype': [float, int]},  
-    'flow_rate': {'min_value': 0, 
-                'value_dtype': [float, int]},  
-    'concentration_groundwater': {'min_value': 0, 
-                                'value_dtype': [float, int]},  
-    'temperature_groundwater': {'min_value': 0, 
-                                'value_dtype': [float, int]},  
-    'concentration_drinking_water': {'min_value': 0, 
-                                    'value_dtype': [float, int]},  
-    'chemical_name': {'value_dtype': [str]},  
-    'language': {'str_options': ['NL', 'EN'],
-                'value_dtype': [str]}, 
-    }
-
-check_object = pipe1
-for k, v in parameter_validation_dictionary.items():
-    # print(getattr(seg1, k))
-    if hasattr(check_object, k):
-        if type(getattr(check_object, k)) not in v['value_dtype']:
-            raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be a {v['value_dtype']}.")
-        if 'min_value' in v.keys():
-            if getattr(check_object, k) < v['min_value']:
-                raise ValueError(f"Invalid value {getattr(check_object, k)} for parameter {k}. Input value should be a > {v['min_value']}.")
-        if 'max_value' in v.keys():
-            if getattr(check_object, k) > v['max_value']:
-                raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be a < {v['max_value']}.")
-        if 'str_options' in v.keys():
-            if getattr(check_object, k) not in v['str_options']:
-                raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be one of {v['str_options']}.")
+pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
+                                chemical_name="Benzeen", 
+                                temperature_groundwater=12, 
+                                tolerance = 0.001
+                                )
 
 
 #%%
@@ -303,7 +253,7 @@ _partitioning_a_dh = 7.92169801506708 #see table 5-6 in KWR 2016.056
 _partitioning_b_dh = -17.1875608983359 #see table 5-6 in KWR 2016.056
 _diffusion_a_dh = 61.8565740136974 #see table 5-6 in KWR 2016.056
 _diffusion_b_dh = -78.9191401984509 #see table 5-6 in KWR 2016.056
-assessment_factor_groundwater = 3 
+ASSESSMENT_FACTOR_GROUNDWATER = 3 
 assessment_factor_soil = 1
 partitioning_a_c = 0.103965019849463 #see equation 5-20 in KWR 2016.056
 partitioning_Cref_Sw = 1.000 #see section 5.4.7 in KWR 2016.056

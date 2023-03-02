@@ -110,7 +110,7 @@ for segment in pipe1.segment_list:
 
 concentration_groundwater = (concentration_drinking_water 
                                 + (concentration_drinking_water * pipe1.total_volume 
-                                * segment.assessment_factor_groundwater ) 
+                                * segment.ASSESSMENT_FACTOR_GROUNDWATER ) 
                                 / (sum_KDA_d * pipe1.stagnation_time) )
 counter = 0
 
@@ -192,7 +192,7 @@ for segment in pipe1.segment_list:
     sum_KDA_d+= sum_KDA_d_segment
 
 
-concentration_groundwater = (concentration_drinking_water + (concentration_drinking_water * pipe1.flow_rate * segment.assessment_factor_groundwater ) / sum_KDA_d )
+concentration_groundwater = (concentration_drinking_water + (concentration_drinking_water * pipe1.flow_rate * segment.ASSESSMENT_FACTOR_GROUNDWATER ) / sum_KDA_d )
 
 while True:
     pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
@@ -218,7 +218,7 @@ while True:
         segment.mass_chemical_drinkwater = ((segment.permeation_coefficient 
                                              * segment.permeation_surface_area 
                                              * delta_c / segment.diffusion_path_length ) 
-                                            / segment.assessment_factor_groundwater)
+                                            / segment.ASSESSMENT_FACTOR_GROUNDWATER)
         
 
         sum_mass_segment += segment.mass_chemical_drinkwater
@@ -297,7 +297,7 @@ while True:
                         ) 
 
         segment.mass_chemical_drinkwater = ((segment.permeation_coefficient * segment.permeation_surface_area * delta_c / segment.diffusion_path_length ) 
-                                            / segment.assessment_factor_groundwater)
+                                            / segment.ASSESSMENT_FACTOR_GROUNDWATER)
         # end segment function
 
         sum_mass_segment += segment.mass_chemical_drinkwater
@@ -373,7 +373,7 @@ while True:
                                              * segment.permeation_surface_area 
                                              * delta_c / segment.diffusion_path_length 
                                              * stagnation_time * stagnation_factor) 
-                                            / segment.assessment_factor_groundwater)
+                                            / segment.ASSESSMENT_FACTOR_GROUNDWATER)
         # end segment function
 
         sum_mass_segment += segment.mass_chemical_drinkwater

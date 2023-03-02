@@ -514,10 +514,6 @@ class Segment:
 
             # calculate log D plastic (log Dp) 
             self.log_Dp = self._calculate_logD(pipe = pipe)
-
-            #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-            #ah_todo remove this, use K and D directly in equations
-            # self.permeation_coefficient = self._calculate_permeation_coefficient()
             
 
     def _calculate_stagnation_factor(self,):
