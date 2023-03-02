@@ -54,14 +54,11 @@ def test_logKpw_ref():
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
-    pipe1.segment_list
 
     pipe1.set_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482, 
                                     flow_rate=0.5)
-    pipe1.validate_input_parameters()
-    pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.log_Kpw_ref, 
                                ref_answer = 1.64761000, 
                                round_values=5)
@@ -77,15 +74,12 @@ def test_logDp_ref():
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
-    pipe1.segment_list
 
     pipe1.set_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482, 
                                     flow_rate=0.5)
-    pipe1.validate_input_parameters()
-    pipe1.calculate_peak_dw_concentration()    
-   
+  
     raise_exception_two_values(answer=seg1.log_Dp_ref, 
                                ref_answer = -11.54717, 
                                round_values=5)
@@ -108,8 +102,6 @@ def test_logKp_ref_temperature_correction():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482, 
                                     flow_rate=0.5)
-    pipe1.validate_input_parameters()
-    pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.f_Ktemp, 
                                ref_answer = -0.071506, 
                                round_values=6)
@@ -133,8 +125,6 @@ def test_logDp_ref_temperature_correction():
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 0.112980124482, 
                                     flow_rate=0.5)
-    pipe1.validate_input_parameters()
-    pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.f_Dtemp, 
                                ref_answer = -0.305084,
                                round_values=6)
@@ -152,14 +142,12 @@ def test_logKp_ref_concentration_correction():
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
-    pipe1.segment_list
 
     pipe1.set_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8,
                                     flow_rate=0.5)
-    pipe1.validate_input_parameters()
-    pipe1.calculate_peak_dw_concentration()    
+    
     raise_exception_two_values(answer=seg1.f_Kconc,
                                ref_answer = -0.103871,
                                round_values=6)
@@ -177,14 +165,11 @@ def test_logDp_ref_concentration_correction():
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
-    pipe1.segment_list
 
     pipe1.set_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater =1.8,
                                     flow_rate=0.5)
-    pipe1.validate_input_parameters()
-    pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.f_Dconc,
                                ref_answer =  -0.391329, 
                                round_values=6)
@@ -201,14 +186,11 @@ def test_logKpw():
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
-    pipe1.segment_list
 
     pipe1.set_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8,
                                     flow_rate=0.5)
-    pipe1.validate_input_parameters()
-    pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.log_Kpw,
                                ref_answer = 1.472233,
                                round_values=6)
@@ -225,14 +207,11 @@ def test_logDpw():
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
-    pipe1.segment_list
 
     pipe1.set_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 
                                     concentration_groundwater = 1.8,
                                     flow_rate=0.5)
-    pipe1.validate_input_parameters()
-    pipe1.calculate_peak_dw_concentration()    
     raise_exception_two_values(answer=seg1.log_Dp, 
                                ref_answer = -12.243587, 
                                round_values=6)
@@ -249,7 +228,6 @@ def test_stagnation_factor():
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
-    pipe1.segment_list
 
     pipe1.set_conditions(chemical_name="Benzeen", 
                                     temperature_groundwater=12, 

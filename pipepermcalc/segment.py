@@ -498,15 +498,11 @@ class Segment:
         ----------
         pipe_material: string
             Choice of pipe material: PE40, PE80, SBR, EPDM
-        temperature_groundwater: float
-            Temperature of groundwater, in degrees Celcius
-        concentration_groundwater: float
-            concentration of given chemical in groundwater, in mg/L
         '''
         # Check if the groundwater conditions have been set, if not raise error
         if _conditions_set is None:
-            raise ValueError('Error, groundwater conditions have not been set. \
-                             To set groundwater conditions use .set_groundwater_conditions()')
+            raise ValueError('Error, pipe conditions have not been set. \
+                             To set pipe conditions use .set_conditions()')
         else:           
 
             # calculate log K plastic-water (log kpw) 
@@ -539,11 +535,7 @@ class Segment:
     
 
     def _calculate_mean_dw_mass_per_segment(self, 
-                                            concentration_groundwater,
-                                            concentration_drinking_water,
-                                            _conditions_set, #ah_todo remove these
-                                            flow_rate=None,
-                                        ): 
+                                            pipe,): 
         '''
         Calculates the mean mass in drinking water for a 24 hour period given a 
         groundwater concentration, for each pipe segment.
@@ -555,7 +547,7 @@ class Segment:
          
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 
-        delta_c = concentration_groundwater - concentration_drinking_water
+        delta_c = pipe.concentration_groundwater - pipe.concentration_drinking_water
 
         self.mass_chemical_drinkwater = (((10 ** self.log_Dp * 10 ** self.log_Kpw)
                                           * self.permeation_surface_area 
@@ -565,12 +557,7 @@ class Segment:
 
 
     def _calculate_peak_dw_mass_per_segment(self, 
-                                            concentration_groundwater,
-                                        concentration_drinking_water,
-                                        _conditions_set,
-                                        stagnation_time = 8 * 60 * 60, #8 hours
-                                        flow_rate=None,
-                                        ):
+                                            pipe,):
         '''
         Calculates the peak (maximum) mass in drinking water for a 
         given a stagnation period given a groundwater concentration, for each pipe segment.
@@ -589,13 +576,13 @@ class Segment:
         '''
 
         self.stagnation_factor = self._calculate_stagnation_factor()
-        delta_c = concentration_groundwater - concentration_drinking_water
+        delta_c = pipe.concentration_groundwater - pipe.concentration_drinking_water
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation       
         self.mass_chemical_drinkwater = (((10 ** self.log_Dp * 10 ** self.log_Kpw)
                                              * self.permeation_surface_area 
                                              * delta_c / self.diffusion_path_length 
-                                             * stagnation_time * self.stagnation_factor) 
+                                             * pipe.stagnation_time * self.stagnation_factor) 
                                             / self.ASSESSMENT_FACTOR_GROUNDWATER)
 

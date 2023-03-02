@@ -55,13 +55,13 @@ pipe1.set_conditions(chemical_name="Benzeen",
                                 concentration_groundwater = 1.8,
                                 flow_rate=0.5)
 
-pipe1.validate_input_parameters()
+# pipe1.validate_input_parameters()
 
-pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
-                                chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                tolerance = 0.001
-                                )
+# pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
+#                                 chemical_name="Benzeen", 
+#                                 temperature_groundwater=12, 
+#                                 tolerance = 0.001
+#                                 )
 
 
 #%%
