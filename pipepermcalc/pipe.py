@@ -74,10 +74,10 @@ class Pipe:
         recommended 0.3-0.7 [-].
     max_iterations: int
         Maximum number of iterations allowed in the optimization scheme.                    
-    stagnation_time_hours: float
-        Time in hours which water in pipe is stagnant, hours.
     stagnation_time: float
-        Time in days which water in pipe is stagnant, days.
+        Time in seconds which water in pipe is stagnant, unit of seconds. The 
+        stagnation factor is only valid for a stagnation time of 8 hours 
+        (28800 seconds), therefore using another other stagnation time is not advised.
     concentration_peak_allowable_groundwater: float
         Concentration in groundwater which, after a stagnation period, 
         would not result in a peak concentration in drinking water exceeding 
@@ -92,15 +92,20 @@ class Pipe:
     peak_concentration_pipe_drinking_water: float
         Calculates the peak (maximum) concentration in drinking water for a 
         given a stagnation period given a groundwater concentration.
+    
+    Note
+    ----
+    All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds.
+
 
         '''
     #ah_todo change input variables to restrict the type (e.g. only float, 
     # only integer, only positive values etc)
     
     #Constants for iterative calculations
-    tolerance_default = 0.01
-    relaxation_factor_default = 0.5
-    max_iterations_default = 1000
+    TOLERANCE_DEFAULT = 0.01
+    RELAXATION_FACTOR_DEFAULT = 0.5
+    MAX_ITERATIONS_DEFAULT = 1000
     
     def __init__(self, 
                  segment_list,
@@ -238,7 +243,7 @@ class Pipe:
         self._flow_rate_set = True
 
         self._fetch_chemical_database(chemical_name=self.chemical_name, 
-                                                                    suppress_print=suppress_print)
+                                        suppress_print=suppress_print)
 
         # The default value for the concentration_drinking_water is the drinking water norm
         if concentration_drinking_water is None:
@@ -304,9 +309,9 @@ class Pipe:
 
 
     def calculate_mean_dw_concentration(self, 
-                                        tolerance = tolerance_default,
-                                        relaxation_factor = relaxation_factor_default,
-                                        max_iterations = max_iterations_default):
+                                        tolerance = TOLERANCE_DEFAULT,
+                                        relaxation_factor = RELAXATION_FACTOR_DEFAULT,
+                                        max_iterations = MAX_ITERATIONS_DEFAULT):
         '''
         Calculates the mean concentration in drinking water for a 24 hour period
         given a groundwater concentration. 
@@ -378,10 +383,10 @@ class Pipe:
         return concentration_pipe_drinking_water 
 
     def calculate_peak_dw_concentration(self, 
-                                        stagnation_time_hours = 8, 
-                                        tolerance = tolerance_default,
-                                        relaxation_factor = relaxation_factor_default,
-                                        max_iterations = max_iterations_default):
+                                        stagnation_time = 8 * 60 * 60, 
+                                        tolerance = TOLERANCE_DEFAULT,
+                                        relaxation_factor = RELAXATION_FACTOR_DEFAULT,
+                                        max_iterations = MAX_ITERATIONS_DEFAULT):
 
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
@@ -390,8 +395,10 @@ class Pipe:
         
         Parameters
         ----------
-        stagnation_time_hours: float
-            time in hours, default 8 hours
+        stagnation_time: float
+            Time in seconds which water in pipe is stagnant, unit of seconds. The 
+            stagnation factor is only valid for a stagnation time of 8 hours 
+            (28800 seconds), therefore using another other stagnation time is not advised.
         tolerance: float 
             The allowable difference between the calculated and actual drinking water concentration, [-]
         relaxation_factor: float
@@ -410,11 +417,15 @@ class Pipe:
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
         self.relaxation_factor = relaxation_factor
-        self.stagnation_time_hours = stagnation_time_hours
+        self.stagnation_time = stagnation_time
 
-        # Checks here that input 'stagnation_time_hours', 'max_iterations', 
+        if stagnation_time != 8 * 60 * 60: #ah_todo write test for this
+            print("Warning: the stagnation factor is only valid for a stagnation \
+                  time of 8 hours. Using a different stagnation time is not advised.")
+
+        # Checks here that input 'stagnation_time', 'max_iterations', 
         # 'tolerance', 'relaxation_factor' > 0
-        check_values = ['stagnation_time_hours', 'max_iterations', 'tolerance', 'relaxation_factor' ]
+        check_values = ['stagnation_time', 'max_iterations', 'tolerance', 'relaxation_factor' ]
         self.check_input_values(check_values)
 
         # Check if the flow rate has been set, if not raise error
@@ -432,7 +443,7 @@ class Pipe:
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
                                                                 _groundwater_conditions_set = self._groundwater_conditions_set,
-                                                                stagnation_time_hours = stagnation_time_hours, 
+                                                                stagnation_time = stagnation_time, 
                                                                 flow_rate = self.flow_rate)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
@@ -463,9 +474,9 @@ class Pipe:
                                         concentration_drinking_water,
                                         chemical_name,
                                         temperature_groundwater,
-                                        tolerance = tolerance_default,
-                                        relaxation_factor = relaxation_factor_default,
-                                        max_iterations = max_iterations_default, 
+                                        tolerance = TOLERANCE_DEFAULT,
+                                        relaxation_factor = RELAXATION_FACTOR_DEFAULT,
+                                        max_iterations = MAX_ITERATIONS_DEFAULT, 
                                         ):
         '''
         Calculates the mean 24 hour concentration in groundwater which would not 
@@ -520,12 +531,7 @@ class Pipe:
                 log_Kpw_ref = segment._calculate_ref_logK(chemical_group_number=self.chemical_group_number,
                             log_octanol_water_partitioning_coefficient=self.log_octanol_water_partitioning_coefficient)
                 
-                Dp_ref = 10 ** log_Dp_ref
-                Kpw_ref = 10 ** log_Kpw_ref
-
-                permeation_coefficient_ref = (24 * 60 * 60 * Dp_ref * Kpw_ref)
-
-                sum_KDA_d_segment = (permeation_coefficient_ref * segment.permeation_surface_area 
+                sum_KDA_d_segment = ( 10 ** log_Dp_ref * 10 ** log_Kpw_ref * segment.permeation_surface_area 
                                     / segment.diffusion_path_length )
 
                 sum_KDA_d += sum_KDA_d_segment
@@ -574,10 +580,10 @@ class Pipe:
                                     concentration_drinking_water,
                                     chemical_name,
                                     temperature_groundwater,
-                                    stagnation_time_hours = 8,
-                                    tolerance = tolerance_default,
-                                    relaxation_factor = relaxation_factor_default,
-                                    max_iterations = max_iterations_default
+                                    stagnation_time = 8 * 60 * 60,
+                                    tolerance = TOLERANCE_DEFAULT,
+                                    relaxation_factor = RELAXATION_FACTOR_DEFAULT,
+                                    max_iterations = MAX_ITERATIONS_DEFAULT
 
                                     ):
         '''
@@ -592,10 +598,13 @@ class Pipe:
 
         Parameters
         ----------
-        stagnation_time_hours: float
-            time in hours, default 8 hours
+        stagnation_time: float
+            Time in seconds which water in pipe is stagnant, unit of seconds. The 
+            stagnation factor is only valid for a stagnation time of 8 hours 
+            (28800 seconds), therefore using another other stagnation time is not advised.
         tolerance: float 
-            The allowable difference between the calculated and actual drinking water concentration, [-]
+            The allowable difference between the calculated and actual drinking 
+            water concentration, [-]
         relaxation_factor: float
             Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
@@ -612,11 +621,15 @@ class Pipe:
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
         self.relaxation_factor = relaxation_factor
-        self.stagnation_time_hours = stagnation_time_hours
+        self.stagnation_time = stagnation_time
 
-        # Checks here that input 'stagnation_time_hours', 'max_iterations', 
+        if stagnation_time != 8 * 60 * 60:
+            print("Warning: the stagnation factor is only valid for a stagnation \
+                  time of 8 hours. Using a different stagnation time is not advised.")
+
+        # Checks here that input 'stagnation_time', 'max_iterations', 
         # 'tolerance', 'relaxation_factor' > 0
-        check_values = ['stagnation_time_hours', 'max_iterations', 'tolerance', 'relaxation_factor' ]
+        check_values = ['stagnation_time', 'max_iterations', 'tolerance', 'relaxation_factor' ]
         self.check_input_values(check_values)
 
         # Check if the flow rate has been set, if not raise error
@@ -626,7 +639,6 @@ class Pipe:
         else: 
 
             self._fetch_chemical_database(chemical_name=chemical_name, suppress_print = True, )
-            self.stagnation_time = stagnation_time_hours / 24
 
             # calculate initial guess for gw concentration
             sum_KDA_d = 0
@@ -637,17 +649,12 @@ class Pipe:
                 log_Kpw_ref = segment._calculate_ref_logK(chemical_group_number=self.chemical_group_number,
                             log_octanol_water_partitioning_coefficient=self.log_octanol_water_partitioning_coefficient)
                 
-                Dp_ref = 10 ** log_Dp_ref
-                Kpw_ref = 10 ** log_Kpw_ref
-
                 #stagnation factor with reference values for LogDp and LogKpw
                 stagnation_factor = 10 ** max((((log_Dp_ref + 12.5) / 2 + 
                                     log_Kpw_ref) * 0.73611 + 
                                     -1.03574 ), 0)            
 
-                permeation_coefficient_ref = (24 * 60 * 60 * Dp_ref * Kpw_ref)
-
-                sum_KDA_d_segment = (permeation_coefficient_ref * segment.permeation_surface_area 
+                sum_KDA_d_segment = ( 10 ** log_Dp_ref * 10 ** log_Kpw_ref * segment.permeation_surface_area 
                                     * stagnation_factor
                                     / segment.diffusion_path_length )
 
@@ -675,7 +682,7 @@ class Pipe:
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(concentration_drinking_water = concentration_drinking_water,
                                                                     _groundwater_conditions_set = self._groundwater_conditions_set,
-                                                                    stagnation_time_hours = stagnation_time_hours,
+                                                                    stagnation_time = stagnation_time,
                                                                     flow_rate = self.flow_rate)
                     sum_mass_segment += segment.mass_chemical_drinkwater
 

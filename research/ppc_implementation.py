@@ -42,7 +42,7 @@ class Pet():
 
 seg1 = Segment(name='seg1',
             material='PE40',
-            length=5,
+            length=25,
             inner_diameter=0.0196,
             thickness=0.0027,
             )
@@ -63,9 +63,9 @@ seg3 = Segment(name='seg3',
             thickness=0.0027,
             )
 
-pipe1 = Pipe(segment_list=[seg1, seg2, seg3])
+# pipe1 = Pipe(segment_list=[seg1, seg2, seg3])
 
-# pipe1 = Pipe(segment_list=[seg2])
+pipe1 = Pipe(segment_list=[seg1])
 
 pipe1.set_conditions(chemical_name="Benzeen", 
                                 temperature_groundwater=12, 
