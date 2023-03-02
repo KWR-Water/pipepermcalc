@@ -22,46 +22,110 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
-# import pipepermcalc
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1])
+input_gw = 100
+pipe1.set_conditions(
+    chemical_name="Benzeen", 
+    temperature_groundwater=12, 
+    concentration_drinking_water=0.001,
+    flow_rate=0.5 )
+
+pipe1.validate_input_parameters()
+
+mean_conc = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
+
+
+mean_conc
+
 #%%
-# class Person():
-#     def __init__(self, name):
-#         self.name = name
-    
-#     def set_pet(self, pet):
-#         self.pet = pet.name
-#         self.owner = pet.owner
+pipe1.set_conditions(chemical_name="Benzeen", 
+                    temperature_groundwater=12, 
+                    concentration_drinking_water =mean_conc,
+                    flow_rate=0.5)
 
-# class Pet():
-#     def __init__(self, pet_name):
-#         self.name = pet_name
 
-#     def set_owner(self, owner):
-#         self.owner = owner.name
+output_gw = pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.01)
+output_gw
+if round(output_gw,3) == input_gw:
+    print('passed')
+else: 
+    print(input_gw, output_gw, abs(1-input_gw/output_gw), mean_conc)
 
+#------------------------------------------------------------------------------------    
+
+#%%
+# test mean
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1])
+
+input_gw = 600
+
+pipe1.set_conditions(
+    chemical_name="Benzeen", 
+                    concentration_groundwater =input_gw,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5 
+
+                    )
+
+pipe1.validate_input_parameters()
+
+mean_conc=pipe1.calculate_mean_dw_concentration(tolerance = 0.00001)
+
+
+pipe1.set_conditions(chemical_name="Benzeen", 
+                    temperature_groundwater=12, 
+                    concentration_drinking_water = mean_conc,
+                    flow_rate=0.5)
+
+output_gw = pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.00001)
+
+if round(output_gw,3) == input_gw:
+    print('passed')
+else: print(input_gw, output_gw, input_gw/output_gw)
+
+
+#%%
 #%%
 seg1 = Segment(name='seg1',
             material= 'PE40',
             length=25,
             inner_diameter=0.0196,
             wall_thickness=0.0027,
-            # permeation_direction='backwards'
             )
 
 pipe1 = Pipe(segment_list=[seg1])
 
 pipe1.set_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater = 1.8,
-                                flow_rate=0.5)
+                    concentration_drinking_water=0.001,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
 
-# pipe1.validate_input_parameters()
+pipe1.validate_input_parameters()
 
-# pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
-#                                 chemical_name="Benzeen", 
-#                                 temperature_groundwater=12, 
-#                                 tolerance = 0.001
-#                                 )
+pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.001, 
+                                                relaxation_factor = 0.7,
+)
+
+# pipe1.set_conditions(chemical_name="Benzeen", 
+#                     temperature_groundwater=12, 
+#                     concentration_groundwater = mean_conc,
+#                     flow_rate=0.5)
+
+# pipe1.calculate_mean_dw_concentration()
 
 
 #%%

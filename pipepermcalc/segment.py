@@ -476,13 +476,6 @@ class Segment:
 
         return log_Dp
 
-    # def _calculate_permeation_coefficient(self,):
-    #     ''' Calculate the permeation coefficient for the segment'''
-    #     #Permeation coefficient for plastic-water (Ppw), unit: m2/day
-    #     permeation_coefficient = (24 * 60 * 60 * 
-    #                                     (10 ** self.log_Dp) 
-    #                                     * 10 ** self.log_Kpw)
-    #     return permeation_coefficient
 
     def _calculate_pipe_K_D(self,
                             pipe,
@@ -535,6 +528,8 @@ class Segment:
     
 
     def _calculate_mean_dw_mass_per_segment(self, 
+                                            concentration_drinking_water,
+                                            concentration_groundwater,
                                             pipe,): 
         '''
         Calculates the mean mass in drinking water for a 24 hour period given a 
@@ -547,7 +542,7 @@ class Segment:
          
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 
-        delta_c = pipe.concentration_groundwater - pipe.concentration_drinking_water
+        delta_c = concentration_groundwater - concentration_drinking_water
 
         self.mass_chemical_drinkwater = (((10 ** self.log_Dp * 10 ** self.log_Kpw)
                                           * self.permeation_surface_area 
@@ -556,7 +551,8 @@ class Segment:
                                             * 24 * 60 * 60)
 
 
-    def _calculate_peak_dw_mass_per_segment(self, 
+    def _calculate_peak_dw_mass_per_segment(self, concentration_drinking_water,
+                                            concentration_groundwater,
                                             pipe,):
         '''
         Calculates the peak (maximum) mass in drinking water for a 
@@ -576,7 +572,7 @@ class Segment:
         '''
 
         self.stagnation_factor = self._calculate_stagnation_factor()
-        delta_c = pipe.concentration_groundwater - pipe.concentration_drinking_water
+        delta_c = concentration_groundwater - concentration_drinking_water
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
         # in equation 4-5 and rearranging to remove C_dw from the equation       
