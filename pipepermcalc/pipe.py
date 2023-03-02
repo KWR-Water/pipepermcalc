@@ -222,7 +222,6 @@ class Pipe:
         result : float
             The minimum score for 's'.
         """
-        #ah_todo - does this have to have min scores for all lengths of chemicals?
         DEFAULT_FUZZY_MINSCORES = {1: 100, 3: 100, 4: 90, 5: 85, 6: 80, 8: 75}
 
         xp = list(DEFAULT_FUZZY_MINSCORES.keys()) #@martin comment: #@@ maybe it's easier to enter a list directly, instead of extract the dictionary.
@@ -267,8 +266,6 @@ class Pipe:
                                 chemical_name=None,
                                 suppress_print=False,
                                 language = 'NL'
-                                #ah_todo add something to fetch chemical_name_EN 
-                                # instead of NL name (default)?
                                 ):
         ''' 
         Fetch the pipe and chemical information corresponding to the given 
@@ -369,10 +366,19 @@ class Pipe:
         for segment in self.segment_list:          
             segment._calculate_pipe_K_D(pipe = self, 
                                         _conditions_set=self._conditions_set, )
-            
-    # def _view_database_chemical_names():
-        #ah_todo add a function to view a list of the possible chemical names?
 
+
+    def view_database_chemical_names(self, language='NL'):
+        '''function to view a list of the possible chemical names
+
+        Parameters
+        ----------
+        language: str
+            Language fo the chemical name to search for, default is Dutch ('NL'), 
+            English ('EN') also possible
+        '''
+
+        return [list(self.ppc_database['chemical_name_'+language])]
 
     def calculate_mean_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
