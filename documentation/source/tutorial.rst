@@ -29,7 +29,7 @@ We always start by importing pipepermcalc Pipe() and Segment classes:
 
 Step 1: Define the pipe segment(s) 
 ==================================
-For this example there is only one pipe segment made of PE40. We define the length, inner diameter and thickness of the pipe in meters.
+For this example there is only one pipe segment made of PE40. We define the length, inner diameter and wall_thickness of the pipe in meters.
 
 .. ipython:: python
     
@@ -37,7 +37,7 @@ For this example there is only one pipe segment made of PE40. We define the leng
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,)
+                    wall_thickness=0.0027,)
 Step 2: Create a pipe from the segment(s)
 =========================================
 We create a pipe from the segment using the Pipe() class by inputing the list of segment name(s).
@@ -127,7 +127,7 @@ Depending on the types of pipe segment, the permeation direction can either be p
   :width: 600
   :alt: pipe_schematic.png
 
-In scenarios 1 and 3 above, the permeaiton is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the thickness of the pipe length.
+In scenarios 1 and 3 above, the permeaiton is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the wall_thickness of the pipe length.
 
 In the example shown above, permeation is *parallel* to the flow direction through a connecting rubber in scenario 2. For this scenario, the volume is assumed to be zero and the permeation surface area is the annular area of the rubber. The diffusion path length in this case is equal to the length of the segment.
 
@@ -139,13 +139,13 @@ In the following example we create a pipe made from two 5m PE40 pipe segments, j
                 material='PE40',
                 length=5,
                 inner_diameter=0.0196,
-                thickness=0.0027)
+                wall_thickness=0.0027)
 
     seg2 = Segment(name='seg2',
                     material = 'EPDM',
                     length=0.06,
                     inner_diameter=0.025,
-                    thickness=0.001,
+                    wall_thickness=0.001,
                     diffusion_path_length = 0.06, 
                     permeation_direction = 'parallel')
 
@@ -153,12 +153,12 @@ In the following example we create a pipe made from two 5m PE40 pipe segments, j
                 material='PE40',
                 length=5,
                 inner_diameter=0.0196,
-                thickness=0.0027)
+                wall_thickness=0.0027)
 
     pipe2 = Pipe(segment_list=[seg1, seg2, seg3])
 
 
-As seen in the example above, only the segment with the parallel flow requires a specified permeation direction, as the default is perpendicular, and the diffusion path length, as the default is the thickness.
+As seen in the example above, only the segment with the parallel flow requires a specified permeation direction, as the default is perpendicular, and the diffusion path length, as the default is the wall_thickness.
 
 The remaining calculations are done the same as for the simple example:
 
@@ -190,7 +190,7 @@ The model contains a chemical databsae from which the partitioning (Kpw) and dif
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe3 = Pipe(segment_list=[seg1])
@@ -222,7 +222,7 @@ Each of these values can be manually changed in the four concentration calculati
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027)
+                    wall_thickness=0.0027)
     pipe4 = Pipe(segment_list=[seg1])
     pipe4.set_flow_rate(flow_rate=0.5)
 

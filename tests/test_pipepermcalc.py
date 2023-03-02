@@ -50,7 +50,7 @@ def test_logKpw_ref():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -72,7 +72,7 @@ def test_logDp_ref():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -96,7 +96,7 @@ def test_logKp_ref_temperature_correction():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -120,7 +120,7 @@ def test_logDp_ref_temperature_correction():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -144,7 +144,7 @@ def test_logKp_ref_concentration_correction():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -168,7 +168,7 @@ def test_logDp_ref_concentration_correction():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -191,7 +191,7 @@ def test_logKpw():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -214,7 +214,7 @@ def test_logDpw():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -237,7 +237,7 @@ def test_stagnation_factor():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -259,7 +259,7 @@ def test_stagnation_factor():
 #                     material='PE40',
 #                     length=25,
 #                     inner_diameter=0.0196,
-#                     thickness=0.0027,
+#                     wall_thickness=0.0027,
 #                     )
 
 #     pipe1 = Pipe(segment_list=[seg1])
@@ -288,7 +288,7 @@ def test_stagnation_factor():
 #                     material='PE40',
 #                     length=25,
 #                     inner_diameter=0.0196,
-#                     thickness=0.0027,
+#                     wall_thickness=0.0027,
 #                     )
 
 #     pipe1 = Pipe(segment_list=[seg1])
@@ -318,7 +318,7 @@ def test_calculate_peak_dw_concentration():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -342,7 +342,7 @@ def test_calculate_mean_dw_concentration():
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    thickness=0.0027,
+                    wall_thickness=0.0027,
                     )
 
     pipe1 = Pipe(segment_list=[seg1])
@@ -364,7 +364,7 @@ def test_segment_surface_area_calculations():
                 material='PE40',
                 length=7.5/1000,
                 inner_diameter=30.3/1000,
-                thickness=1.5/1000,
+                wall_thickness=1.5/1000,
                 permeation_direction='parallel',
                 diffusion_path_length=7.5/1000,
                     )
@@ -377,7 +377,7 @@ def test_segment_surface_area_calculations():
                     material='PE40',
                     length=1/1000,
                     inner_diameter=28.5/1000,
-                    thickness=10/1000,
+                    wall_thickness=10/1000,
                     permeation_direction='perpendicular',
                     diffusion_path_length=10/1000
                     )
@@ -391,7 +391,7 @@ def test_segment_surface_area_calculations():
                     material='PE40',
                     length=33.3/1000,
                     inner_diameter=25/1000,
-                    thickness=2.7/1000,
+                    wall_thickness=2.7/1000,
                     permeation_direction='perpendicular',)
     
     raise_exception_two_values(answer=seg1.permeation_surface_area, 
@@ -407,7 +407,7 @@ def test_segment_surface_area_calculations():
 #                     material='PE40',
 #                     length=25,
 #                     inner_diameter=0.0196,
-#                     thickness=0.0027)
+#                     wall_thickness=0.0027)
 #     pipe4 = Pipe(segment_list=[seg1])
 #     pipe4.set_conditions(flow_rate=0.5)
 

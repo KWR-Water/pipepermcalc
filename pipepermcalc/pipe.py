@@ -302,7 +302,7 @@ class Pipe:
         if suppress_print:
             pass
         else:
-            print("Input chemical name:", chemical_name, "- Matched chemical name:", matching_chemical_name)
+            print("Input chemical name: ", str(chemical_name), "- Matched chemical name: ", str(matching_chemical_name))
 
         df = ppc_database.loc[ppc_database['chemical_name_'+language] == matching_chemical_name]
         pipe_permeability_dict = df.to_dict('records')[0]

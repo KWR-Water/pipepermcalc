@@ -20,27 +20,27 @@ class Segment:
     ----------
     #ah_todo add attributes
 
-    partitioning_a_dh: float
+    PARTITIONING_A_DH: float
         Coefficient for correcting the partitioning coefficient for temperature. 
         From regression analysis, a is the slope, see table 5-6 in 
         KWR 2016.056. Constant equal to 7.92169801506708. 
-    partitioning_b_dh: float,
+    PARTITIONING_B_DH: float,
         Coefficient for correcting the partitioning coefficient for temperature. 
         From regression analysis, b is the intercept, see table 5-6 in 
         KWR 2016.056. Constant equal to -17.1875608983359. 
-    diffusion_a_dh: float 
+    DIFFUSION_A_DH: float 
         Coefficient for correcting the diffusion coefficient for temperature. 
         From regression analysis, a is the slope, see table 5-6 in 
         KWR 2016.056. Constant equal to 61.8565740136974. 
-    diffusion_b_dh: float
+    DIFFUSION_B_DH: float
         Coefficient for correcting the diffusion coefficient for temperature. 
         From regression analysis, b is the intercept, see table 5-6 in 
         KWR 2016.056. Constant equal to -78.9191401984509. 
-    ASSESSMENT_FACTOR_GROUNDWATER: integer 
+    ASSESSMENT_FACTOR_GROUNDWATER: float 
         Factor used to correct calculations for observations in actual pipe 
         permeation. Permeation of PE house connections in groundwater = 3, 
         other pipe materials = 1. See section 7.2 in KWR 2016.056
-    ASSESSMENT_FACTOR_SOIL: integer
+    ASSESSMENT_FACTOR_SOIL: float
         Factor used to correct calculations for observations in actual pipe 
         permeation. All pipe materials = 1.
     PARTITIONING_A_C: float
@@ -68,8 +68,8 @@ class Segment:
         Length of pipe segment, meters 
     inner_diameter: float
         Inner diameter of pipe segment, meters
-    thickness: float
-        Thickness of pipe segment, meters
+    wall_thickness: float
+        wall_thickness of pipe segment, meters
     permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
         Direction of permeation through the pipe segment. Options are 
         'perpendicular' or 'parallel'. Default permeation is perpendicular 
@@ -80,7 +80,7 @@ class Segment:
         diffusion path length is required to calculate the permeation 
         through the pipe segment. For example in the case of a pipe 
         coupling rings. If no value is given, diffusion is assumed 
-        perpendicular to the flow direction and the thickness is 
+        perpendicular to the flow direction and the wall_thickness is 
         used to calculate the diffusion through the pipe segment. 
         Unit meters.
     volume: float
@@ -130,13 +130,13 @@ class Segment:
                 material=None,
                 length=None,
                 inner_diameter=None,
-                thickness=None,
+                wall_thickness=None,
                 permeation_direction='perpendicular',
                 diffusion_path_length=None,
                 ):
         '''
         Creates a pipe segment with the attributes of the pipe (length, 
-        thickness, diameter, material etc.). 
+        wall_thickness, diameter, material etc.). 
         
         Parameters
         ----------
@@ -148,8 +148,8 @@ class Segment:
             Length of pipe segment, meters 
         inner_diameter: float
             Inner diameter of pipe segment, meters
-        thickness: float
-            Thickness of pipe segment, meters
+        wall_thickness: float
+            wall_thickness of pipe segment, meters
         permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
             Direction of permeation through the pipe segment. Options are 
             'perpendicular' or 'parallel'. Default permeation is perpendicular 
@@ -159,7 +159,7 @@ class Segment:
             diffusion path length is required to calculate the permeation 
             through the pipe segment. For example in the case of a pipe 
             coupling rings. If no value is given, diffusion is assumed 
-            perpendicular to the flow direction and the thickness is 
+            perpendicular to the flow direction and the wall_thickness is 
             used to calculate the diffusion through the pipe segment. 
             Unit meters.
             
@@ -184,26 +184,26 @@ class Segment:
 
         self.length = float(length)
         self.inner_diameter = float(inner_diameter)
-        self.thickness = float(thickness)
+        self.wall_thickness = float(wall_thickness)
         self.permeation_direction = permeation_direction
     
         if diffusion_path_length is None:
-            self.diffusion_path_length = self.thickness
+            self.diffusion_path_length = self.wall_thickness
         else:
             self.diffusion_path_length = float(diffusion_path_length)    
         
-        # Checks here that length, inner diameter, thickness, diffusion path length > 0
-        check_values = ['length', 'inner_diameter', 'thickness', 'diffusion_path_length']
+        # Checks here that length, inner diameter, wall_thickness, diffusion path length > 0
+        check_values = ['length', 'inner_diameter', 'wall_thickness', 'diffusion_path_length']
         for check_value in check_values:
             value = getattr(self, check_value)
             if value <= 0:
                 raise ValueError(f'{check_value} must be > 0 ')
 
-        outer_diameter = inner_diameter + thickness
+        outer_diameter = inner_diameter + wall_thickness
 
         if permeation_direction == 'parallel':
             volume = 0 
-            permeation_surface_area = ((np.pi * ((inner_diameter + thickness) ** 2 
+            permeation_surface_area = ((np.pi * ((inner_diameter + wall_thickness) ** 2 
                                                 - inner_diameter ** 2) ) / 4)
         elif permeation_direction == 'perpendicular':
             volume = np.pi * (inner_diameter / 2) ** 2 * length

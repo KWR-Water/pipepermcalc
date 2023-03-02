@@ -36,14 +36,14 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 seg2 = Segment(name='seg2',
                 material='PE40',
                 length=12.5,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
@@ -61,14 +61,14 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 # seg2 = Segment(name='seg2',
 #                 material='PE40',
 #                 length=12.5,
 #                 inner_diameter=0.0196,
-#                 thickness=0.0027,
+#                 wall_thickness=0.0027,
 #                 )
 
 pipe1 = Pipe(segment_list=[seg1])
@@ -160,7 +160,7 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
@@ -243,14 +243,14 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 seg2 = Segment(name='seg2',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
@@ -324,7 +324,7 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 pipe1 = Pipe(segment_list=[seg1])

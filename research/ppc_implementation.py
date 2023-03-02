@@ -44,14 +44,14 @@ seg1 = Segment(name='seg1',
             material='PE40',
             length=25,
             inner_diameter=0.0196,
-            thickness=0.0027,
+            wall_thickness=0.0027,
             )
 
 seg2 = Segment(name='seg2',
                 material='EPDM',
                 length=0.06,
                 inner_diameter=0.025,
-                thickness=0.001,
+                wall_thickness=0.001,
                 diffusion_path_length = 0.06, 
                 permeation_direction = 'parallel'
                 )
@@ -60,7 +60,7 @@ seg3 = Segment(name='seg3',
             material='PE40',
             length=6,
             inner_diameter=0.0196,
-            thickness=0.0027,
+            wall_thickness=0.0027,
             )
 
 # pipe1 = Pipe(segment_list=[seg1, seg2, seg3])
@@ -96,7 +96,7 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027)
+                wall_thickness=0.0027)
 pipe4 = Pipe(segment_list=[seg1])
 pipe4.set_conditions(flow_rate=0.5,chemical_name="Benzeen", temperature_groundwater=12, 
                                 concentration_groundwater=1.8,)
@@ -133,7 +133,7 @@ print("The peak concentration is:", round(mean_conc,5), "g/m3")
 #                 material='PE40',
 #                 length=25,
 #                 inner_diameter=0.0196,
-#                 thickness=0.0027,
+#                 wall_thickness=0.0027,
 #                 )
 
 # pipe1 = Pipe(segment_list=[seg1])
@@ -150,7 +150,7 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
@@ -178,7 +178,7 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
@@ -197,7 +197,7 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 pipe1 = Pipe(segment_list=[seg1])
@@ -215,13 +215,13 @@ seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 # seg2 = Segment(name='seg2',
 #                 material='PE80',
 #                 length=25,
 #                 inner_diameter=0.0196,
-#                 thickness=0.0027,
+#                 wall_thickness=0.0027,
 #                 )
 
 _partitioning_a_dh = 7.92169801506708 #see table 5-6 in KWR 2016.056
@@ -253,21 +253,21 @@ pipe1.add_segment(name='seg1',
                 material='PE80',
                 length=25,
                 inner_diameter=0.0196,
-                thickness=0.0027,
+                wall_thickness=0.0027,
                 )
 
 # pipe1.add_segment(name='seg2',
 #                 material='PE40',
 #                 length=25,
 #                 inner_diameter=0.0196,
-#                 thickness=0.0027,
+#                 wall_thickness=0.0027,
 #                 )
 
 # pipe1.add_segment(name='seg2',
 #                 material='PE80',
 #                 length=0.001,
 #                 inner_diameter=0.0235,
-#                 thickness=0.0010,
+#                 wall_thickness=0.0010,
 #                 diffusion_path_length=0.001, )
 
 pipe1.set_flow_rate(flow_rate=0.5)
