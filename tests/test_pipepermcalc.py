@@ -437,6 +437,27 @@ def test_calculate_peak_allowable_gw_concentration():
                                ref_answer = 0.05925721307669765, 
                                round_values=5)
 
+# def test_groundwater_to_soil_conversion():
+#     seg1 = Segment(name='seg1',
+#                 material= 'PE40',
+#                 length=25,
+#                 inner_diameter=0.0196,
+#                 wall_thickness=0.0027,
+#                 )
+
+#     pipe1 = Pipe(segment_list=[seg1])
+
+#     pipe1.set_conditions(
+#         chemical_name="Benzeen", #"fluorene", #
+#         temperature_groundwater=12, 
+#         # concentration_soil=1.1872,
+#         concentration_groundwater=1.8,
+#         # concentration_drinking_water=0.001,
+#         flow_rate=0.5 )
+
+#     pipe1.validate_input_parameters()
+
+#     pipe1.calculate_mean_dw_concentration()
 #%%
 # These tests use incomplete functions, ignore for now 
 # Pipe functions

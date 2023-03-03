@@ -86,7 +86,7 @@ class Pipe:
         Mean concentration in groundwater which would would not result in 
         a mean daily (24 hours) concentration in drinking water exceeding 
         the drinking water norm, g/m3.
-    mean_concentration_pipe_drinking_water: float
+    mean_concentration_pipe_drinking_water: float #@martin, should these be returned as simply concentratino_drinking_water to avoid confusion?
         Calculates the mean concentration in drinking water for a 24 hour period
         given a groundwater concentration.
     peak_concentration_pipe_drinking_water: float
@@ -144,6 +144,8 @@ class Pipe:
                                     'value_dtype': [float, int]},  
         'temperature_groundwater': {'min_value': 0, 
                                     'value_dtype': [float, int]},  
+        'concentration_soil': {'min_value': 0, 
+                                    'value_dtype': [float, int]},  
         'concentration_drinking_water': {'min_value': 0, 
                                         'value_dtype': [float, int]},  
         'chemical_name': {'value_dtype': [str]},  
@@ -183,7 +185,7 @@ class Pipe:
         for k, v in self.parameter_validation_dictionary.items():
             
             if hasattr(check_object, k):
-                if (k == 'flow_rate' or k=='concentration_groundwater') and getattr(check_object, k) is None:
+                if (k == 'flow_rate' or k=='concentration_groundwater' or k=='concentration_soil') and getattr(check_object, k) is None:
                     pass
                 else:
                     if type(getattr(check_object, k)) not in v['value_dtype']:
@@ -313,6 +315,7 @@ class Pipe:
     def set_conditions(self,
                     chemical_name,                                    
                     concentration_groundwater=None,
+                    concentration_soil=None,
                     flow_rate=None,
                     concentration_drinking_water=None, #ah_todo finish  add to param list
                     temperature_groundwater=TEMPERATURE_GROUNDWATER_DEFAULT, 
@@ -328,6 +331,7 @@ class Pipe:
         
         Parameters
         ----------
+        #ah_todo finish
         chemical_name: string
             Name of the chemical for which to calculate the permeation
         concentration_groundwater: float
@@ -357,14 +361,35 @@ class Pipe:
         if flow_rate is not None:
             self._flow_rate_set = True
 
-        self.concentration_groundwater = concentration_groundwater
-        if concentration_groundwater is not None:
-            self._concentration_groundwater_set = True
-
-
         self._fetch_chemical_database(chemical_name=self.chemical_name, 
                                         suppress_print=suppress_print, 
                                         language=language)
+
+
+        #check if there is a known distribution coefficient
+        if np.isnan(self.log_distribution_coefficient):
+            self._Kd_known = False
+        else: self._Kd_known = True
+
+        self.concentration_groundwater = concentration_groundwater
+        self.concentration_soil = concentration_soil
+
+        if (concentration_groundwater is None) and (concentration_soil is None):
+            pass #values already assigned, are None
+        if (concentration_groundwater is not None) and (concentration_soil is None):
+            if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * self.concentration_groundwater
+            # else: self.concentration_soil = None
+        if (concentration_groundwater is None) and (concentration_soil is not None):
+            if self._Kd_known: self.concentration_groundwater = self.concentration_soil / self.log_distribution_coefficient
+            # else: self.concentration_soil = given value, self.concentration_groudnwater = None
+        if (concentration_groundwater is not None) and (concentration_soil is not None):
+            # @martin, take the gw concentration over the given soil concentration?
+            # or check the Kd? 
+            if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * self.concentration_groundwater
+            # else: self.concentration_soil = given value
+
+        if self.concentration_groundwater is not None:
+            self._concentration_groundwater_set = True
 
         # The default value for the concentration_drinking_water is the drinking water norm
         if concentration_drinking_water is None:
@@ -375,7 +400,7 @@ class Pipe:
         #@Martin, this is the easiest way for now, calculate is we know the 
         # groundwater concentration, if not it is only calculated in the DW-> GW functions,
         # since we don't need those in the sensitivity analysis, leave for now?
-        if concentration_groundwater is not None: 
+        if self.concentration_groundwater is not None: 
             for segment in self.segment_list:          
                 segment._calculate_pipe_K_D(pipe = self, 
                                             _conditions_set=self._conditions_set, )
@@ -670,6 +695,9 @@ class Pipe:
         
         self.concentration_mean_allowable_groundwater = concentration_groundwater
 
+        if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater
+        else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
+
         return concentration_groundwater 
 
 
@@ -793,6 +821,10 @@ class Pipe:
                     # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
 
         self.concentration_peak_allowable_groundwater = concentration_groundwater
+
+        if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater
+        else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
+
 
         return concentration_groundwater 
 

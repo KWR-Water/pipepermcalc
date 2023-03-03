@@ -22,6 +22,9 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
+#%%
+
+# LEFT OFF HERE, TURN THESE INTO TESTS
 seg1 = Segment(name='seg1',
             material= 'PE40',
             length=25,
@@ -31,12 +34,48 @@ seg1 = Segment(name='seg1',
 
 pipe1 = Pipe(segment_list=[seg1])
 input_gw = 100
+
 pipe1.set_conditions(
-    chemical_name="Benzeen", 
+    chemical_name="Benzeen", #"fluorene", #
     temperature_groundwater=12, 
+    # concentration_soil=1.1872,
+    # concentration_groundwater=1.8,
     concentration_drinking_water=0.001,
     flow_rate=0.5 )
 
+pipe1.validate_input_parameters()
+
+# pipe1.calculate_mean_dw_concentration()
+mean_conc = pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.01)
+pipe1.concentration_soil, pipe1.concentration_groundwater, pipe1.concentration_drinking_water #, pipe1.mean_concentration_pipe_drinking_water
+
+#%%
+
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1])
+input_gw = 100
+
+pipe1.set_conditions(
+    chemical_name="Benzeen", #"fluorene", #
+    temperature_groundwater=12, 
+    # concentration_soil=1.187,
+    # concentration_groundwater=1.8,
+    concentration_drinking_water=0.030176781719745787,
+    flow_rate=0.5 )
+
+pipe1.validate_input_parameters()
+# pipe1.calculate_peak_dw_concentration()
+conc_dw = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
+
+pipe1.concentration_soil, pipe1.concentration_groundwater, pipe1.concentration_drinking_water, #pipe1.peak_concentration_pipe_drinking_water
+
+#%%
 pipe1.validate_input_parameters()
 
 mean_conc = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
