@@ -392,6 +392,10 @@ class Segment:
         EPDM for the determination of the diffusion coefficient, see memo 2022 
         "Permeatie door rubber afdichtingen van drinkwaterleidingen."  '''
 
+        if np.isnan(molecular_weight):
+            raise ValueError('Error, the molecular weight for this chemical is not known, therefore it is not possible to calculate the permeation.')
+
+
         a_ref = self.reference_pipe_material_dict[self.material]['REF_LOG_D_A'][chemical_group_number]
         b_ref = self.reference_pipe_material_dict[self.material]['REF_LOG_D_B'][chemical_group_number]
         log_Dp_ref = a_ref * molecular_weight + b_ref
