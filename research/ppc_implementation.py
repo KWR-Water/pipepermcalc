@@ -22,9 +22,77 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
-#%%
 
-# LEFT OFF HERE, TURN THESE INTO TESTS
+
+#%%
+# chem_name = []
+# pass_fail = []
+# mean_conc_vals = []
+# output_gw_vals = []
+# passed = []
+# seg1 = Segment(name='seg1',
+#             material= 'PE40',
+#             length=25,
+#             inner_diameter=0.0196,
+#             wall_thickness=0.0027,
+#             )
+
+# pipe1 = Pipe(segment_list=[seg1])
+# input_gw = 1
+
+# database = pipe1.view_database_chemical_names( language='NL')
+# database = pipe1.ppc_database.dropna(subset=['molecular_weight', 'solubility', 'Drinking_water_norm'])
+# database = database.loc[database['log_distribution_coefficient']>=0]
+# database_chemicals = database['chemical_name_NL']
+
+# df = read_csv('did_not_pass_chems_peak.csv')
+# failed_chem = list(df['chemical_name_NL'].loc[df.pass_fail == 'failed'])
+
+# for chemical_name in failed_chem:
+#     pipe1.set_conditions(
+#         chemical_name=chemical_name, 
+#                         concentration_groundwater =input_gw,
+#                         temperature_groundwater=12, 
+#                         flow_rate=0.5)
+
+#     pipe1.validate_input_parameters()
+
+#     mean_conc=pipe1.calculate_peak_dw_concentration(relaxation_factor = 0.7, 
+#                                                     tolerance = 0.001)
+
+
+#     pipe1.set_conditions(chemical_name=chemical_name, 
+#                         temperature_groundwater=12, 
+#                         concentration_drinking_water = mean_conc,
+#                         flow_rate=0.5)
+
+#     output_gw = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.001)
+
+#     if abs(1-(input_gw/output_gw)) < 0.001:
+#         chem_name.append(chemical_name)
+#         pass_fail.append('passed')
+#         mean_conc_vals.append(mean_conc)
+#         output_gw_vals.append(output_gw)
+#     else: 
+#         chem_name.append(chemical_name)
+#         pass_fail.append('failed')
+#         mean_conc_vals.append(mean_conc)
+#         output_gw_vals.append(output_gw)
+
+# df = pd.DataFrame(list(zip(chem_name, pass_fail, mean_conc_vals, output_gw_vals)),
+#                columns =['chemical_name_NL', 'pass_fail', 'mean_conc', 'output_gw'])
+
+# database_dict = database.set_index('chemical_name_NL').to_dict()
+
+# for key, value in database_dict.items():
+#     df[key] = df['chemical_name_NL'].map(database_dict[key])
+
+# df.to_csv('did_not_pass_chems_peak.csv')
+
+#%%
+chemical_name = 'Fenanthreen'
+chemical_name = 'antraceen'
+
 seg1 = Segment(name='seg1',
             material= 'PE40',
             length=25,
@@ -33,73 +101,226 @@ seg1 = Segment(name='seg1',
             )
 
 pipe1 = Pipe(segment_list=[seg1])
-input_gw = 100
+input_gw = 1
 
 pipe1.set_conditions(
-    chemical_name="Benzeen", #"fluorene", #
-    temperature_groundwater=12, 
-    # concentration_soil=1.1872,
-    # concentration_groundwater=1.8,
-    concentration_drinking_water=0.001,
-    flow_rate=0.5 )
-
-pipe1.validate_input_parameters()
-
-# pipe1.calculate_mean_dw_concentration()
-mean_conc = pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.01)
-pipe1.concentration_soil, pipe1.concentration_groundwater, pipe1.concentration_drinking_water #, pipe1.mean_concentration_pipe_drinking_water
-
-#%%
-
-seg1 = Segment(name='seg1',
-            material= 'PE40',
-            length=25,
-            inner_diameter=0.0196,
-            wall_thickness=0.0027,
-            )
-
-pipe1 = Pipe(segment_list=[seg1])
-input_gw = 100
-
-pipe1.set_conditions(
-    chemical_name="Benzeen", #"fluorene", #
-    temperature_groundwater=12, 
-    # concentration_soil=1.187,
-    # concentration_groundwater=1.8,
-    concentration_drinking_water=0.030176781719745787,
-    flow_rate=0.5 )
-
-pipe1.validate_input_parameters()
-# pipe1.calculate_peak_dw_concentration()
-conc_dw = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
-
-pipe1.concentration_soil, pipe1.concentration_groundwater, pipe1.concentration_drinking_water, #pipe1.peak_concentration_pipe_drinking_water
-
-#%%
-pipe1.validate_input_parameters()
-
-mean_conc = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
-
-
-mean_conc
-
-#%%
-pipe1.set_conditions(chemical_name="Benzeen", 
+    chemical_name=chemical_name, 
+                    concentration_groundwater =input_gw,
                     temperature_groundwater=12, 
-                    concentration_drinking_water =mean_conc,
                     flow_rate=0.5)
 
+pipe1.validate_input_parameters()
+pipe1.calculate_peak_dw_concentration(relaxation_factor=0.7)
+#%%
+chemical_name = 'antraceen'
+# chemical_name = 'benzeen'
+# chemical_name = 'Fenanthreen'
 
-output_gw = pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.01)
-output_gw
-if round(output_gw,3) == input_gw:
-    print('passed')
-else: 
-    print(input_gw, output_gw, abs(1-input_gw/output_gw), mean_conc)
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
 
-#------------------------------------------------------------------------------------    
+pipe1 = Pipe(segment_list=[seg1])
+input_gw = 0.01331
+
+
+pipe1.set_conditions(
+    chemical_name=chemical_name, 
+                    concentration_groundwater =input_gw,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+pipe1.validate_input_parameters()
+counter = 0
+max_iterations = 100
+relaxation_factor = 0.1
+tolerance = 0.01
+concentration_drinking_water = 0.75
+concentration_groundwater = input_gw
+concentration_drinking_water_n_min_1 = 0
+concentration_drinking_water_n_plus_1 = 0
+lower_limit_list = []
+lower_limit = 0
+input_gw = 1
+upper_limit_list = []
+upper_limit = input_gw
+criteria_list = [0]
+min_criteria = 100
+proc = 0
+
+while True:    
+    concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
+    concentration_groundwater = input_gw
+
+    sum_mass_segment = 0
+
+    for segment in pipe1.segment_list:
+        segment._calculate_peak_dw_mass_per_segment(pipe=pipe1, 
+                                                    concentration_drinking_water=concentration_drinking_water_n_min_1,
+                                concentration_groundwater=pipe1.concentration_groundwater,)
+
+        sum_mass_segment += segment.mass_chemical_drinkwater
+
+    concentration_drinking_water_n = (sum_mass_segment / 
+                                    pipe1.total_volume ) 
+    counter +=1
+
+    criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
+
+    if criteria <= tolerance:
+        # if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) / relaxation_factor <= tolerance:
+        print('solution_found!')
+        break
+    elif counter > max_iterations:
+        print('Max iterations exceeded')
+        break
+    else:
+        # concentration_drinking_water = (relaxation_factor 
+        #                                 * concentration_pipe_drinking_water 
+        #                                 + (1 - relaxation_factor) 
+        #                                 * concentration_drinking_water)
+        min_criteria = min(min_criteria, criteria)
+        criteria_list.append(criteria)
+
+        if counter == 1:
+            concentration_drinking_water_n_plus_1 = concentration_groundwater / 2
+        if counter == 2:
+            concentration_drinking_water_n_plus_1 = concentration_groundwater * 2/3
+
+        # elif concentration_drinking_water_n > concentration_groundwater:
+        elif (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > concentration_groundwater):
+            lower_limit = concentration_drinking_water_n_min_1
+            concentration_drinking_water_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
+            # if criteria > min_criteria:
+            #     upper_limit = lower_limit
+            #     lower_limit = old_upper
+            # concentration_drinking_water_n_plus_1 = concentration_drinking_water_n_min_1 + (upper_limit- concentration_drinking_water_n_min_1) / 2
+            proc = 1
+        else:
+            upper_limit = concentration_drinking_water_n_min_1
+            concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
+            # if criteria < min_criteria:
+            #     old_lower = lower_limit
+            #     lower_limit = concentration_drinking_water_n_min_1
+            # if criteria > min_criteria:
+            #     old_upper = upper_limit
+            #     upper_limit = lower_limit
+            #     lower_limit = old_upper
+
+            # concentration_drinking_water_n_plus_1 = concentration_drinking_water_n_min_1 - abs(concentration_drinking_water_n_min_1-lower_limit) / 2
+            # concentration_drinking_water_n_plus_1 = concentration_drinking_water_n_min_1 - increment / 2
+            # upper_limit = concentration_drinking_water_n_min_1
+            # upper_limit = lower_limit
+
+            proc = 2
+
+        # if concentration_drinking_water < 0:
+            # ...                
+        print(concentration_drinking_water_n_min_1, concentration_drinking_water_n, criteria, proc, lower_limit, upper_limit)
+        criteria_old = criteria
+
+        # @martin, can't let concentration_drinking_water > concentration_groundwater
+        #  in the iterations or else it the sum_mass_segment goes 
+        # negative and it can't calculate the concentration correctly.
+
+    # if counter % 100 ==0 : print(concentration_drinking_water_n_min_1, concentration_drinking_water_n)
+
+concentration_drinking_water_n
+#%%
+
+concentration_drinking_water_n_plus_1 = 0
+lower_limit = 0
+input_gw = 1
+upper_limit = input_gw
+criteria_old = 0
+counter = 0
+#%%
+chemical_name = 'antraceen'
+
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(
+    chemical_name=chemical_name, 
+                    concentration_groundwater =input_gw,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+pipe1.validate_input_parameters()
+# counter = 0
+max_iterations = 100
+relaxation_factor = 0.5
+tolerance = 0.01
+# concentration_drinking_water = 0.984375 #0.977
+concentration_drinking_water_n_min_1 = 0.006
+concentration_groundwater = input_gw
+
+sum_mass_segment = 0
+
+for segment in pipe1.segment_list:
+    segment.stagnation_factor = segment._calculate_stagnation_factor()
+    # delta_c = concentration_groundwater - concentration_drinking_water
+    delta_c = concentration_groundwater - concentration_drinking_water_n_min_1
+
+    # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
+    # in equation 4-5 and rearranging to remove C_dw from the equation       
+    segment.mass_chemical_drinkwater = (((10 ** segment.log_Dp * 10 ** segment.log_Kpw)
+                                            * segment.permeation_surface_area 
+                                            * delta_c / segment.diffusion_path_length 
+                                            * pipe1.stagnation_time * segment.stagnation_factor) 
+                                        / segment.ASSESSMENT_FACTOR_GROUNDWATER)
+
+    sum_mass_segment += segment.mass_chemical_drinkwater
+
+# concentration_pipe_drinking_water = (sum_mass_segment / 
+#                                 pipe1.total_volume ) 
+concentration_drinking_water_n = (sum_mass_segment / 
+                                pipe1.total_volume ) 
+
+# criteria = abs(1 - concentration_drinking_water / concentration_pipe_drinking_water)
+criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
+
+# concentration_drinking_water, concentration_pipe_drinking_water, criteria
+counter +=1
+concentration_drinking_water_n_min_1, concentration_drinking_water_n, lower_limit, criteria, criteria_old, counter
 
 #%%
+if counter == 1:
+    concentration_drinking_water_n_plus_1 = concentration_groundwater / 2
+# elif concentration_drinking_water_n > concentration_groundwater:
+elif (criteria < criteria_old) or (concentration_drinking_water_n > concentration_groundwater):
+    concentration_drinking_water_n_plus_1 = concentration_drinking_water_n_min_1 + (upper_limit- lower_limit) / 2
+    lower_limit = concentration_drinking_water_n_min_1
+else:
+    concentration_drinking_water_n_plus_1 = concentration_drinking_water_n_min_1 - (upper_limit - lower_limit ) / 2
+    upper_limit = concentration_drinking_water_n_min_1
+criteria_old = criteria
+
+if criteria < tolerance:
+    print('done!')
+
+concentration_drinking_water_n_plus_1
+
+#%%
+mean_conc=pipe1.calculate_peak_dw_concentration(tolerance = 0.01, relaxation_factor = 0.9, max_iterations=1000)
+
+if np.isnan(mean_conc):
+    pass
+else:
+    pipe1.set_conditions(chemical_name=chemical_name, 
+                        temperature_groundwater=12, 
+                        concentration_drinking_water = mean_conc,
+                        flow_rate=0.5)
+
+    output_gw = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.001)
+
+    if abs(1-(input_gw/output_gw)) < 0.001:
+        print(output_gw)
+    else: 
+        print(output_gw)
+#%%------------------------------------------------------------------------------------    
 # test mean
 seg1 = Segment(name='seg1',
             material= 'PE40',
@@ -110,7 +331,7 @@ seg1 = Segment(name='seg1',
 
 pipe1 = Pipe(segment_list=[seg1])
 
-input_gw = 600
+input_gw = 10
 
 pipe1.set_conditions(
     chemical_name="Benzeen", 
@@ -132,276 +353,6 @@ pipe1.set_conditions(chemical_name="Benzeen",
 
 output_gw = pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.00001)
 
-if round(output_gw,3) == input_gw:
+if abs(1-(input_gw/output_gw)) < 0.001:
     print('passed')
 else: print(input_gw, output_gw, input_gw/output_gw)
-
-
-#%%
-#%%
-seg1 = Segment(name='seg1',
-            material= 'PE40',
-            length=25,
-            inner_diameter=0.0196,
-            wall_thickness=0.0027,
-            )
-
-pipe1 = Pipe(segment_list=[seg1])
-
-pipe1.set_conditions(chemical_name="Benzeen", 
-                    concentration_drinking_water=0.001,
-                    temperature_groundwater=12, 
-                    flow_rate=0.5)
-
-pipe1.validate_input_parameters()
-
-pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.001, 
-                                                relaxation_factor = 0.7,
-)
-
-# pipe1.set_conditions(chemical_name="Benzeen", 
-#                     temperature_groundwater=12, 
-#                     concentration_groundwater = mean_conc,
-#                     flow_rate=0.5)
-
-# pipe1.calculate_mean_dw_concentration()
-
-
-#%%
-seg1 = Segment(name='seg1',
-            material='PE40',
-            length=25,
-            inner_diameter=0.0196,
-            wall_thickness=0.0027,
-            )
-
-seg2 = Segment(name='seg2',
-                material='EPDM',
-                length=0.06,
-                inner_diameter=0.025,
-                wall_thickness=0.001,
-                diffusion_path_length = 0.06, 
-                permeation_direction = 'parallel'
-                )
-
-seg3 = Segment(name='seg3',
-            material='PE40',
-            length=6,
-            inner_diameter=0.0196,
-            wall_thickness=0.0027,
-            )
-
-# pipe1 = Pipe(segment_list=[seg1, seg2, seg3])
-
-pipe1 = Pipe(segment_list=[seg1])
-
-pipe1.set_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater = 1.8,
-                                flow_rate=0.5)
-pipe1.calculate_mean_dw_concentration()   
-#%%
-seg2.__dict__
-
-pipe1.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
-                                chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                tolerance = 0.001
-                                )
-pipe1.__dict__
-#%%
-
-Bob = Person(name = 'Bob')
-dog = Pet(pet_name='Spot')
-
-dog.set_owner(Bob)
-Bob.set_pet(dog)
-Bob.owner
-#%%
-
-seg1 = Segment(name='seg1',
-
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027)
-pipe4 = Pipe(segment_list=[seg1])
-pipe4.set_conditions(flow_rate=0.5,chemical_name="Benzeen", temperature_groundwater=12, 
-                                concentration_groundwater=1.8,)
-# pipe4.set_groundwater_conditions(chemical_name="Benzeen", 
-#                                 temperature_groundwater=12, 
-#                                 concentration_groundwater=1.8,)
-
-# pipe4.calculate_peak_dw_concentration()   
-# pipe4.calculate_mean_dw_concentration()   
-
-# seg1._calculate_pipe_K_D(pipe = pipe4, _groundwater_conditions_set=True)
-#%%
-mean_conc = pipe4.calculate_mean_allowable_gw_concentration(concentration_drinking_water=0.001,
-                            chemical_name="Benzeen", 
-                            temperature_groundwater=12,
-                            tolerance = 0.1, 
-                            relaxation_factor=0.7, 
-                            max_iterations=1000)
-print("The peak concentration is:", round(mean_conc,5), "g/m3")
-
-# mean_conc = pipe4.calculate_peak_allowable_gw_concentration(concentration_drinking_water=0.001,
-#                             chemical_name="Benzeen", 
-#                             temperature_groundwater=12,
-#                             tolerance = 0.01, 
-#                             relaxation_factor=0.7, 
-#                             max_iterations=1000)
-
-# print("The peak concentration is:", round(mean_conc,5), "g/m3")
-
-# pipe4.__dict__
-#%%
-# # Test the fuzzy-wuzzy matching
-# seg1 = Segment(name='seg1',
-#                 material='PE40',
-#                 length=25,
-#                 inner_diameter=0.0196,
-#                 wall_thickness=0.0027,
-#                 )
-
-# pipe1 = Pipe(segment_list=[seg1])
-
-# database = ["Benzene", "Benzeen", "Methylbenzene", "Toluene", "Ethylbenzene", "Xylene"]
-
-# chemical_name = "Methylbenzeene"
-
-# pipe1._extract_matching_chemical_name(chemical_name=chemical_name, database=database)
-
-#%%
-
-seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027,
-                )
-
-pipe1 = Pipe(segment_list=[seg1])
-pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater=1.8, 
-                                )
-pipe1.set_flow_rate(flow_rate=0.5)
-k1 = seg1.log_Kpw
-perm1 = seg1.permeation_coefficient
-seg1._update_partitioning_coefficient(new_log_Kpw= 0.9116730996845103,)
-
-# pipe1.calculate_mean_dw_concentration()
-pipe1.calculate_peak_dw_concentration()
-# pipe1.pipe_permeability_dict
-perm2 = seg1.permeation_coefficient
-k2 = seg1.log_Kpw
-
-
-perm1, perm2
-k1, k2
-
-#%%
-seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027,
-                )
-
-pipe1 = Pipe(segment_list=[seg1])
-pipe1.segment_list
-
-pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater = 0.112980124482)
-pipe1.set_flow_rate(flow_rate=0.5)
-pipe1.calculate_peak_dw_concentration()   
-pipe1.pipe_permeability_dict
-
-
-#%%
-seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027,
-                )
-
-pipe1 = Pipe(segment_list=[seg1])
-pipe1.segment_list
-
-pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater = 0.112980124482)
-pipe1.set_flow_rate(flow_rate=0.5)
-# pipe1.calculate_peak_dw_concentration()  
-# pipe1.pipe_permeability_dict
-
-#%%
-seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027,
-                )
-# seg2 = Segment(name='seg2',
-#                 material='PE80',
-#                 length=25,
-#                 inner_diameter=0.0196,
-#                 wall_thickness=0.0027,
-#                 )
-
-_partitioning_a_dh = 7.92169801506708 #see table 5-6 in KWR 2016.056
-_partitioning_b_dh = -17.1875608983359 #see table 5-6 in KWR 2016.056
-_diffusion_a_dh = 61.8565740136974 #see table 5-6 in KWR 2016.056
-_diffusion_b_dh = -78.9191401984509 #see table 5-6 in KWR 2016.056
-ASSESSMENT_FACTOR_GROUNDWATER = 3 
-assessment_factor_soil = 1
-partitioning_a_c = 0.103965019849463 #see equation 5-20 in KWR 2016.056
-partitioning_Cref_Sw = 1.000 #see section 5.4.7 in KWR 2016.056
-diffusion_a_c = 0.784077209735583 #see equation 5-18 in KWR 2016.056
-diffusion_Cref_Sw = 0.5 #see section 5.4.6 in KWR 2016.056
-
-
-pipe_permeability_dict = pipe1._fetch_chemical_database(
-                                chemical_name='Benzeen',)
-
-pipe_permeability_dict['temperature_groundwater'] = 12
-pipe_permeability_dict['concentration_groundwater'] = 1.8
-pipe_permeability_dict
-
-seg1._calculate_pipe_K_D(pipe_permeability_dict, _groundwater_conditions_set=True)
-#%%
-pipe1 = Pipe()
-pipe1.set_groundwater_conditions(chemical_name="Benzeen", 
-                                 temperature_groundwater=12, 
-                                 concentration_groundwater = 0.31)
-pipe1.add_segment(name='seg1',
-                material='PE80',
-                length=25,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027,
-                )
-
-# pipe1.add_segment(name='seg2',
-#                 material='PE40',
-#                 length=25,
-#                 inner_diameter=0.0196,
-#                 wall_thickness=0.0027,
-#                 )
-
-# pipe1.add_segment(name='seg2',
-#                 material='PE80',
-#                 length=0.001,
-#                 inner_diameter=0.0235,
-#                 wall_thickness=0.0010,
-#                 diffusion_path_length=0.001, )
-
-pipe1.set_flow_rate(flow_rate=0.5)
-
-pipe1.calculate_peak_dw_concentration()
-pipe1.pipe_permeability_dict
-    
-
-#%%
