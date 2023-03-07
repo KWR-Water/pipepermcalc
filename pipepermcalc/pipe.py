@@ -140,11 +140,11 @@ class Pipe:
                             'value_dtype': [float, int]},  
         'flow_rate': {'min_value': 0, 
                     'value_dtype': [float, int]},  
+        'concentration_soil': {'min_value': 0, 
+                                    'value_dtype': [float, int]},  
         'concentration_groundwater': {'min_value': 0, 
                                     'value_dtype': [float, int]},  
         'temperature_groundwater': {'min_value': 0, 
-                                    'value_dtype': [float, int]},  
-        'concentration_soil': {'min_value': 0, 
                                     'value_dtype': [float, int]},  
         'concentration_drinking_water': {'min_value': 0, 
                                         'value_dtype': [float, int]},  
@@ -204,6 +204,11 @@ class Pipe:
     def validate_input_parameters(self,):
         ''' Check that the input parameters are valid values and types for the 
         Pipe and Segment objects'''
+
+        #check if 
+        if self._conditions_set is False:
+            raise ValueError('Error, the pipe conditions must first be set. \
+            To set pipe conditions use .set_conditions() ')
 
         for segment in self.segment_list:
             self._validate_object(segment)
@@ -394,12 +399,14 @@ class Pipe:
         # The default value for the concentration_drinking_water is the drinking water norm
         if concentration_drinking_water is None:
             self.concentration_drinking_water = self.Drinking_water_norm
+
         else: 
             self.concentration_drinking_water = concentration_drinking_water
 
-        #@Martin, this is the easiest way for now, calculate is we know the 
+        #@Martin, this is the easiest way for now, calculate if we know the 
         # groundwater concentration, if not it is only calculated in the DW-> GW functions,
         # since we don't need those in the sensitivity analysis, leave for now?
+        # ah_todo
         if self.concentration_groundwater is not None: 
             for segment in self.segment_list:          
                 segment._calculate_pipe_K_D(pipe = self, 
@@ -416,7 +423,7 @@ class Pipe:
             English ('EN') also possible
         '''
 
-        return [list(self.ppc_database['chemical_name_'+language])]
+        return list(self.ppc_database['chemical_name_'+language])
 
     def calculate_mean_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
@@ -581,7 +588,12 @@ class Pipe:
                                                     * concentration_pipe_drinking_water 
                                                     + (1 - relaxation_factor) 
                                                     * concentration_drinking_water)
-                # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+                    
+                    #@martin, can't let concentration_drinking_water > concentration_groundwater
+                    #  in the iterations or else it the sum_mass_segment goes 
+                    # negative and it can't calculate the concentration correctly.
+
+                if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
                 
             self.peak_concentration_pipe_drinking_water = concentration_pipe_drinking_water
 
@@ -635,6 +647,9 @@ class Pipe:
         elif self._is_validated is False: 
             raise ValueError('Error, the input parameters must first be validated. \
             To set validate use .validate_input_parameters() ')
+        
+        if self.concentration_drinking_water is None:
+            raise ValueError('Error, no default drinking water norm, please input a drinking water concentration using .set_conditions()')
         
         else: 
             self._fetch_chemical_database(chemical_name=self.chemical_name, 
