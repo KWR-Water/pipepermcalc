@@ -22,72 +22,169 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
+#%%
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1])
+input_gw = 1
+
+df = read_csv('did_not_pass_chems_peak.csv')
+failed_chem = list(df['chemical_name_NL'].loc[df.pass_fail == 'failed'])
+
+database = pipe1.view_database_chemical_names( language='NL')
+database = pipe1.ppc_database.dropna(subset=['molecular_weight', 'solubility', 'Drinking_water_norm'])
+database = database.loc[database['log_distribution_coefficient']>=0]
+database_chemicals = database['chemical_name_NL']
+
+# database_chemicals= ['benzeen']
+fails = []
+for chemical_name in database_chemicals:
+
+# chemical_name= 'benzo[b]fluoranthene'
+
+
+
+    pipe1.set_conditions(
+        chemical_name=chemical_name, 
+                        concentration_groundwater =input_gw,
+                        temperature_groundwater=12, 
+                        flow_rate=0.5)
+
+    pipe1.validate_input_parameters()
+
+    counter = 0
+    max_iterations = 1000
+    relaxation_factor = 0.5
+    tolerance = 0.01
+    concentration_groundwater = input_gw
+    concentration_drinking_water_n_min_1 = 0
+    concentration_drinking_water_n_plus_1 = 0
+    lower_limit = 0
+    input_gw = 1
+    upper_limit = input_gw
+    criteria_list = [0]
+    min_criteria = 100
+    proc = 0
+
+    while True:    
+        concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
+        concentration_groundwater = input_gw
+
+        sum_mass_segment = 0
+
+        for segment in pipe1.segment_list:
+            segment._calculate_peak_dw_mass_per_segment(pipe=pipe1, 
+                                                        concentration_drinking_water=concentration_drinking_water_n_min_1,
+                                    concentration_groundwater=pipe1.concentration_groundwater,)
+
+            sum_mass_segment += segment.mass_chemical_drinkwater
+
+        concentration_drinking_water_n = (sum_mass_segment / 
+                                        pipe1.total_volume ) 
+        counter +=1
+
+        criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n) / relaxation_factor
+
+        if criteria <= tolerance:
+            print('solution_found!')
+            break
+        elif counter > max_iterations:
+            fails.append(chemical_name)
+            print('Max iterations exceeded')
+            break
+        else:
+            min_criteria = min(min_criteria, criteria)
+            criteria_list.append(criteria)
+
+            if counter == 1:
+                concentration_drinking_water_n_plus_1 = concentration_groundwater *0.999
+            if counter == 2:
+                concentration_drinking_water_n_plus_1 = concentration_groundwater * 0.0001
+            if counter >2:
+                if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > concentration_groundwater):
+                    lower_limit = concentration_drinking_water_n_min_1
+                    concentration_drinking_water_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
+                else:
+                    upper_limit = concentration_drinking_water_n_min_1
+                    concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
+                    
+            # print(concentration_drinking_water_n_min_1, concentration_drinking_water_n, criteria, proc, lower_limit, upper_limit)
+            criteria_old = criteria
+
+        # if counter % 100 ==0 : print(concentration_drinking_water_n_min_1, concentration_drinking_water_n)
+
+len(fails)
 
 
 #%%
-# chem_name = []
-# pass_fail = []
-# mean_conc_vals = []
-# output_gw_vals = []
-# passed = []
-# seg1 = Segment(name='seg1',
-#             material= 'PE40',
-#             length=25,
-#             inner_diameter=0.0196,
-#             wall_thickness=0.0027,
-#             )
+chem_name = []
+pass_fail = []
+mean_conc_vals = []
+output_gw_vals = []
+passed = []
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
 
-# pipe1 = Pipe(segment_list=[seg1])
-# input_gw = 1
+pipe1 = Pipe(segment_list=[seg1])
+input_gw = 1
 
-# database = pipe1.view_database_chemical_names( language='NL')
-# database = pipe1.ppc_database.dropna(subset=['molecular_weight', 'solubility', 'Drinking_water_norm'])
-# database = database.loc[database['log_distribution_coefficient']>=0]
-# database_chemicals = database['chemical_name_NL']
+database = pipe1.view_database_chemical_names( language='NL')
+database = pipe1.ppc_database.dropna(subset=['molecular_weight', 'solubility', 'Drinking_water_norm'])
+database = database.loc[database['log_distribution_coefficient']>=0]
+database_chemicals = database['chemical_name_NL']
 
-# df = read_csv('did_not_pass_chems_peak.csv')
-# failed_chem = list(df['chemical_name_NL'].loc[df.pass_fail == 'failed'])
+df = read_csv('did_not_pass_chems_peak.csv')
+failed_chem = list(df['chemical_name_NL'].loc[df.pass_fail == 'failed'])
 
-# for chemical_name in failed_chem:
-#     pipe1.set_conditions(
-#         chemical_name=chemical_name, 
-#                         concentration_groundwater =input_gw,
-#                         temperature_groundwater=12, 
-#                         flow_rate=0.5)
+for chemical_name in failed_chem:
+    pipe1.set_conditions(
+        chemical_name=chemical_name, 
+                        concentration_groundwater =input_gw,
+                        temperature_groundwater=12, 
+                        flow_rate=0.5)
 
-#     pipe1.validate_input_parameters()
+    pipe1.validate_input_parameters()
 
-#     mean_conc=pipe1.calculate_peak_dw_concentration(relaxation_factor = 0.7, 
-#                                                     tolerance = 0.001)
+    mean_conc=pipe1.calculate_peak_dw_concentration(relaxation_factor = 0.7, 
+                                                    tolerance = 0.001)
 
 
-#     pipe1.set_conditions(chemical_name=chemical_name, 
-#                         temperature_groundwater=12, 
-#                         concentration_drinking_water = mean_conc,
-#                         flow_rate=0.5)
+    pipe1.set_conditions(chemical_name=chemical_name, 
+                        temperature_groundwater=12, 
+                        concentration_drinking_water = mean_conc,
+                        flow_rate=0.5)
 
-#     output_gw = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.001)
+    output_gw = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.001)
 
-#     if abs(1-(input_gw/output_gw)) < 0.001:
-#         chem_name.append(chemical_name)
-#         pass_fail.append('passed')
-#         mean_conc_vals.append(mean_conc)
-#         output_gw_vals.append(output_gw)
-#     else: 
-#         chem_name.append(chemical_name)
-#         pass_fail.append('failed')
-#         mean_conc_vals.append(mean_conc)
-#         output_gw_vals.append(output_gw)
+    if abs(1-(input_gw/output_gw)) < 0.001:
+        chem_name.append(chemical_name)
+        pass_fail.append('passed')
+        mean_conc_vals.append(mean_conc)
+        output_gw_vals.append(output_gw)
+    else: 
+        chem_name.append(chemical_name)
+        pass_fail.append('failed')
+        mean_conc_vals.append(mean_conc)
+        output_gw_vals.append(output_gw)
 
-# df = pd.DataFrame(list(zip(chem_name, pass_fail, mean_conc_vals, output_gw_vals)),
-#                columns =['chemical_name_NL', 'pass_fail', 'mean_conc', 'output_gw'])
+df = pd.DataFrame(list(zip(chem_name, pass_fail, mean_conc_vals, output_gw_vals)),
+               columns =['chemical_name_NL', 'pass_fail', 'mean_conc', 'output_gw'])
 
-# database_dict = database.set_index('chemical_name_NL').to_dict()
+database_dict = database.set_index('chemical_name_NL').to_dict()
 
-# for key, value in database_dict.items():
-#     df[key] = df['chemical_name_NL'].map(database_dict[key])
+for key, value in database_dict.items():
+    df[key] = df['chemical_name_NL'].map(database_dict[key])
 
-# df.to_csv('did_not_pass_chems_peak.csv')
+df.to_csv('did_not_pass_chems_peak.csv')
 
 #%%
 chemical_name = 'Fenanthreen'
@@ -112,123 +209,6 @@ pipe1.set_conditions(
 pipe1.validate_input_parameters()
 pipe1.calculate_peak_dw_concentration(relaxation_factor=0.7)
 #%%
-chemical_name = 'antraceen'
-# chemical_name = 'benzeen'
-# chemical_name = 'Fenanthreen'
-
-seg1 = Segment(name='seg1',
-            material= 'PE40',
-            length=25,
-            inner_diameter=0.0196,
-            wall_thickness=0.0027,
-            )
-
-pipe1 = Pipe(segment_list=[seg1])
-input_gw = 0.01331
-
-
-pipe1.set_conditions(
-    chemical_name=chemical_name, 
-                    concentration_groundwater =input_gw,
-                    temperature_groundwater=12, 
-                    flow_rate=0.5)
-
-pipe1.validate_input_parameters()
-counter = 0
-max_iterations = 100
-relaxation_factor = 0.1
-tolerance = 0.01
-concentration_drinking_water = 0.75
-concentration_groundwater = input_gw
-concentration_drinking_water_n_min_1 = 0
-concentration_drinking_water_n_plus_1 = 0
-lower_limit_list = []
-lower_limit = 0
-input_gw = 1
-upper_limit_list = []
-upper_limit = input_gw
-criteria_list = [0]
-min_criteria = 100
-proc = 0
-
-while True:    
-    concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
-    concentration_groundwater = input_gw
-
-    sum_mass_segment = 0
-
-    for segment in pipe1.segment_list:
-        segment._calculate_peak_dw_mass_per_segment(pipe=pipe1, 
-                                                    concentration_drinking_water=concentration_drinking_water_n_min_1,
-                                concentration_groundwater=pipe1.concentration_groundwater,)
-
-        sum_mass_segment += segment.mass_chemical_drinkwater
-
-    concentration_drinking_water_n = (sum_mass_segment / 
-                                    pipe1.total_volume ) 
-    counter +=1
-
-    criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
-
-    if criteria <= tolerance:
-        # if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) / relaxation_factor <= tolerance:
-        print('solution_found!')
-        break
-    elif counter > max_iterations:
-        print('Max iterations exceeded')
-        break
-    else:
-        # concentration_drinking_water = (relaxation_factor 
-        #                                 * concentration_pipe_drinking_water 
-        #                                 + (1 - relaxation_factor) 
-        #                                 * concentration_drinking_water)
-        min_criteria = min(min_criteria, criteria)
-        criteria_list.append(criteria)
-
-        if counter == 1:
-            concentration_drinking_water_n_plus_1 = concentration_groundwater / 2
-        if counter == 2:
-            concentration_drinking_water_n_plus_1 = concentration_groundwater * 2/3
-
-        # elif concentration_drinking_water_n > concentration_groundwater:
-        elif (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > concentration_groundwater):
-            lower_limit = concentration_drinking_water_n_min_1
-            concentration_drinking_water_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
-            # if criteria > min_criteria:
-            #     upper_limit = lower_limit
-            #     lower_limit = old_upper
-            # concentration_drinking_water_n_plus_1 = concentration_drinking_water_n_min_1 + (upper_limit- concentration_drinking_water_n_min_1) / 2
-            proc = 1
-        else:
-            upper_limit = concentration_drinking_water_n_min_1
-            concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
-            # if criteria < min_criteria:
-            #     old_lower = lower_limit
-            #     lower_limit = concentration_drinking_water_n_min_1
-            # if criteria > min_criteria:
-            #     old_upper = upper_limit
-            #     upper_limit = lower_limit
-            #     lower_limit = old_upper
-
-            # concentration_drinking_water_n_plus_1 = concentration_drinking_water_n_min_1 - abs(concentration_drinking_water_n_min_1-lower_limit) / 2
-            # concentration_drinking_water_n_plus_1 = concentration_drinking_water_n_min_1 - increment / 2
-            # upper_limit = concentration_drinking_water_n_min_1
-            # upper_limit = lower_limit
-
-            proc = 2
-
-        # if concentration_drinking_water < 0:
-            # ...                
-        print(concentration_drinking_water_n_min_1, concentration_drinking_water_n, criteria, proc, lower_limit, upper_limit)
-        criteria_old = criteria
-
-        # @martin, can't let concentration_drinking_water > concentration_groundwater
-        #  in the iterations or else it the sum_mass_segment goes 
-        # negative and it can't calculate the concentration correctly.
-
-    # if counter % 100 ==0 : print(concentration_drinking_water_n_min_1, concentration_drinking_water_n)
-
-concentration_drinking_water_n
 #%%
 
 concentration_drinking_water_n_plus_1 = 0
