@@ -318,7 +318,31 @@ def test_calculate_peak_dw_concentration():
     raise_exception_two_values(answer=pipe1.peak_concentration_pipe_drinking_water, 
                                ref_answer = 0.0018895450941979206, 
                                round_values=4)
-    #ah_todo check this...
+    
+def test_calculate_peak_dw_mass():
+    ''' Test the calculation for the peak concentration in drinking water given 
+    a groundwater concentration '''
+    seg1 = Segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    inner_diameter=0.0196,
+                    wall_thickness=0.0027,
+                    )
+
+    pipe1 = Pipe(segment_list=[seg1])
+    pipe1.segment_list
+
+    pipe1.set_conditions(chemical_name="Benzeen", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 0.112980124482,
+                                    flow_rate=0.5)
+    pipe1.validate_input_parameters()
+    
+    pipe1.calculate_peak_dw_concentration()    
+
+    raise_exception_two_values(answer=seg1.mass_chemical_drinkwater, 
+                               ref_answer = 1.425277054872773e-05, 
+                               round_values=4)    
 
 def test_calculate_mean_dw_concentration():
     ''' Test the calculation for the mean concentration in drinking water given 
@@ -344,6 +368,31 @@ def test_calculate_mean_dw_concentration():
     raise_exception_two_values(answer=pipe1.mean_concentration_pipe_drinking_water, 
                                ref_answer = 0.001, 
                                round_values=5)
+
+def test_calculate_mean_dw_mass():
+    ''' Test the calculation for the mean concentration in drinking water given 
+    a groundwater concentration '''
+    seg1 = Segment(name='seg1',
+                    material='PE40',
+                    length=25,
+                    inner_diameter=0.0196,
+                    wall_thickness=0.0027,
+                    )
+
+    pipe1 = Pipe(segment_list=[seg1])
+    pipe1.segment_list
+
+    pipe1.set_conditions(chemical_name="Benzeen", 
+                                    temperature_groundwater=12, 
+                                    concentration_groundwater = 1.8,
+                                    flow_rate=0.5)
+    pipe1.validate_input_parameters()
+    
+    pipe1.calculate_mean_dw_concentration()    
+
+    raise_exception_two_values(answer=seg1.mass_chemical_drinkwater, 
+                               ref_answer = 0.0005000956341327644, 
+                               round_values=5)    
 
 def test_segment_surface_area_calculations():
     ''' Test the calculation for the different surface area options '''
@@ -384,6 +433,22 @@ def test_segment_surface_area_calculations():
     raise_exception_two_values(answer=seg1.permeation_surface_area, 
                                ref_answer = 0.002615375884, 
                                round_values=12)
+
+
+def test_return_matching_chemical_name():
+    seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,
+                )
+
+    pipe1 = Pipe(segment_list=[seg1])
+    pipe1.segment_list
+    chemical_name = 'Benzeen'
+    matching_name = pipe1._extract_matching_chemical_name(chemical_name=chemical_name, 
+                                          database=list(pipe1.ppc_database['chemical_name_NL']))
+    assert chemical_name == matching_name
 
 
 def test_calculate_mean_allowable_gw_concentration():
@@ -437,45 +502,77 @@ def test_calculate_peak_allowable_gw_concentration():
                                ref_answer = 0.05925721307669765, 
                                round_values=5)
 
-# def test_groundwater_to_soil_conversion():
-#     seg1 = Segment(name='seg1',
-#                 material= 'PE40',
-#                 length=25,
-#                 inner_diameter=0.0196,
-#                 wall_thickness=0.0027,
-#                 )
+def test_groundwater_to_soil_conversion():
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,
+                )
 
-#     pipe1 = Pipe(segment_list=[seg1])
+    pipe1 = Pipe(segment_list=[seg1])
 
-#     pipe1.set_conditions(
-#         chemical_name="Benzeen", #"fluorene", #
-#         temperature_groundwater=12, 
-#         # concentration_soil=1.1872,
-#         concentration_groundwater=1.8,
-#         # concentration_drinking_water=0.001,
-#         flow_rate=0.5 )
+    pipe1.set_conditions(
+        chemical_name="Benzeen", #"fluorene", #
+        temperature_groundwater=12, 
+        concentration_groundwater=1.8,
+        # concentration_drinking_water=0.001,
+        flow_rate=0.5 )
 
-#     pipe1.validate_input_parameters()
+    pipe1.validate_input_parameters()
 
-#     pipe1.calculate_mean_dw_concentration()
+    pipe1.calculate_mean_dw_concentration()
+
+    raise_exception_two_values(answer=pipe1.concentration_soil, 
+                               ref_answer = 1.187200593, 
+                               round_values=5)
+
+def test_soil_to_groundwater_conversion():
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,
+                )
+
+    pipe1 = Pipe(segment_list=[seg1])
+
+    pipe1.set_conditions(
+        chemical_name="Benzeen", #"fluorene", #
+        temperature_groundwater=12, 
+        concentration_soil=1.1872,
+        flow_rate=0.5 )
+
+    pipe1.validate_input_parameters()
+
+    pipe1.calculate_mean_dw_concentration()
+
+    raise_exception_two_values(answer=pipe1.concentration_groundwater, 
+                               ref_answer = 1.8, 
+                               round_values=5)
+
 #%%
-# These tests use incomplete functions, ignore for now 
 # Pipe functions
-# check_input_values
-# _extract_matching_chemical_name
-# set_conditions
-# _fetch_chemical_database
-# calculate_mean_dw_concentration
-# calculate_peak_dw_concentration
-# calculate_mean_allowable_gw_concentration
-# calculate_peak_allowable_gw_concentration
+#  _validate_object
+# validate_input_parameters
+#? _fuzzy_min_score
+#* _extract_matching_chemical_name
+#? set_conditions
+#? _fetch_chemical_database
+#* calculate_mean_dw_concentration
+#* calculate_peak_dw_concentration
+#* calculate_mean_allowable_gw_concentration
+#* calculate_peak_allowable_gw_concentration
 
 #Segment functions
-# _correct_for_temperature
-# _concentration_correction
-# _correct_for_age
-# _calculate_ref_logK
-# _calculate_ref_logD
-# _calculate_logK
-# _calculate_logD
-# LEFT OFF HERE, FINISH LIST OF THE FUNCTIONS
+#* _correct_for_temperature
+#* _concentration_correction
+# na _correct_for_age
+#* _calculate_ref_logK
+#* _calculate_ref_logD
+#* _calculate_logK
+#* _calculate_logD
+#* _calculate_pipe_K_D
+#* _calculate_stagnation_factor
+#* _calculate_mean_dw_mass_per_segment
+#* _calculate_peak_dw_mass_per_segment
