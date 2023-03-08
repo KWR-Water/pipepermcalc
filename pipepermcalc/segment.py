@@ -62,7 +62,7 @@ class Segment:
 
     name: string
         name of the pipe segment
-    material: enum?? #ah_todo @Bram -> set choice of materials
+    material: string
         e.g. PE40, PE80, PVC, EPDM, rubber etc.
     length: float
         Length of the pipe segment, meters 
@@ -70,7 +70,7 @@ class Segment:
         Inner diameter of the pipe segment, meters
     wall_thickness: float
         wall_thickness of the pipe segment, meters
-    permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
+    permeation_direction: string
         Direction of permeation through the pipe segment. Options are 
         'perpendicular' or 'parallel'. Default permeation is perpendicular 
         to the flow direction. See schematic XX in read the docs. #ah_todo how to reference schematic
@@ -140,7 +140,7 @@ class Segment:
         ----------
         name: string
             name of the pipe segment
-        material: string #ah_todo enum?? @Bram -> set choice of materials
+        material: string
             e.g. PE40, PE80, PVC, EPDM, rubber etc.
         length: float
             Length of pipe segment, meters 
@@ -148,7 +148,7 @@ class Segment:
             Inner diameter of pipe segment, meters
         wall_thickness: float
             wall_thickness of pipe segment, meters
-        permeation_direction: string #ah_todo enum?? @Bram -> limit choice of direction
+        permeation_direction: string
             Direction of permeation through the pipe segment. Options are 
             'perpendicular' or 'parallel'. Default permeation is perpendicular 
             to the flow direction. See schematic XX in read the docs.
@@ -204,9 +204,8 @@ class Segment:
         self.outer_diameter = outer_diameter
         self.inner_diameter = inner_diameter
 
-    # @ah_todo revert back to csv? seperate file? 
-    # From Bram, @MartinK-> suggest to implement the "named tuple" method, leave for now do at the end
-    # SBR, EPDM refer to memo, ask m. meerkerk for memo #, include project number for the memo
+    # @MartinK-> suggest to implement the "named tuple" method, leave for now do at the end
+    # #ah_todo SBR, EPDM refer to memo, ask m. meerkerk for memo #, include project number for the memo
     reference_pipe_material_dict = \
         {
         "PE40": {
@@ -299,7 +298,7 @@ class Segment:
         },      
         }
 
-    def _correct_for_temperature(self, #ah_todo @Bram, when to use or not use self in functions?
+    def _correct_for_temperature(self,
                                 temperature_groundwater,
                                 coefficient_name=None, 
                                 a_dh=None,
@@ -470,9 +469,6 @@ class Segment:
         # sum corrections for final Log D
         log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
 
-
-
-        #ah discussed wtih Bram not to store these values, only calculate them on the fly
         self.log_Dp_ref = log_Dp_ref
         self.f_Dtemp = f_Dtemp    
         self.f_Dconc = f_Dconc

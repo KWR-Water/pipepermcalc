@@ -303,7 +303,6 @@ class Pipe:
         matching_chemical_name = self._extract_matching_chemical_name(chemical_name=chemical_name, 
                                              database=database)
         
-        #ah_todo, @Bram what kind of check here for the chemical name match
         if suppress_print:
             pass
         else:
@@ -472,41 +471,54 @@ class Pipe:
             To set validate use .validate_input_parameters() ')
 
         else: 
-            concentration_drinking_water = 0 #initial guess for drinking water 
             counter = 0
-
+            concentration_drinking_water_n_plus_1 = 0 #initial guess for drinking water 
+            lower_limit = 0
+            upper_limit = self.concentration_groundwater
+            criteria_list = [0]
+            min_criteria = 100
             while True:    
+                concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
 
                 sum_mass_segment = 0
 
                 for segment in self.segment_list:
-
-                    segment._calculate_mean_dw_mass_per_segment(concentration_drinking_water=concentration_drinking_water,
-                                            concentration_groundwater=self.concentration_groundwater,
-                                            pipe=self)
+                    segment._calculate_mean_dw_mass_per_segment(pipe=self, 
+                                            concentration_drinking_water=concentration_drinking_water_n_min_1,
+                                            concentration_groundwater=self.concentration_groundwater,)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
-            
-                concentration_pipe_drinking_water = (sum_mass_segment / 
-                                                self.flow_rate) #volume of water consumed in 1 day = flow rate
-            
-                
+
+                concentration_drinking_water_n = (sum_mass_segment / 
+                                                self.flow_rate ) 
                 counter +=1
-                if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) / relaxation_factor <= tolerance:
+
+                criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n) #/ relaxation_factor
+
+                if criteria <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
                     break
                 else:
-                    concentration_drinking_water = (relaxation_factor 
-                                                    * concentration_pipe_drinking_water 
-                                                    + (1 - relaxation_factor) 
-                                                    * concentration_drinking_water)
-                # if counter % 10 ==0 : print(concentration_drinking_water) #for debugging
-                
-            self.mean_concentration_pipe_drinking_water = concentration_pipe_drinking_water
+                    min_criteria = min(min_criteria, criteria)
+                    criteria_list.append(criteria)
 
-        return concentration_pipe_drinking_water 
+                    if counter == 1:
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater *0.999
+                    if counter == 2:
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * 0.0001
+                    if counter >2:
+                        if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
+                            lower_limit = concentration_drinking_water_n_min_1
+                            concentration_drinking_water_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
+                        else:
+                            upper_limit = concentration_drinking_water_n_min_1
+                            concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
+                            
+            self.mean_concentration_pipe_drinking_water = concentration_drinking_water_n
+
+        return concentration_drinking_water_n 
 
     def calculate_peak_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
@@ -559,45 +571,56 @@ class Pipe:
             To set validate use .validate_input_parameters() ')
 
         else: 
-            concentration_drinking_water = 0.0 #initial guess for drinking water
             counter = 0
+            concentration_drinking_water_n_plus_1 = 0
+            lower_limit = 0
+            upper_limit = self.concentration_groundwater
+            criteria_list = [0]
+            min_criteria = 100            
 
             while True:    
+
+                concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
 
                 sum_mass_segment = 0
 
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe=self, 
-                                                                concentration_drinking_water=concentration_drinking_water,
+                                                                concentration_drinking_water=concentration_drinking_water_n_min_1,
                                             concentration_groundwater=self.concentration_groundwater,)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
-            
-                concentration_pipe_drinking_water = (sum_mass_segment / 
-                                                self.total_volume ) #volume of water in the pipe during stagnation time
-                
+
+                concentration_drinking_water_n = (sum_mass_segment / 
+                                                self.total_volume ) 
                 counter +=1
-                
-                if abs(1 - concentration_drinking_water / concentration_pipe_drinking_water) / relaxation_factor <= tolerance:
+
+                criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n) / relaxation_factor
+
+                if criteria <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
                     break
                 else:
-                    concentration_drinking_water = (relaxation_factor 
-                                                    * concentration_pipe_drinking_water 
-                                                    + (1 - relaxation_factor) 
-                                                    * concentration_drinking_water)
-                    
-                    #@martin, can't let concentration_drinking_water > concentration_groundwater
-                    #  in the iterations or else it the sum_mass_segment goes 
-                    # negative and it can't calculate the concentration correctly.
+                    min_criteria = min(min_criteria, criteria)
+                    criteria_list.append(criteria)
 
-                if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+                    if counter == 1:
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater *0.999
+                    if counter == 2:
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * 0.0001
+                    if counter >2:
+                        if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
+                            lower_limit = concentration_drinking_water_n_min_1
+                            concentration_drinking_water_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
+                        else:
+                            upper_limit = concentration_drinking_water_n_min_1
+                            concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                 
-            self.peak_concentration_pipe_drinking_water = concentration_pipe_drinking_water
+            self.peak_concentration_pipe_drinking_water = concentration_drinking_water_n_plus_1
 
-        return concentration_pipe_drinking_water 
+        return concentration_drinking_water_n_plus_1 
 
 
     def calculate_mean_allowable_gw_concentration(self, #ah_todo write test
@@ -818,7 +841,7 @@ class Pipe:
                 
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe=self, 
-                                                                concentration_drinking_water=self.concentration_drinking_water,
+                                        concentration_drinking_water=self.concentration_drinking_water,
                                             concentration_groundwater=concentration_groundwater,)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
