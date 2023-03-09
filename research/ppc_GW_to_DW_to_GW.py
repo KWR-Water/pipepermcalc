@@ -103,7 +103,7 @@ for chemical_name, solubiliy in zip(database_chemicals, solubilities):
 
         output_gw = pipe1.calculate_peak_allowable_gw_concentration(max_iterations=500)
 
-        if abs(1-(input_gw/output_gw)) < 0.02:
+        if abs(1-(input_gw/output_gw)) < 0.01:
             input_gw_list.append(input_gw)
             chem_name.append(chemical_name)
             pass_fail.append('passed')

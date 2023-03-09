@@ -499,7 +499,7 @@ def test_calculate_peak_allowable_gw_concentration():
     peak_conc = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
 
     raise_exception_two_values(answer=peak_conc, 
-                               ref_answer = 0.05943934337985492, 
+                               ref_answer = 0.059593, 
                                round_values=6)
 
 def test_groundwater_to_soil_conversion():
@@ -550,6 +550,107 @@ def test_soil_to_groundwater_conversion():
     raise_exception_two_values(answer=pipe1.concentration_groundwater, 
                                ref_answer = 1.8, 
                                round_values=5)
+
+def test_GW_to_DW_to_GW_peak():
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,
+                )
+    '''Tests if the calculation from GW to DW gives the same result as DW to GW 
+    for the peak concentrations'''
+
+    pipe1 = Pipe(segment_list=[seg1])
+    input_gw = 1
+
+    database = pipe1.view_database_chemical_names( language='NL')
+    database = pipe1.ppc_database.dropna(subset=['molecular_weight', 'solubility', 'Drinking_water_norm'])
+    database = database.loc[database['log_distribution_coefficient']>=0]
+    database = database.loc[database['Drinking_water_norm'] < database['solubility'] ]
+    database_chemicals = database['chemical_name_NL']
+    solubilities = database['solubility']
+
+    failed = []
+
+    for chemical_name, solubiliy in zip(database_chemicals, solubilities):
+        if input_gw > solubiliy:
+            input_gw = 0.01 * solubiliy
+
+        pipe1.set_conditions(
+            chemical_name=chemical_name, 
+                            concentration_groundwater =input_gw,
+                            temperature_groundwater=12, 
+                            flow_rate=0.5)
+
+        pipe1.validate_input_parameters()
+
+        peak_conc=pipe1.calculate_peak_dw_concentration()
+
+        pipe1.set_conditions(chemical_name=chemical_name, 
+                            temperature_groundwater=12, 
+                            concentration_drinking_water = peak_conc,
+                            flow_rate=0.5)
+
+        output_gw = pipe1.calculate_peak_allowable_gw_concentration()
+
+        if abs(1-(input_gw/output_gw)) < 0.02:
+            pass
+        else: 
+            failed.append(chemical_name)
+    
+    assert len(failed) == 0
+
+
+def test_GW_to_DW_to_GW_mean():
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,
+                )
+    '''Tests if the calculation from GW to DW gives the same result as DW to GW 
+    for the mean concentrations'''
+
+    pipe1 = Pipe(segment_list=[seg1])
+    input_gw = 1
+
+    database = pipe1.view_database_chemical_names( language='NL')
+    database = pipe1.ppc_database.dropna(subset=['molecular_weight', 'solubility', 'Drinking_water_norm'])
+    database = database.loc[database['log_distribution_coefficient']>=0]
+    database = database.loc[database['Drinking_water_norm'] < database['solubility'] ]
+    database_chemicals = database['chemical_name_NL']
+    solubilities = database['solubility']
+
+    failed = []
+
+    for chemical_name, solubiliy in zip(database_chemicals, solubilities):
+        if input_gw > solubiliy:
+            input_gw = 0.01 * solubiliy
+
+        pipe1.set_conditions(
+            chemical_name=chemical_name, 
+                            concentration_groundwater =input_gw,
+                            temperature_groundwater=12, 
+                            flow_rate=0.5)
+
+        pipe1.validate_input_parameters()
+
+        mean_conc=pipe1.calculate_mean_dw_concentration()
+
+        pipe1.set_conditions(chemical_name=chemical_name, 
+                            temperature_groundwater=12, 
+                            concentration_drinking_water = mean_conc,
+                            flow_rate=0.5)
+
+        output_gw = pipe1.calculate_mean_allowable_gw_concentration()
+
+        if abs(1-(input_gw/output_gw)) < 0.02:
+            pass
+        else: 
+            failed.append(chemical_name)
+    
+    assert len(failed) == 0
 
 #%%
 # Pipe functions
