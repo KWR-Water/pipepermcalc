@@ -72,6 +72,8 @@ class Pipe:
     relaxation_factor: float
         Used to iterate and calculate the new drinking water concentration, 
         recommended 0.3-0.7 [-].
+    SCALE_FACTOR_UPPER_LIMIT = 0.99 #AH_TODO
+    SCALE_FACTOR_LOWER_LIMIT = 0.1        
     max_iterations: int
         Maximum number of iterations allowed in the optimization scheme.                    
     stagnation_time: float
@@ -105,6 +107,8 @@ class Pipe:
     #Constants for iterative calculations
     TOLERANCE_DEFAULT = 0.01
     RELAXATION_FACTOR_DEFAULT = 0.5
+    SCALE_FACTOR_UPPER_LIMIT = 0.99
+    SCALE_FACTOR_LOWER_LIMIT = 0.1
     MAX_ITERATIONS_DEFAULT = 1000
     TEMPERATURE_GROUNDWATER_DEFAULT = 12 # degrees C
     STAGNATION_TIME_DEFAULT = 8 * 60 * 60 # 8 hours in seconds
@@ -505,7 +509,7 @@ class Pipe:
                     criteria_list.append(criteria)
 
                     if counter == 1:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater *0.999
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * 0.999 #ah_todo replace these with constants
                     if counter == 2:
                         concentration_drinking_water_n_plus_1 = self.concentration_groundwater * 0.0001
                     if counter >2:
@@ -517,6 +521,7 @@ class Pipe:
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                             
             self.mean_concentration_pipe_drinking_water = concentration_drinking_water_n
+        #ah_todo, @Martin error to raise if concentration calculated is > solubility limit?
 
         return concentration_drinking_water_n 
 
@@ -607,7 +612,7 @@ class Pipe:
                     criteria_list.append(criteria)
 
                     if counter == 1:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater *0.999
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater *0.999 #ah_todo replace these with constants
                     if counter == 2:
                         concentration_drinking_water_n_plus_1 = self.concentration_groundwater * 0.0001
                     if counter >2:
@@ -619,7 +624,7 @@ class Pipe:
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                 
             self.peak_concentration_pipe_drinking_water = concentration_drinking_water_n_plus_1
-
+        #ah_todo,@Martin error to raise when concentration calculated is > solubility limit?
         return concentration_drinking_water_n_plus_1 
 
 
@@ -627,6 +632,10 @@ class Pipe:
                                         tolerance = TOLERANCE_DEFAULT,
                                         relaxation_factor = RELAXATION_FACTOR_DEFAULT,
                                         max_iterations = MAX_ITERATIONS_DEFAULT, 
+                                        scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT, 
+                                        scale_factor_lower_limit = SCALE_FACTOR_LOWER_LIMIT,
+                                        debug=False,
+
                                         ):
         '''
         Calculates the mean 24 hour concentration in groundwater which would not 
@@ -673,7 +682,11 @@ class Pipe:
         
         if self.concentration_drinking_water is None:
             raise ValueError('Error, no default drinking water norm, please input a drinking water concentration using .set_conditions()')
-        
+
+        if self.concentration_drinking_water > self.solubility:
+            raise ValueError('Error, the drinking water concentration given or the default drinking water norm is higher than the solubility of the chemical. \
+                Input a lower drinking water concentration using .set_conditions()')
+
         else: 
             self._fetch_chemical_database(chemical_name=self.chemical_name, 
                                           suppress_print = True,
@@ -694,56 +707,81 @@ class Pipe:
 
                 sum_KDA_d += sum_KDA_d_segment
 
-            concentration_groundwater = (self.concentration_drinking_water * (1
+                # initial guess concentration in groundwater
+                concentration_groundwater_n_plus_1 = (self.concentration_drinking_water * (1
                                          + self.flow_rate * segment.ASSESSMENT_FACTOR_GROUNDWATER ) 
                                             / sum_KDA_d ) * 24* 60 * 60
+            
             counter = 0
+            lower_limit = self.concentration_drinking_water
+            upper_limit = self.solubility
+            criteria_list = [0]
+            min_criteria = 100
 
             while True:
+                concentration_groundwater_n_min_1 = concentration_groundwater_n_plus_1
+
                 self.set_conditions(chemical_name=self.chemical_name,                                    
-                    concentration_groundwater=concentration_groundwater,
+                    concentration_groundwater=concentration_groundwater_n_min_1,
                     flow_rate=self.flow_rate,
-                    concentration_drinking_water=self.concentration_drinking_water,
+                    concentration_drinking_water=self.concentration_drinking_water, 
                     temperature_groundwater=self.temperature_groundwater, 
                     stagnation_time = self.stagnation_time,
                     suppress_print = True, 
                     language = self.language)
-                               
+
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm
-                mass_drinkingwater_norm = self.concentration_drinking_water * self.flow_rate 
+                mass_drinkingwater_norm = (self.concentration_drinking_water * self.flow_rate)
 
                 for segment in self.segment_list:
-                    segment._calculate_mean_dw_mass_per_segment(concentration_drinking_water=self.concentration_drinking_water,
-                                            concentration_groundwater=concentration_groundwater,
-                                            pipe=self)
+                    segment._calculate_mean_dw_mass_per_segment(pipe=self, 
+                                            concentration_drinking_water=self.concentration_drinking_water,
+                                            concentration_groundwater=self.concentration_groundwater,)
+
                     sum_mass_segment += segment.mass_chemical_drinkwater
 
                 counter +=1
-                if abs(1 - mass_drinkingwater_norm / sum_mass_segment) <= tolerance:
+                criteria = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
+                if criteria <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
                     break
                 else:
-                    new_groundwater = concentration_groundwater * (1 - relaxation_factor + relaxation_factor * (mass_drinkingwater_norm / sum_mass_segment))
-                    concentration_groundwater = new_groundwater
-                    # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+                    min_criteria = min(min_criteria, criteria)
+                    criteria_list.append(criteria)
+                    # two initial guesses to compare the goodness of fit
+                    if counter == 1:
+                        concentration_groundwater_n_plus_1 = self.solubility * scale_factor_upper_limit# 0.9
+                    if counter == 2:
+                        concentration_groundwater_n_plus_1 = 0
+                    if counter >2:
+                        if (criteria < criteria_list[counter-1]) or (concentration_groundwater_n_plus_1 < self.concentration_drinking_water):
+                            lower_limit = concentration_groundwater_n_min_1
+                            concentration_groundwater_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
+                        else:
+                            upper_limit = concentration_groundwater_n_min_1
+                            concentration_groundwater_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
+                    if debug: #counter % 100 ==0 :
+                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
         
-        self.concentration_mean_allowable_groundwater = concentration_groundwater
+        self.concentration_mean_allowable_groundwater = concentration_groundwater_n_min_1
 
-        if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater
+        if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater_n_min_1
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
 
-        return concentration_groundwater 
+        return concentration_groundwater_n_min_1 
 
 
     def calculate_peak_allowable_gw_concentration(self, #ah_todo write test
                                     tolerance = TOLERANCE_DEFAULT,
                                     relaxation_factor = RELAXATION_FACTOR_DEFAULT,
-                                    max_iterations = MAX_ITERATIONS_DEFAULT
-
+                                    max_iterations = MAX_ITERATIONS_DEFAULT,
+                                    scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT, 
+                                    scale_factor_lower_limit = SCALE_FACTOR_LOWER_LIMIT,
+                                    debug=False,
                                     ):
         '''
         Calculates the peak (maximum) concentration in groundwater water for a 
@@ -791,6 +829,10 @@ class Pipe:
             raise ValueError('Error, the input parameters must first be validated. \
             To set validate use .validate_input_parameters() ')
 
+        if self.concentration_drinking_water > self.solubility:
+            raise ValueError('Error, the drinking water concentration given or the default drinking water norm is higher than the solubility of the chemical. \
+                Input a lower drinking water concentration using .set_conditions()')
+
         else: 
 
             self._fetch_chemical_database(chemical_name=self.chemical_name, 
@@ -818,52 +860,73 @@ class Pipe:
                 sum_KDA_d += sum_KDA_d_segment
 
             # initial guess concentration in groundwater
-            concentration_groundwater = self.concentration_drinking_water * (1 
+            concentration_groundwater_n_plus_1 = self.concentration_drinking_water * (1 
                                         + self.total_volume * segment.ASSESSMENT_FACTOR_GROUNDWATER 
                                         / self.stagnation_time / sum_KDA_d) 
-           
+            
             counter = 0
+            lower_limit = self.concentration_drinking_water
+            upper_limit = self.solubility
+            criteria_list = [0]
+            min_criteria = 100
 
             while True:
+                concentration_groundwater_n_min_1 = concentration_groundwater_n_plus_1
+
                 self.set_conditions(chemical_name=self.chemical_name,                                    
-                    concentration_groundwater=concentration_groundwater,
+                    concentration_groundwater=concentration_groundwater_n_min_1,
                     flow_rate=self.flow_rate,
                     concentration_drinking_water=self.concentration_drinking_water, 
                     temperature_groundwater=self.temperature_groundwater, 
                     stagnation_time = self.stagnation_time,
                     suppress_print = True, 
                     language = self.language)
-                
+
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm
                 mass_drinkingwater_norm = (self.concentration_drinking_water * self.total_volume)
-                
+
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe=self, 
-                                        concentration_drinking_water=self.concentration_drinking_water,
-                                            concentration_groundwater=concentration_groundwater,)
+                                            concentration_drinking_water=self.concentration_drinking_water,
+                                            concentration_groundwater=self.concentration_groundwater,)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
 
                 counter +=1
+                criteria = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
                 
-                if abs(1 - mass_drinkingwater_norm / sum_mass_segment) <= tolerance:
+                if criteria <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
                     break
                 else:
-                    new_groundwater = concentration_groundwater * (1 - relaxation_factor + relaxation_factor * (mass_drinkingwater_norm / sum_mass_segment))
-                    concentration_groundwater = new_groundwater
-                    # if counter % 100 ==0 : print(concentration_drinking_water) #for debugging
+                    min_criteria = min(min_criteria, criteria)
+                    criteria_list.append(criteria)
 
-        self.concentration_peak_allowable_groundwater = concentration_groundwater
+                    # two initial guesses to compare the goodness of fit
+                    if counter == 1:
+                        concentration_groundwater_n_plus_1 = self.solubility * scale_factor_upper_limit# 0.99
+                    if counter == 2:
+                        concentration_groundwater_n_plus_1 = 0
+                    if counter >2:
+                        if (criteria < criteria_list[counter-1]) or (concentration_groundwater_n_plus_1 < self.concentration_drinking_water):
+                            lower_limit = concentration_groundwater_n_min_1
+                            concentration_groundwater_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
+                        else:
+                            upper_limit = concentration_groundwater_n_min_1
+                            concentration_groundwater_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
+                    if debug: #counter % 100 ==0 :
+                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
 
-        if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater
+        self.concentration_peak_allowable_groundwater = concentration_groundwater_n_min_1
+
+        if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater_n_min_1
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
 
 
-        return concentration_groundwater 
+        return concentration_groundwater_n_min_1 
 
 

@@ -471,11 +471,11 @@ def test_calculate_mean_allowable_gw_concentration():
 
     pipe1.validate_input_parameters()
 
-    mean_conc = pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.01)
+    mean_conc = pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.001)
 
     raise_exception_two_values(answer=mean_conc, 
-                               ref_answer = 1.8102278375869467, 
-                               round_values=5)
+                               ref_answer = 1.8011, 
+                               round_values=4)
 
 def test_calculate_peak_allowable_gw_concentration():
     ''' Test the calculation for the peak concentration allowed in groundwater given 
@@ -499,8 +499,8 @@ def test_calculate_peak_allowable_gw_concentration():
     peak_conc = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
 
     raise_exception_two_values(answer=peak_conc, 
-                               ref_answer = 0.05925721307669765, 
-                               round_values=5)
+                               ref_answer = 0.05943934337985492, 
+                               round_values=6)
 
 def test_groundwater_to_soil_conversion():
     seg1 = Segment(name='seg1',
