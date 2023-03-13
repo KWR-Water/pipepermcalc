@@ -187,6 +187,7 @@ class Pipe:
         self._flow_rate_set = False
         self._concentration_groundwater_set = False
         self._is_validated = False
+        self._permeation_direction = False
 
         sum_total_volume = 0
         sum_total_length = 0
@@ -225,7 +226,7 @@ class Pipe:
                             raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be a < {v['max_value']}.")
                     if 'str_options' in v.keys():
                         if getattr(check_object, k) not in v['str_options']:
-                            raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be one of {v['str_options']}.")
+                            raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be one of {v['str_options']}.")        
 
 
     def validate_input_parameters(self,):
@@ -234,15 +235,21 @@ class Pipe:
 
         #check if 
         if self._conditions_set is False:
-            raise ValueError('Error, the pipe conditions must first be set. \
-            To set pipe conditions use .set_conditions() ')
-
-        for segment in self.segment_list:
-            self._validate_object(segment)
+            raise ValueError('Error, the pipe conditions must first be set. To set pipe conditions use .set_conditions() ')
+        else: 
+            #validate the segment attributes
+            for segment in self.segment_list:
+                self._validate_object(segment)
+                if segment.permeation_direction == 'perpendicular':
+                    self._permeation_direction = True
         
-        self._validate_object(self)
+            #validate the pipe attributes
+            self._validate_object(self)
 
-        self._is_validated=True
+            if self._permeation_direction is False:
+                raise ValueError('Error, there must be atlease one pipe segment with permeation perpendicular to the flow rate.')
+            else:
+                self._is_validated=True
 
 
     def _fuzzy_min_score(self, 
@@ -510,20 +517,16 @@ class Pipe:
         # Check if the flow rate, conditions have been set and parameters 
         # validated, if not raise error
         if self._flow_rate_set is False: 
-            raise ValueError('Error, the flow rate in the pipe has not been set. \
-            Input the flow rate in .set_conditions()')
+            raise ValueError('Error, the flow rate in the pipe has not been set. Input the flow rate in .set_conditions()')
 
         if self._concentration_groundwater_set is False: 
-            raise ValueError('Error, the groundwater concentration has not been set. \
-            Input the groundwater concentration in .set_conditions()')
+            raise ValueError('Error, the groundwater concentration has not been set. Input the groundwater concentration in .set_conditions()')
 
         elif self._conditions_set is False:
-            raise ValueError('Error, the pipe conditions must first be set. \
-            To set pipe conditions use .set_conditions() ')
+            raise ValueError('Error, the pipe conditions must first be set. To set pipe conditions use .set_conditions() ')
 
         elif self._is_validated is False: 
-            raise ValueError('Error, the input parameters must first be validated. \
-            To set validate use .validate_input_parameters() ')
+            raise ValueError('Error, the input parameters must first be validated. To set validate use .validate_input_parameters() ')
 
         else: 
             counter = 0
@@ -618,23 +621,19 @@ class Pipe:
         self.tolerance = tolerance
 
         if self.stagnation_time != self.STAGNATION_TIME_DEFAULT: #ah_todo write test for this
-            print("Warning: the stagnation factor is only valid for a stagnation \
-                  time of 8 hours. Using a different stagnation time is not advised.")
+            print("Warning: the stagnation factor is only valid for a stagnation time of 8 hours. Using a different stagnation time is not advised.")
 
         # Check if the conditions have been set and parameters 
         # validated, if not raise error
 
         if self._concentration_groundwater_set is False: 
-            raise ValueError('Error, the groundwater concentration has not been set. \
-            Input the groundwater concentration in .set_conditions()')
+            raise ValueError('Error, the groundwater concentration has not been set. Input the groundwater concentration in .set_conditions()')
 
         elif self._conditions_set is False:
-            raise ValueError('Error, the pipe conditions must first be set. \
-            To set pipe conditions use .set_conditions() ')
+            raise ValueError('Error, the pipe conditions must first be set. To set pipe conditions use .set_conditions() ')
 
         elif self._is_validated is False: 
-            raise ValueError('Error, the input parameters must first be validated. \
-            To set validate use .validate_input_parameters() ')
+            raise ValueError('Error, the input parameters must first be validated. To set validate use .validate_input_parameters() ')
 
         else: 
             counter = 0
@@ -728,23 +727,19 @@ class Pipe:
         # Check if the flow rate, conditions have been set and parameters 
         # validated, if not raise error
         if self._flow_rate_set is False: 
-            raise ValueError('Error, the flow rate in the pipe has not been set. \
-            To set flow rate use .set_flow_rate()')
+            raise ValueError('Error, the flow rate in the pipe has not been set. To set flow rate use .set_flow_rate()')
 
         elif self._conditions_set is False:
-            raise ValueError('Error, the pipe conditions must first be set. \
-            To set pipe conditions use .set_conditions() ')
+            raise ValueError('Error, the pipe conditions must first be set. To set pipe conditions use .set_conditions() ')
 
         elif self._is_validated is False: 
-            raise ValueError('Error, the input parameters must first be validated. \
-            To set validate use .validate_input_parameters() ')
+            raise ValueError('Error, the input parameters must first be validated. To set validate use .validate_input_parameters() ')
         
         if self.concentration_drinking_water is None:
             raise ValueError('Error, no default drinking water norm, please input a drinking water concentration using .set_conditions()')
 
         if self.concentration_drinking_water > self.solubility:
-            raise ValueError('Error, the drinking water concentration given or the default drinking water norm is higher than the solubility of the chemical. \
-                Input a lower drinking water concentration using .set_conditions()')
+            raise ValueError('Error, the drinking water concentration given or the default drinking water norm is higher than the solubility of the chemical. Input a lower drinking water concentration using .set_conditions()')
 
         else: 
             self._fetch_chemical_database(chemical_name=self.chemical_name, 
@@ -874,22 +869,18 @@ class Pipe:
         self.tolerance = tolerance
 
         if self.stagnation_time != self.STAGNATION_TIME_DEFAULT:
-            print("Warning: the stagnation factor is only valid for a stagnation \
-                  time of 8 hours. Using a different stagnation time is not advised.")
+            print("Warning: the stagnation factor is only valid for a stagnation time of 8 hours. Using a different stagnation time is not advised.")
 
         # Check if the conditions have been set and parameters 
         # validated, if not raise error
         elif self._conditions_set is False:
-            raise ValueError('Error, the pipe conditions must first be set. \
-            To set pipe conditions use .set_conditions() ')
+            raise ValueError('Error, the pipe conditions must first be set. To set pipe conditions use .set_conditions() ')
 
         elif self._is_validated is False: 
-            raise ValueError('Error, the input parameters must first be validated. \
-            To set validate use .validate_input_parameters() ')
+            raise ValueError('Error, the input parameters must first be validated. To set validate use .validate_input_parameters() ')
 
         if self.concentration_drinking_water > self.solubility:
-            raise ValueError('Error, the drinking water concentration given or the default drinking water norm is higher than the solubility of the chemical. \
-                Input a lower drinking water concentration using .set_conditions()')
+            raise ValueError('Error, the drinking water concentration given or the default drinking water norm is higher than the solubility of the chemical. Input a lower drinking water concentration using .set_conditions()')
 
         else: 
 

@@ -569,8 +569,7 @@ class Segment:
 
         # Check if the groundwater conditions have been set, if not raise error
         if _conditions_set is None:
-            raise ValueError('Error, pipe conditions have not been set. \
-                             To set pipe conditions use .set_conditions()')
+            raise ValueError('Error, pipe conditions have not been set. To set pipe conditions use .set_conditions()')
         else:           
 
             # calculate log K plastic-water (log kpw) 
