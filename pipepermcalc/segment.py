@@ -564,7 +564,6 @@ class Segment:
             Pipe object of the segment.
         _conditions_set: Boolean
             Default False, True when the groundwater conditions have been set.
-
         '''
 
         # Check if the groundwater conditions have been set, if not raise error

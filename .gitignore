@@ -14,3 +14,4 @@ figures
 documentation/*
 research/ *.csv
 research/did_not_pass_chems_peak_allowable.csv
+research/did_not_pass_chems_mean_allowable.csv

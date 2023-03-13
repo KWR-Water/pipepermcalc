@@ -23,28 +23,33 @@ from pipepermcalc.pipe import *
 from pipepermcalc.segment import * 
 
 
-# chem_name = []
-# pass_fail = []
-# mean_conc_vals = []
-# output_gw_vals = []
-# passed = []
-# seg1 = Segment(name='seg1',
-#             material= 'PE40',
-#             length=25,
-#             inner_diameter=0.0196,
-#             wall_thickness=0.0027,
-#             )
 
-# pipe1 = Pipe(segment_list=[seg1])
-    
-# pipe1.set_conditions(chemical_name='chloordaan', 
-#                 temperature_groundwater=12, 
-#                 concentration_drinking_water = 0.0072075941,
-#                 flow_rate=0.5)
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027)
 
-# pipe1.validate_input_parameters()
+pipe4 = Pipe(segment_list=[seg1])
 
-# pipe1.calculate_mean_allowable_gw_concentration(tolerance = 0.01, debug = True)
+pipe4.set_conditions(concentration_drinking_water=60,
+                    chemical_name="Benzeen", 
+                    temperature_groundwater=12,
+                    flow_rate=0.5)
+
+pipe4.validate_input_parameters()
+
+mean_conc = pipe4.calculate_mean_allowable_gw_concentration(tolerance = 0.1, 
+                            max_iterations=1000, 
+                            debug = True,)
+
+
+# print("The mean concentration is:", round(mean_conc,3), "g/m3")
+
+# mean_conc = pipe4.calculate_mean_allowable_gw_concentration(tolerance = 0.001, 
+#                             max_iterations=1000)
+
+# print("The peak concentration is:", round(mean_conc,3), "g/m3")
 
 #%% PEAK
 chem_name = []
@@ -185,8 +190,7 @@ for chemical_name, solubiliy in zip(database_chemicals, solubilities):
                             concentration_drinking_water = mean_conc,
                             flow_rate=0.5)
 
-        output_gw = pipe1.calculate_mean_allowable_gw_concentration(relaxation_factor=0.1, 
-                                                                    scale_factor_upper_limit= 0.9)
+        output_gw = pipe1.calculate_mean_allowable_gw_concentration(scale_factor_upper_limit= 0.9)
 
         if abs(1-(input_gw/output_gw)) < 0.01:
             chem_name.append(chemical_name)
@@ -231,7 +235,7 @@ pipe1.set_conditions(
                     flow_rate=0.5)
 
 pipe1.validate_input_parameters()
-pipe1.calculate_peak_dw_concentration(relaxation_factor=0.7)
+pipe1.calculate_peak_dw_concentration()
 #%%
 #%%
 

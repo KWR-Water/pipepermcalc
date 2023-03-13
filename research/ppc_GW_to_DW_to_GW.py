@@ -185,8 +185,7 @@ for chemical_name, solubiliy in zip(database_chemicals, solubilities):
                             concentration_drinking_water = mean_conc,
                             flow_rate=0.5)
 
-        output_gw = pipe1.calculate_mean_allowable_gw_concentration(relaxation_factor=0.1, 
-                                                                    scale_factor_upper_limit= 0.9)
+        output_gw = pipe1.calculate_mean_allowable_gw_concentration(scale_factor_upper_limit= 0.9)
 
         if abs(1-(input_gw/output_gw)) < 0.01:
             chem_name.append(chemical_name)
@@ -231,7 +230,7 @@ pipe1.set_conditions(
                     flow_rate=0.5)
 
 pipe1.validate_input_parameters()
-pipe1.calculate_peak_dw_concentration(relaxation_factor=0.7)
+pipe1.calculate_peak_dw_concentration()
 #%%
 #%%
 
