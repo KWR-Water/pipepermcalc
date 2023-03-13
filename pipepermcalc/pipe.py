@@ -37,7 +37,7 @@ class Pipe:
     total_length': float
         Total length of the pipe, summed from the pipe segments, m
     flow_rate: float
-        flow_rate through pipe. Default of 0.5/24/60/60 m3/s (0.5 m3/day).    
+        Flow rate through pipe, m3/day.
     CAS_number: string
         CAS is a unique identification number assigned by the Chemical 
         Abstracts Service (CAS)
@@ -90,12 +90,15 @@ class Pipe:
         Mean concentration in groundwater which would would not result in 
         a mean daily (24 hours) concentration in drinking water exceeding 
         the drinking water norm, g/m3.
-    mean_concentration_pipe_drinking_water: float #@martin, should these be returned as simply concentratino_drinking_water to avoid confusion?
+    mean_concentration_pipe_drinking_water: float 
+    #@martin, should these be returned as simply concentratino_drinking_water to avoid confusion?
         Calculates the mean concentration in drinking water for a 24 hour period
         given a groundwater concentration.
     peak_concentration_pipe_drinking_water: float
         Calculates the peak (maximum) concentration in drinking water for a 
         given a stagnation period given a groundwater concentration.
+    concentration_soil: float
+        Concentration of the given chemical in soil, mg/kg.
     
     Note
     ----
@@ -157,11 +160,26 @@ class Pipe:
                  segment_list,
                 ):
         '''
-        Parameters
+        Attributes of the class added, default values of False added for the 
+        different conditions (flow rate, concentration groundwater, validation etc).
+
+        Attributes
         ----------
         segment_list: list
             list of the segments objects
-            
+        _conditions_set: Boolean
+            Default False, True when the groundwater conditions have been set.
+        _flow_rate_set: Boolean
+            Default False, True when the flow rate has been set.
+        _concentration_groundwater_set: Boolean
+            Default False, True when the flow rate has been set.
+        _is_validated: Boolean
+            Default False, True when the flow rate has been set.
+        total_volume: float
+            Total volume of the pipe, summed from the pipe segments, m3
+        total_length': float
+            Total length of the pipe, summed from the pipe segments, m
+                
         ''' 
 
         self.segment_list = segment_list
@@ -180,9 +198,16 @@ class Pipe:
         self.total_volume = sum_total_volume
     
 
-    def _validate_object(self, check_object):
+    def _validate_object(self, 
+                         check_object):
         ''' Check that the input parameters are valid values and types for the 
-        input object'''
+        input object, uses parameter_validation_dictionary to verify parameters.
+        
+        Parameters
+        ----------
+        check_object: object
+            Segment or Pipe object for which attributes must be validated.
+        '''
 
         for k, v in self.parameter_validation_dictionary.items():
             
@@ -220,12 +245,14 @@ class Pipe:
         self._is_validated=True
 
 
-    def _fuzzy_min_score(self, chemical_name): #From Vincent Post
+    def _fuzzy_min_score(self, 
+                         chemical_name): 
         """
         This function calculates the minimum score required for a valid
         match in fuzzywuzzy's extractOne function. The minimum score depends
         on the length of 's' and is calculated based on the string lengths and
-        scores in the DEFAULT_MINSCORES dictionary.
+        scores in the DEFAULT_MINSCORES dictionary. 
+        From Vincent Post. 
 
         Parameters
         ----------
@@ -236,7 +263,7 @@ class Pipe:
         Returns
         -------
         result : float
-            The minimum score for 's'.
+            The minimum score for 'chemical_name'.
         """
         DEFAULT_FUZZY_MINSCORES = {1: 100, 3: 100, 4: 90, 5: 85, 6: 80, 8: 75}
 
@@ -250,7 +277,10 @@ class Pipe:
     def _extract_matching_chemical_name(self, 
                                         chemical_name, 
                                         database):
-        ''' Search and extract the highest matching chemical name from the database for the given input
+        
+        ''' Search and extract the highest matching chemical name from the 
+        database for the given input.
+
         Parameters
         ----------
         chemical_name: str
@@ -290,16 +320,15 @@ class Pipe:
                                 ):
         ''' 
         Fetch the pipe and chemical information corresponding to the given 
-        pipe material and chemical choice and creates a dictionary 
-        pipe_permeability_dict which consists of chemical and permeability 
-        related coefficients.
+        chemical choice and corresponding pipe material. 
 
         Parameters
         ----------
         chemical_name: str
             Name of the chemical for which to calculate the permeation
         suppress_print: Boolean
-            Suppress printing the chemical name and matching name, e.g. in loop calculations
+            Suppress printing the chemical name and matching name, e.g. in 
+            loop calculations
         language: str
             Language fo the chemical name to search for, default is Dutch ('NL'), 
             English ('EN') also possible
@@ -337,18 +366,23 @@ class Pipe:
         ''' 
         Specifies the chemical of interest, concentration and temperature in the 
         groundwater and returns the parameters as attributes of the class. 
-        Calculates the segment permeation parameters based on the groundwater 
-        conditions.
-        
+        If the concentration of groundwater is given, or the soil concentration 
+        and Kd are known, the diffusion and permeation parameters are calculated 
+        for the pipe segment(s). 
+
         Parameters
         ----------
-        #ah_todo finish
         chemical_name: string
             Name of the chemical for which to calculate the permeation
         concentration_groundwater: float
             Concentration of the given chemical in groundwater, g/m3
-        concentration_soil
-        
+        concentration_soil: float
+            Concentration of the given chemical in soil, mg/kg.
+        flow_rate: float
+            Flow rate through pipe, m3/day.
+        concentration_drinking_water: float
+            Concentration of given chemical in drinking water pipe, g/m3. If no 
+            value given, concentration is assigned the drinking water norm value.
         temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
         stagnation_time: float
@@ -423,7 +457,8 @@ class Pipe:
 
     def view_database_chemical_names(self, 
                                      language='NL'):
-        '''function to view a list of the possible chemical names
+        '''
+        Function to view a list of the possible chemical names from the database.
 
         Parameters
         ----------
@@ -433,6 +468,7 @@ class Pipe:
         '''
 
         return list(self.ppc_database['chemical_name_'+language])
+
 
     def calculate_mean_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
@@ -446,7 +482,8 @@ class Pipe:
         Parameters
         ----------
         tolerance: float 
-            The allowable difference between the calculated and actual drinking water concentration, [-]
+            The allowable difference between the calculated and actual drinking 
+            water concentration, [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
         scale_factor_upper_limit: float
@@ -491,10 +528,10 @@ class Pipe:
         else: 
             counter = 0
             concentration_drinking_water_n_plus_1 = 0 #initial guess for drinking water 
-            lower_limit = 0
-            upper_limit = self.concentration_groundwater
-            criteria_list = [0]
-            min_criteria = 100
+            lower_limit = 0 # initial value for the lower limit
+            upper_limit = self.concentration_groundwater # initial value for the upper limit
+            criteria_list = [0] # initial list of criteria values
+            min_criteria = 100 # initial value for minimum criteria value, high
             while True:    
                 concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
 
@@ -511,7 +548,8 @@ class Pipe:
                                                 self.flow_rate ) 
                 counter +=1
 
-                criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
+                criteria = abs(1 - concentration_drinking_water_n_min_1 
+                                    / concentration_drinking_water_n)
 
                 if criteria <= tolerance:
                     break
@@ -538,6 +576,7 @@ class Pipe:
         #ah_todo, @Martin error to raise if concentration calculated is > solubility limit?
 
         return concentration_drinking_water_n 
+
 
     def calculate_peak_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
@@ -600,10 +639,10 @@ class Pipe:
         else: 
             counter = 0
             concentration_drinking_water_n_plus_1 = 0
-            lower_limit = 0
-            upper_limit = self.concentration_groundwater
-            criteria_list = [0]
-            min_criteria = 100            
+            lower_limit = 0 # initial value for the lower limit
+            upper_limit = self.concentration_groundwater # initial value for the upper limit
+            criteria_list = [0] # initial list of criteria values
+            min_criteria = 100 # initial value for minimum criteria value, high
 
             while True:    
 
@@ -658,10 +697,8 @@ class Pipe:
         '''
         Calculates the mean 24 hour concentration in groundwater which would not 
         result in a drinking water concentration exceeding the drinking water
-        norm. If the distribution coefficient it unknown for 
-        a given chemical, no soil concentration is calculated. 
-        
-        #ah_todo add soil
+        norm. If the distribution coefficient is known the soil concentration is
+        also calculated. 
 
         Parameters
         ----------
@@ -673,6 +710,9 @@ class Pipe:
             Scale factor used to set the upper limit of the bounds for calculating 
             the mean concentration of groundwater water. Upper limit taken as the 
             solubility multiplied by the scale factor. Default value of 0.999 
+        debug: Boolean
+            If True, return the groundwater concentration, criteria and lower and 
+            upper limits every iteration.
  
         Returns
         -------
@@ -732,10 +772,10 @@ class Pipe:
                                             / sum_KDA_d ) * 24* 60 * 60
             
             counter = 0
-            lower_limit = self.concentration_drinking_water
-            upper_limit = self.solubility
-            criteria_list = [0]
-            min_criteria = 100
+            lower_limit = self.concentration_drinking_water # initial value for the lower limit
+            upper_limit = self.solubility # initial value for the upper limit
+            criteria_list = [0] # initial list of criteria values
+            min_criteria = 100 # initial value for minimum criteria value, high
 
             while True:
                 concentration_groundwater_n_min_1 = concentration_groundwater_n_plus_1
@@ -803,11 +843,8 @@ class Pipe:
         Calculates the peak (maximum) concentration in groundwater water for a 
         given a stagnation period that would not result in a peak concentration 
         in drinking water exceeding the drinking water norm for each pipe segment.
-        Stagnation period default of 8 hours. If the distribution 
-        coefficient it unknown for a given chemical, no soil concentration is 
-        calculated.
-
-        #ah_todo add soil
+        Stagnation period default of 8 hours. If the distribution coefficient is 
+        known the soil concentration is also calculated. 
 
         Parameters
         ----------
@@ -820,7 +857,11 @@ class Pipe:
             Scale factor used to set the upper limit of the bounds for calculating 
             the mean concentration of groundwater water. Upper limit taken as the 
             solubility multiplied by the scale factor. Default value of 0.999 
+        debug: Boolean
+            If True, return the groundwater concentration, criteria and lower and 
+            upper limits every iteration.
 
+            
         Returns
         -------
         concentration_peak_allowable_groundwater: float
@@ -882,10 +923,10 @@ class Pipe:
                                         / self.stagnation_time / sum_KDA_d) 
             
             counter = 0
-            lower_limit = self.concentration_drinking_water
-            upper_limit = self.solubility
-            criteria_list = [0]
-            min_criteria = 100
+            lower_limit = self.concentration_drinking_water # initial value for the lower limit
+            upper_limit = self.solubility # initial value for the upper limit
+            criteria_list = [0] # initial list of criteria values
+            min_criteria = 100 # initial value for minimum criteria value, high
 
             while True:
                 concentration_groundwater_n_min_1 = concentration_groundwater_n_plus_1
@@ -942,7 +983,6 @@ class Pipe:
 
         if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater_n_min_1
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
-
 
         return concentration_groundwater_n_min_1 
 
