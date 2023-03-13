@@ -99,7 +99,19 @@ class Pipe:
         given a stagnation period given a groundwater concentration.
     concentration_soil: float
         Concentration of the given chemical in soil, mg/kg.
-    
+    scale_factor_upper_limit: float
+        Scale factor used to set the upper limit of the bounds for calculating 
+        the mean concentration of drinking water. Upper limit taken as the 
+        concentration of groundwater (solving for drinking water concentration) 
+        or solubility (solving for groundwater concentration) multiplied by the 
+        scale factor. Default value of 0.999 
+    scale_factor_lower_limit: float    
+        Scale factor used to set the upper limit of the bounds for calculating 
+        the mean concentration of drinking water. Lower limit taken as the 
+        concentration of groundwater (solving for drinking water concentration) 
+        or solubility (solving for groundwater concentration) multiplied by the 
+        scale factor. Default value of 0.0001.  
+            
     Note
     ----
     All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds.
@@ -479,9 +491,7 @@ class Pipe:
 
     def calculate_mean_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
-                                        max_iterations = MAX_ITERATIONS_DEFAULT,
-                                        scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT,
-                                        scale_factor_lower_limit = SCALE_FACTOR_LOWER_LIMIT):
+                                        max_iterations = MAX_ITERATIONS_DEFAULT,):
         '''
         Calculates the mean concentration in drinking water for a 24 hour period
         given a groundwater concentration. 
@@ -493,16 +503,6 @@ class Pipe:
             water concentration, [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
-        scale_factor_upper_limit: float
-            Scale factor used to set the upper limit of the bounds for calculating 
-            the mean concentration of drinking water. Upper limit taken as the 
-            concentration of groundwater multiplied by the scale factor. Default
-            value of 0.999 
-        scale_factor_lower_limit: float    
-            Scale factor used to set the upper limit of the bounds for calculating 
-            the mean concentration of drinking water. Lower limit taken as the 
-            concentration of groundwater multiplied by the scale factor. Default 
-            value of 0.0001.  
 
         Returns
         -------
@@ -564,9 +564,9 @@ class Pipe:
                     criteria_list.append(criteria)
 
                     if counter == 1:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * scale_factor_upper_limit 
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_UPPER_LIMIT 
                     if counter == 2:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * scale_factor_lower_limit
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_LOWER_LIMIT
                     if counter >2:
                         if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
                             lower_limit = concentration_drinking_water_n_min_1
@@ -576,16 +576,15 @@ class Pipe:
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                             
             self.mean_concentration_pipe_drinking_water = concentration_drinking_water_n
-        #ah_todo, @Martin error to raise if concentration calculated is > solubility limit?
+            if concentration_drinking_water_n > self.solubility:
+                raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubulity}.')
 
         return concentration_drinking_water_n 
 
 
     def calculate_peak_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
-                                        max_iterations = MAX_ITERATIONS_DEFAULT, 
-                                        scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT,
-                                        scale_factor_lower_limit = SCALE_FACTOR_LOWER_LIMIT):
+                                        max_iterations = MAX_ITERATIONS_DEFAULT,):
 
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
@@ -598,16 +597,6 @@ class Pipe:
             The allowable difference between the calculated and actual drinking water concentration, [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
-        scale_factor_upper_limit: float
-            Scale factor used to set the upper limit of the bounds for calculating 
-            the peak concentration of drinking water. Upper limit taken as the 
-            concentration of groundwater multiplied by the scale factor. Default
-            value of 0.999 
-        scale_factor_lower_limit: float    
-            Scale factor used to set the upper limit of the bounds for calculating 
-            the peak concentration of drinking water. Lower limit taken as the 
-            concentration of groundwater multiplied by the scale factor. Default 
-            value of 0.0001.  
 
         Returns
         -------
@@ -651,7 +640,7 @@ class Pipe:
 
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe=self, 
-                                                                concentration_drinking_water=concentration_drinking_water_n_min_1,
+                                            concentration_drinking_water=concentration_drinking_water_n_min_1,
                                             concentration_groundwater=self.concentration_groundwater,)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
@@ -672,9 +661,9 @@ class Pipe:
                     criteria_list.append(criteria)
 
                     if counter == 1:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * scale_factor_upper_limit
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_UPPER_LIMIT
                     if counter == 2:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * scale_factor_lower_limit
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_LOWER_LIMIT
                     if counter >2:
                         if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
                             lower_limit = concentration_drinking_water_n_min_1
@@ -683,15 +672,16 @@ class Pipe:
                             upper_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                 
-            self.peak_concentration_pipe_drinking_water = concentration_drinking_water_n_plus_1
-        #ah_todo,@Martin error to raise when concentration calculated is > solubility limit?
-        return concentration_drinking_water_n_plus_1 
+            self.peak_concentration_pipe_drinking_water = concentration_drinking_water_n
+            if concentration_drinking_water_n > self.solubility:
+                raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubulity}.')
+
+        return concentration_drinking_water_n
 
 
     def calculate_mean_allowable_gw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
                                         max_iterations = MAX_ITERATIONS_DEFAULT, 
-                                        scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT, 
                                         debug=False,):
         '''
         Calculates the mean 24 hour concentration in groundwater which would not 
@@ -705,10 +695,6 @@ class Pipe:
             The allowable difference between the calculated and actual drinking water concentration, [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
-        scale_factor_upper_limit: float
-            Scale factor used to set the upper limit of the bounds for calculating 
-            the mean concentration of groundwater water. Upper limit taken as the 
-            solubility multiplied by the scale factor. Default value of 0.999 
         debug: Boolean
             If True, return the groundwater concentration, criteria and lower and 
             upper limits every iteration.
@@ -799,16 +785,21 @@ class Pipe:
                 counter +=1
                 criteria = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
                 if criteria <= tolerance:
+                    if debug: #counter % 100 ==0 :
+                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
+                    break
+                elif upper_limit == lower_limit:
+                    print('No solution found, lower_limit = upper_limit. Groundwater concentration necesary to satisfy the given drinking water concentration may be above the solubility limit.')
                     break
                 else:
                     min_criteria = min(min_criteria, criteria)
                     criteria_list.append(criteria)
                     # two initial guesses to compare the goodness of fit
                     if counter == 1:
-                        concentration_groundwater_n_plus_1 = self.solubility * scale_factor_upper_limit
+                        concentration_groundwater_n_plus_1 = self.solubility * self.SCALE_FACTOR_UPPER_LIMIT
                     if counter == 2:
                         concentration_groundwater_n_plus_1 = 0
                     if counter >2:
@@ -822,6 +813,8 @@ class Pipe:
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
         
         self.concentration_mean_allowable_groundwater = concentration_groundwater_n_min_1
+        if concentration_groundwater_n_min_1 > self.solubility:
+            raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubulity}.')
 
         if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater_n_min_1
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
@@ -832,7 +825,6 @@ class Pipe:
     def calculate_peak_allowable_gw_concentration(self, 
                                     tolerance = TOLERANCE_DEFAULT,
                                     max_iterations = MAX_ITERATIONS_DEFAULT,
-                                    scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT, 
                                     debug=False,):
         '''
         Calculates the peak (maximum) concentration in groundwater water for a 
@@ -848,10 +840,6 @@ class Pipe:
             water concentration, [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
-        scale_factor_upper_limit: float
-            Scale factor used to set the upper limit of the bounds for calculating 
-            the mean concentration of groundwater water. Upper limit taken as the 
-            solubility multiplied by the scale factor. Default value of 0.999 
         debug: Boolean
             If True, return the groundwater concentration, criteria and lower and 
             upper limits every iteration.
@@ -951,13 +939,16 @@ class Pipe:
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
                     break
+                elif upper_limit == lower_limit:
+                    print('No solution found, lower_limit = upper_limit. Groundwater concentration necesary to satisfy the given drinking water concentration may be above the solubility limit.')
+                    break
                 else:
                     min_criteria = min(min_criteria, criteria)
                     criteria_list.append(criteria)
 
                     # two initial guesses to compare the goodness of fit
                     if counter == 1:
-                        concentration_groundwater_n_plus_1 = self.solubility * scale_factor_upper_limit
+                        concentration_groundwater_n_plus_1 = self.solubility * self.SCALE_FACTOR_UPPER_LIMIT
                     if counter == 2:
                         concentration_groundwater_n_plus_1 = 0
                     if counter >2:
@@ -971,6 +962,8 @@ class Pipe:
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
 
         self.concentration_peak_allowable_groundwater = concentration_groundwater_n_min_1
+        if concentration_groundwater_n_min_1 > self.solubility:
+            raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubulity}.')
 
         if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater_n_min_1
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
