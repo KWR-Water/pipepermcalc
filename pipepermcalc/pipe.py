@@ -28,6 +28,10 @@ class Pipe:
         Default False, True when the groundwater conditions have been set.
     _flow_rate_set: Boolean
         Default False, True when the flow rate has been set.
+    _concentration_groundwater_set: Boolean
+        Default False, True when the flow rate has been set.
+    _is_validated: Boolean
+        Default False, True when the flow rate has been set.
     total_volume: float
         Total volume of the pipe, summed from the pipe segments, m3
     total_length': float
@@ -62,20 +66,18 @@ class Pipe:
         temperature and pressure, cm3/mol.
     Drinking_water_norm: float
         Concentration allowable in the Dutch Drinking water decree, g/m3.
+    _Kd_known: Boolean
+        True when a distribution coefficient (Kd) for the chemical is known. 
+        Kd is needed to convert from soil to groundwater concentration.
     concentration_groundwater: float
         Concentration of the given chemical in groundwater, g/m3.
-    temperature_groundwater: float
-        Temperature of the groundwater, degrees Celcius.
     tolerance: float 
         The allowable difference between the calculated and actual drinking 
         water concentration, [-].
-    relaxation_factor: float
-        Used to iterate and calculate the new drinking water concentration, 
-        recommended 0.3-0.7 [-].
-    SCALE_FACTOR_UPPER_LIMIT = 0.99 #AH_TODO
-    SCALE_FACTOR_LOWER_LIMIT = 0.1        
     max_iterations: int
-        Maximum number of iterations allowed in the optimization scheme.                    
+        Maximum number of iterations allowed in the optimization scheme. 
+    temperature_groundwater: float
+        Temperature of the groundwater, degrees Celcius.
     stagnation_time: float
         Time in seconds which water in pipe is stagnant, unit of seconds. The 
         stagnation factor is only valid for a stagnation time of 8 hours 
@@ -99,20 +101,17 @@ class Pipe:
     ----
     All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds.
 
+    '''
 
-        '''
-    #ah_todo change input variables to restrict the type (e.g. only float, 
-    # only integer, only positive values etc)
-    
-    #Constants for iterative calculations
+    #Constants for iterative calculations, #ah_todo add self. to constants
     TOLERANCE_DEFAULT = 0.01
-    RELAXATION_FACTOR_DEFAULT = 0.5
-    SCALE_FACTOR_UPPER_LIMIT = 0.99
-    SCALE_FACTOR_LOWER_LIMIT = 0.1
+    SCALE_FACTOR_UPPER_LIMIT = 0.999
+    SCALE_FACTOR_LOWER_LIMIT = 0.0001
     MAX_ITERATIONS_DEFAULT = 1000
     TEMPERATURE_GROUNDWATER_DEFAULT = 12 # degrees C
     STAGNATION_TIME_DEFAULT = 8 * 60 * 60 # 8 hours in seconds
-    # FLOW_RATE_DEFAULT = 0.5/ 24 / 60 / 60 # 0.5 m3/day in seconds # @martin, do we want a default flow rate?
+    # FLOW_RATE_DEFAULT = 0.5/ 24 / 60 / 60 # 0.5 m3/day in seconds 
+    # @martin, do we want a default flow rate?
 
     ppc_database = pd.read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
 
@@ -137,9 +136,6 @@ class Pipe:
         'tolerance': {'min_value': 0,
                     'max_value': 1, 
                     'value_dtype': [float]},  
-        'relaxation_factor': {'min_value': 0, 
-                            'max_value': 1, 
-                            'value_dtype': [float]},  
         'stagnation_time': {'min_value': 0, 
                             'value_dtype': [float, int]},  
         'flow_rate': {'min_value': 0, 
@@ -161,6 +157,8 @@ class Pipe:
                  segment_list,
                 ):
         '''
+        Parameters
+        ----------
         segment_list: list
             list of the segments objects
             
@@ -249,13 +247,18 @@ class Pipe:
         return np.interp(len(chemical_name), xp, fp)
 
 
-    def _extract_matching_chemical_name(self, chemical_name, database):
+    def _extract_matching_chemical_name(self, 
+                                        chemical_name, 
+                                        database):
         ''' Search and extract the highest matching chemical name from the database for the given input
         Parameters
         ----------
-        chemical_name : str
+        chemical_name: str
             String for which the minimum score/highest matching chemical name 
             must be determined.
+        database: pandas df
+            Dataframe of the database of chemical information, including chemical 
+            name, CAS number, molecular weight, solubulity, LKow, Kd etc. 
 
         Returns
         -------
@@ -344,6 +347,8 @@ class Pipe:
             Name of the chemical for which to calculate the permeation
         concentration_groundwater: float
             Concentration of the given chemical in groundwater, g/m3
+        concentration_soil
+        
         temperature_groundwater: float
             Temperature of the groundwater, degrees Celcius
         stagnation_time: float
@@ -416,7 +421,8 @@ class Pipe:
                                             _conditions_set=self._conditions_set, )
 
 
-    def view_database_chemical_names(self, language='NL'):
+    def view_database_chemical_names(self, 
+                                     language='NL'):
         '''function to view a list of the possible chemical names
 
         Parameters
@@ -430,8 +436,9 @@ class Pipe:
 
     def calculate_mean_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
-                                        relaxation_factor = RELAXATION_FACTOR_DEFAULT,
-                                        max_iterations = MAX_ITERATIONS_DEFAULT):
+                                        max_iterations = MAX_ITERATIONS_DEFAULT,
+                                        scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT,
+                                        scale_factor_lower_limit = SCALE_FACTOR_LOWER_LIMIT):
         '''
         Calculates the mean concentration in drinking water for a 24 hour period
         given a groundwater concentration. 
@@ -440,11 +447,19 @@ class Pipe:
         ----------
         tolerance: float 
             The allowable difference between the calculated and actual drinking water concentration, [-]
-        relaxation_factor: float
-            Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
-        
+        scale_factor_upper_limit: float
+            Scale factor used to set the upper limit of the bounds for calculating 
+            the mean concentration of drinking water. Upper limit taken as the 
+            concentration of groundwater multiplied by the scale factor. Default
+            value of 0.999 
+        scale_factor_lower_limit: float    
+            Scale factor used to set the upper limit of the bounds for calculating 
+            the mean concentration of drinking water. Lower limit taken as the 
+            concentration of groundwater multiplied by the scale factor. Default 
+            value of 0.0001.  
+
         Returns
         -------
         mean_concentration_pipe_drinking_water: float
@@ -454,7 +469,6 @@ class Pipe:
         '''
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
-        self.relaxation_factor = relaxation_factor
         
         # Check if the flow rate, conditions have been set and parameters 
         # validated, if not raise error
@@ -497,7 +511,7 @@ class Pipe:
                                                 self.flow_rate ) 
                 counter +=1
 
-                criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n) #/ relaxation_factor
+                criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
 
                 if criteria <= tolerance:
                     break
@@ -509,9 +523,9 @@ class Pipe:
                     criteria_list.append(criteria)
 
                     if counter == 1:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * 0.999 #ah_todo replace these with constants
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * scale_factor_upper_limit 
                     if counter == 2:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * 0.0001
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * scale_factor_lower_limit
                     if counter >2:
                         if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
                             lower_limit = concentration_drinking_water_n_min_1
@@ -527,8 +541,9 @@ class Pipe:
 
     def calculate_peak_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
-                                        relaxation_factor = RELAXATION_FACTOR_DEFAULT,
-                                        max_iterations = MAX_ITERATIONS_DEFAULT):
+                                        max_iterations = MAX_ITERATIONS_DEFAULT, 
+                                        scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT,
+                                        scale_factor_lower_limit = SCALE_FACTOR_LOWER_LIMIT):
 
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
@@ -539,10 +554,18 @@ class Pipe:
         ----------
         tolerance: float 
             The allowable difference between the calculated and actual drinking water concentration, [-]
-        relaxation_factor: float
-            Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
+        scale_factor_upper_limit: float
+            Scale factor used to set the upper limit of the bounds for calculating 
+            the peak concentration of drinking water. Upper limit taken as the 
+            concentration of groundwater multiplied by the scale factor. Default
+            value of 0.999 
+        scale_factor_lower_limit: float    
+            Scale factor used to set the upper limit of the bounds for calculating 
+            the peak concentration of drinking water. Lower limit taken as the 
+            concentration of groundwater multiplied by the scale factor. Default 
+            value of 0.0001.  
 
         Returns
         -------
@@ -554,7 +577,6 @@ class Pipe:
 
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
-        self.relaxation_factor = relaxation_factor
 
         if self.stagnation_time != self.STAGNATION_TIME_DEFAULT: #ah_todo write test for this
             print("Warning: the stagnation factor is only valid for a stagnation \
@@ -600,7 +622,7 @@ class Pipe:
                                                 self.total_volume ) 
                 counter +=1
 
-                criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n) / relaxation_factor
+                criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
 
                 if criteria <= tolerance:
                     break
@@ -612,9 +634,9 @@ class Pipe:
                     criteria_list.append(criteria)
 
                     if counter == 1:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater *0.999 #ah_todo replace these with constants
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * scale_factor_upper_limit
                     if counter == 2:
-                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * 0.0001
+                        concentration_drinking_water_n_plus_1 = self.concentration_groundwater * scale_factor_lower_limit
                     if counter >2:
                         if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
                             lower_limit = concentration_drinking_water_n_min_1
@@ -628,15 +650,11 @@ class Pipe:
         return concentration_drinking_water_n_plus_1 
 
 
-    def calculate_mean_allowable_gw_concentration(self, #ah_todo write test
+    def calculate_mean_allowable_gw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
-                                        relaxation_factor = RELAXATION_FACTOR_DEFAULT,
                                         max_iterations = MAX_ITERATIONS_DEFAULT, 
                                         scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT, 
-                                        scale_factor_lower_limit = SCALE_FACTOR_LOWER_LIMIT,
-                                        debug=False,
-
-                                        ):
+                                        debug=False,):
         '''
         Calculates the mean 24 hour concentration in groundwater which would not 
         result in a drinking water concentration exceeding the drinking water
@@ -649,11 +667,13 @@ class Pipe:
         ----------
         tolerance: float 
             The allowable difference between the calculated and actual drinking water concentration, [-]
-        relaxation_factor: float
-            Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
-
+        scale_factor_upper_limit: float
+            Scale factor used to set the upper limit of the bounds for calculating 
+            the mean concentration of groundwater water. Upper limit taken as the 
+            solubility multiplied by the scale factor. Default value of 0.999 
+ 
         Returns
         -------
         concentration_mean_allowable_groundwater: float
@@ -664,7 +684,6 @@ class Pipe:
         '''
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
-        self.relaxation_factor = relaxation_factor
 
         # Check if the flow rate, conditions have been set and parameters 
         # validated, if not raise error
@@ -754,7 +773,7 @@ class Pipe:
                     criteria_list.append(criteria)
                     # two initial guesses to compare the goodness of fit
                     if counter == 1:
-                        concentration_groundwater_n_plus_1 = self.solubility * scale_factor_upper_limit# 0.9
+                        concentration_groundwater_n_plus_1 = self.solubility * scale_factor_upper_limit
                     if counter == 2:
                         concentration_groundwater_n_plus_1 = 0
                     if counter >2:
@@ -775,14 +794,11 @@ class Pipe:
         return concentration_groundwater_n_min_1 
 
 
-    def calculate_peak_allowable_gw_concentration(self, #ah_todo write test
+    def calculate_peak_allowable_gw_concentration(self, 
                                     tolerance = TOLERANCE_DEFAULT,
-                                    relaxation_factor = RELAXATION_FACTOR_DEFAULT,
                                     max_iterations = MAX_ITERATIONS_DEFAULT,
                                     scale_factor_upper_limit = SCALE_FACTOR_UPPER_LIMIT, 
-                                    scale_factor_lower_limit = SCALE_FACTOR_LOWER_LIMIT,
-                                    debug=False,
-                                    ):
+                                    debug=False,):
         '''
         Calculates the peak (maximum) concentration in groundwater water for a 
         given a stagnation period that would not result in a peak concentration 
@@ -798,10 +814,12 @@ class Pipe:
         tolerance: float 
             The allowable difference between the calculated and actual drinking 
             water concentration, [-]
-        relaxation_factor: float
-            Used to iterate and calculate the new drinking water concentration, recommended 0.3-0.7 [-]
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
+        scale_factor_upper_limit: float
+            Scale factor used to set the upper limit of the bounds for calculating 
+            the mean concentration of groundwater water. Upper limit taken as the 
+            solubility multiplied by the scale factor. Default value of 0.999 
 
         Returns
         -------
@@ -813,7 +831,6 @@ class Pipe:
         '''
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
-        self.relaxation_factor = relaxation_factor
 
         if self.stagnation_time != self.STAGNATION_TIME_DEFAULT:
             print("Warning: the stagnation factor is only valid for a stagnation \
@@ -908,7 +925,7 @@ class Pipe:
 
                     # two initial guesses to compare the goodness of fit
                     if counter == 1:
-                        concentration_groundwater_n_plus_1 = self.solubility * scale_factor_upper_limit# 0.99
+                        concentration_groundwater_n_plus_1 = self.solubility * scale_factor_upper_limit
                     if counter == 2:
                         concentration_groundwater_n_plus_1 = 0
                     if counter >2:
