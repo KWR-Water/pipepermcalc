@@ -18,7 +18,6 @@ class Segment:
 
     Attributes
     ----------
-    #ah_todo add attributes
 
     PARTITIONING_A_DH: float
         Coefficient for correcting the partitioning coefficient for temperature. 
@@ -73,27 +72,23 @@ class Segment:
     permeation_direction: string
         Direction of permeation through the pipe segment. Options are 
         'perpendicular' or 'parallel'. Default permeation is perpendicular 
-        to the flow direction. See schematic XX in read the docs. #ah_todo how to reference schematic
-        #ah_todo limit input to enum value
+        to the flow direction. See schematic XX in read the docs. 
     diffusion_path_length: float
-        In the case of permeation parallel to the flow direction, a 
-        diffusion path length is required to calculate the permeation 
-        through the pipe segment. For example in the case of a pipe 
-        coupling rings. If no value is given, the default value is the 
-        wall_thickness, unit meters.
+        In the case of permeation perpendicular to the flow direction, a 
+        diffusion path length is required to calculate the permeation through 
+        the pipe segment. For example in the case of a pipe coupling rings. 
+        Default permeation is perpendicular to the flow direction and the 
+        wall_thickness is used to calculate the diffusion through the pipe 
+        segment. Unit meters.
     volume: float
-        Volume of the pipe segment
-
-    reference_pipe_material_dict: dictionary 
-        Reference dictionary with regression values (slope=a-value, intercept=b-value)
-        for the partitioning (K) and diffusion (D) coefficient for the available 
-        plastics (PE40, PE80, SBR, EPDM) per chemical groups. 
-        Used to calculate the specifice partitioning or diffusion coefficient 
-        from the reference value. 
-        Chemical group numbers: Expert opinion (M. Meerkerk), 
-        see table 5-4 KWR 2016.056, Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk
-        Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE
-
+        Volume of the pipe segment, m3
+    permeation_surface_area: float
+        Surface area through which permeation takes place. If permeation is 
+        perpendicular to the flow, the permeation surface area is the inner 
+        surface area of the pipe. If diffusion is parallel to the flow, the 
+        permeation surface area is the annular area of the rubber. 
+    outer_diameter: float
+        Outer diameter of the pipe segment, unit m.
     log_Kpw_ref: float
         partitioning coefiicient under lab conditions, [-]
     f_Ktemp: float
@@ -103,16 +98,18 @@ class Segment:
     log_Kpw: float
         Calculated log partitioning coefficient for the given chemical and pipe material, [-]
     log_Dp_ref: float
-        Diffusion coefficient under lab conditions, m2/s
+        Diffusion coefficient under lab conditions, m2/s.
     f_Dtemp:float
-        Temperature correction factor for diffusion coefficient, [-]
+        Temperature correction factor for diffusion coefficient, m2/s.
     f_Dconc: float
-        Concentration correction factor for diffusion coefficient, [-]
+        Concentration correction factor for diffusion coefficient, [m2/s.
     log_Dp: float
-        Calculated log diffusion coefficient for the given chemical and pipe material, [-]
+        Calculated log diffusion coefficient for the given chemical and pipe material, m2/s.
     stagnation_factor: float
         Correction for the decrease in the concentratino gradient near the 
         inner wall of the pipe during stagnation (e.g. no flow at at night)
+    mass_chemical_drinkwater: float
+        Mass of the given chemical in the pipe segment, g.
     
     Note
     ----
@@ -154,16 +151,12 @@ class Segment:
             to the flow direction. See schematic XX in read the docs.
         diffusion_path_length: float
             In the case of permeation perpendicular to the flow direction, a 
-            diffusion path length is required to calculate the permeation 
-            through the pipe segment. For example in the case of a pipe 
-            coupling rings. If no value is given, diffusion is assumed 
-            perpendicular to the flow direction and the wall_thickness is 
-            used to calculate the diffusion through the pipe segment. 
-            Unit meters.
-            
-
+            diffusion path length is required to calculate the permeation through 
+            the pipe segment. For example in the case of a pipe coupling rings. 
+            Default permeation is perpendicular to the flow direction and the 
+            wall_thickness is used to calculate the diffusion through the pipe 
+            segment. Unit meters.
         '''  
-
 
         #Constants for various LogK and Log D equations
         self._PARTITIONING_A_DH = 7.92169801506708 #see table 5-6 in KWR 2016.056
@@ -205,7 +198,18 @@ class Segment:
         self.inner_diameter = inner_diameter
 
     # @MartinK-> suggest to implement the "named tuple" method, leave for now do at the end
-    # #ah_todo SBR, EPDM refer to memo, ask m. meerkerk for memo #, include project number for the memo
+    # #ah_todo SBR, EPDM refer to memo, ask m. meerkerk for memo number, include 
+    # project number for the memo
+
+    # reference_pipe_material_dict: dictionary 
+    #     Reference dictionary with regression values (slope=a-value, intercept=b-value)
+    #     for the partitioning (K) and diffusion (D) coefficient for the available 
+    #     plastics (PE40, PE80, SBR, EPDM) per chemical groups. 
+    #     Used to calculate the specifice partitioning or diffusion coefficient 
+    #     from the reference value. 
+    #     Chemical group numbers: Expert opinion (M. Meerkerk), 
+    #     see table 5-4 KWR 2016.056, Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk
+    #     Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE
     reference_pipe_material_dict = \
         {
         "PE40": {
@@ -254,7 +258,7 @@ class Segment:
         },
         "SBR": {
             "REF_LOG_D_A": {
-                1: -0.011 * 0.950647410867427,	#ah_todo change these to the see notes, replace formulas in _calculate_ref_logD
+                1: -0.011 * 0.950647410867427,	
                 2: -0.00629 * 0.950647410867427,
                 3: -0.006 * 0.950647410867427,
                 },
@@ -305,8 +309,7 @@ class Segment:
                                 b_dh=None,
                                 ):
         '''
-        Temperature correction for the partitioning and diffusion coefficients, 
-        
+        Temperature correction for the partitioning and diffusion coefficients. 
         See table 5-3 in KWR 2016.056
 
         Parameters
@@ -324,7 +327,7 @@ class Segment:
         -------
         f_temp: string
             Temperature correction factor for the partitioning or diffusion 
-            coefficient
+            coefficient.
         '''
 
         R = 0.008314 #universal gas constant
@@ -341,19 +344,29 @@ class Segment:
                         Cref_Sw=None):
         '''
         Correction factor for the influence of concentration on the 
-        partitioning or diffusion coefficient 
-
+        partitioning or diffusion coefficient. 
         See table 5-3, equations 5-17 and 5-19 in KWR 2016.056
 
         Parameters
         ----------
-        #ah_todo finish
-
+        solubility:	float
+            solubility of given chemical in water, g/m3
+        concentration_groundwater: float
+            Concentration of the given chemical in groundwater, g/m3.
+        a_c: float
+            Constant used in the correction for the partitioning or diffusion 
+            coefficent due to the influence of temperature. See equations 5-18 
+            and 5-20 in KWR 2016.056. 
+        Cref_Sw: float
+            Reference concentration used in the correction for the diffusion or 
+            partitioning coefficent due to the influence of temperature. See 
+            sections 5.4.6 and 5.4.7 in KWR 2016.056. 
+            
         Returns
         -------
         f_conc: string
-            Concentration correction factor for the partitioning or diffusion 
-            coefficient
+            Concentration correction factor for the diffusion or partitioning
+            coefficient.
         '''
 
         Cg_Sw = min(concentration_groundwater / solubility, 1)
@@ -364,7 +377,13 @@ class Segment:
 
     def _correct_for_age(self,):
         '''
-        Age correction, none implemented yet'''
+        Age correction, none implemented yet
+        
+        Returns
+        -------
+        f_age: float
+            Age correction for the partitioning or diffusion coefficient.
+        '''
 
         f_age = 0.000
         return f_age
@@ -373,7 +392,23 @@ class Segment:
     def _calculate_ref_logK(self,
                             chemical_group_number,
                             log_octanol_water_partitioning_coefficient):
-        '''Calculate the reference log K'''
+        '''Calculate the reference partitioning coefficient for the pipe segment.
+        See tabel 5.3, equations 5-5, 5-6 in KWR 2016.056.  
+
+        Parameters
+        ----------
+        chemical_group_number: integer
+            Integer corresponding to the chemical group.
+        log_octanol_water_partitioning_coefficient:	float,
+            Partition coefficient for the two-phase system consisting of 
+            n-octanol and water, Log Kow, [-].
+
+        Returns
+        -------
+        log_Kpw_ref: float
+            partitioning coefiicient under lab conditions, [-].
+
+        '''
 
         a_ref = self.reference_pipe_material_dict[self.material]['REF_LOG_K_A'][chemical_group_number]
         b_ref = self.reference_pipe_material_dict[self.material]['REF_LOG_K_B'][chemical_group_number]
@@ -385,11 +420,26 @@ class Segment:
     def _calculate_ref_logD(self,
                             chemical_group_number,
                             molecular_weight):
-        '''Calculate the reference log D based on the pipe material. A fixed 
+        '''
+        Calculate the reference diffusion (log D) based on the pipe material. A fixed 
         ratio between the log of the diffusion coefficient of PE-40 (logD_p) 
         and of SBR/EPDM (logD_s, logD_e) in m2/s is assumed for SBR and 
         EPDM for the determination of the diffusion coefficient, see memo 2022 
-        "Permeatie door rubber afdichtingen van drinkwaterleidingen."  '''
+        "Permeatie door rubber afdichtingen van drinkwaterleidingen."  
+        #ah_todo find memo number
+
+        Parameters
+        ----------
+        chemical_group_number: integer
+            Integer corresponding to the chemical group.
+        molecular_weight: float
+            Mass of one mole of a given chemical, g/mol.
+
+        Returns
+        -------
+        log_Dp_ref: float
+            Diffusion coefficient under lab conditions, m2/s.
+        '''
 
         if np.isnan(molecular_weight):
             raise ValueError('Error, the molecular weight for this chemical is not known, therefore it is not possible to calculate the permeation.')
@@ -402,13 +452,24 @@ class Segment:
         return log_Dp_ref    
 
 
-    def _calculate_logK(self, pipe):
+    def _calculate_logK(self, 
+                        pipe):
         ''' 
-        Calculate the LogK value for the pipe material, correct for temperature,
-        concentration and age. 
+        Calculate the partitioning coefficient (Log K) value for the pipe material, 
+        corrected for temperature,concentration and age. 
         
-        See table 5-3 in KWR 2016.056 for explanation of calculations
-        
+        See table 5-3 in KWR 2016.056 for explanation of calculations. 
+
+        Parameters
+        ----------
+        pipe: object
+            Pipe object of the segment.
+
+        Returns
+        -------
+        log_Kpw: float
+            Calculated log partitioning coefficient for the given chemical and 
+            pipe material, [-]
         '''
 
         # calculate reference log K plastic-water (log kpw) 
@@ -439,13 +500,24 @@ class Segment:
         return log_Kpw
 
 
-    def _calculate_logD(self, pipe):
+    def _calculate_logD(self, 
+                        pipe):
         ''' 
         Calculate the LogK value for the pipe material, correct for temperature,
         concentration and age. 
 
         See table 5-3 in KWR 2016.056 for explanation of calculations
-        
+
+        Parameters
+        ----------
+        pipe: object
+            Pipe object of the segment.
+
+        Returns
+        -------
+        log_Dp: float
+            Calculated log diffusion coefficient for the given chemical and pipe 
+            material, m2/s.
         '''
         
         # calculate reference log D plastic (log Dp) 
@@ -479,19 +551,22 @@ class Segment:
 
     def _calculate_pipe_K_D(self,
                             pipe,
-                            _conditions_set, 
-        ):
+                            _conditions_set, ):
         '''
-        Fetch the pipe and chemical information corresponding to the given pipe 
-        material and chemical choice, assign as attributes of the class.
+        Calculate the partitioning (Log Kpw) and diffusion (Log Dp) coefficients 
+        for the pipe segment(s), return as attributes of the segment.
 
         See table 5-3 in KWR 2016.056 for explanation of calculations
 
         Parameters
         ----------
-        pipe_material: string
-            Choice of pipe material: PE40, PE80, SBR, EPDM
+        pipe: object
+            Pipe object of the segment.
+        _conditions_set: Boolean
+            Default False, True when the groundwater conditions have been set.
+
         '''
+
         # Check if the groundwater conditions have been set, if not raise error
         if _conditions_set is None:
             raise ValueError('Error, pipe conditions have not been set. \
@@ -506,18 +581,14 @@ class Segment:
             
 
     def _calculate_stagnation_factor(self,):
-        ''' Calculates the stagnation factor given a pipe segment
-        
-        Parameters
-        ----------
-        pipe_segment: string
-            name of the pipe segment        
+        ''' 
+        Calculates the stagnation factor given a pipe segment.
         
         Returns
-        ----------
-        stagnation_factor: string
+        -------
+        stagnation_factor: float
             Correction for the decrease in the concentratino gradient near the 
-            inner wall of the pipe during stagnation (e.g. no flow at at night)
+            inner wall of the pipe during stagnation (e.g. no flow at at night).
 
         '''
 
@@ -532,12 +603,18 @@ class Segment:
                                             concentration_groundwater,
                                             pipe,): 
         '''
-        Calculates the mean mass in drinking water for a 24 hour period given a 
-        groundwater concentration, for each pipe segment.
+        Calculates the mean mass in drinking water for each pipe segment, for a 
+        24 hour period given a groundwater concentration. 
         
         Parameters
         ----------
-        #ah_todo finish
+        concentration_drinking_water: float
+            Concentration of given chemical in drinking water pipe, g/m3. 
+        concentration_groundwater: float
+            Concentration of the given chemical in groundwater, g/m3.
+        pipe: object
+            Pipe object of the segment.
+
         '''
          
         # From equation 4-7 in KWR 2016.056, but not simplifying the mass flux 
@@ -551,7 +628,8 @@ class Segment:
                                             * 24 * 60 * 60)
 
 
-    def _calculate_peak_dw_mass_per_segment(self, concentration_drinking_water,
+    def _calculate_peak_dw_mass_per_segment(self, 
+                                            concentration_drinking_water,
                                             concentration_groundwater,
                                             pipe,):
         '''
@@ -561,13 +639,12 @@ class Segment:
         
         Parameters
         ----------
-        pipe_segment: string
-            name of the pipe segment        
-        stagnation_time: float
-            Time in seconds which water in pipe is stagnant, unit of seconds. The 
-            stagnation factor is only valid for a stagnation time of 8 hours 
-            (28800 seconds), therefore using another other stagnation time is not advised.
-        #ah_todo finish
+        concentration_drinking_water: float
+            Concentration of given chemical in drinking water pipe, g/m3. 
+        concentration_groundwater: float
+            Concentration of the given chemical in groundwater, g/m3.
+        pipe: object
+            Pipe object of the segment.
 
         '''
 
