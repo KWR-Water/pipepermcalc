@@ -35,13 +35,6 @@ class Segment:
         Coefficient for correcting the diffusion coefficient for temperature. 
         From regression analysis, b is the intercept, see table 5-6 in 
         KWR 2016.056. Constant equal to -78.9191401984509. 
-    ASSESSMENT_FACTOR_GROUNDWATER: float 
-        Factor used to correct calculations for observations in actual pipe 
-        permeation. Permeation of PE house connections in groundwater = 3, 
-        other pipe materials = 1. See section 7.2 in KWR 2016.056
-    ASSESSMENT_FACTOR_SOIL: float
-        Factor used to correct calculations for observations in actual pipe 
-        permeation. All pipe materials = 1.
     PARTITIONING_A_C: float
         Constant used in the correction for the partitioning coefficent due to 
         the influence of temperature. See equation 5-20 in KWR 2016.056, for 
@@ -163,8 +156,6 @@ class Segment:
         self._PARTITIONING_B_DH = -17.1875608983359 #see table 5-6 in KWR 2016.056
         self._DIFFUSION_A_DH = 61.8565740136974 #see table 5-6 in KWR 2016.056
         self._DIFFUSION_B_DH = -78.9191401984509 #see table 5-6 in KWR 2016.056
-        self.ASSESSMENT_FACTOR_GROUNDWATER = 3 
-        self.ASSESSMENT_FACTOR_SOIL = 1
         self.PARTITIONING_A_C = 0.103965019849463 #see equation 5-20 in KWR 2016.056
         self.PARTITIONING_CREF_SW = 1.000 #see section 5.4.7 in KWR 2016.056
         self.DIFFUSION_A_C = 0.784077209735583 #see equation 5-18 in KWR 2016.056
@@ -622,7 +613,7 @@ class Segment:
         self.mass_chemical_drinkwater = (((10 ** self.log_Dp * 10 ** self.log_Kpw)
                                           * self.permeation_surface_area 
                                           * delta_c / self.diffusion_path_length ) 
-                                            / self.ASSESSMENT_FACTOR_GROUNDWATER
+                                            / pipe.ASSESSMENT_FACTOR_GROUNDWATER
                                             * 24 * 60 * 60)
 
 
@@ -655,5 +646,5 @@ class Segment:
                                              * self.permeation_surface_area 
                                              * delta_c / self.diffusion_path_length 
                                              * pipe.stagnation_time * self.stagnation_factor) 
-                                            / self.ASSESSMENT_FACTOR_GROUNDWATER)
+                                            / pipe.ASSESSMENT_FACTOR_GROUNDWATER)
 

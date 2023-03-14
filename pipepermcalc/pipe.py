@@ -91,7 +91,7 @@ class Pipe:
         a mean daily (24 hours) concentration in drinking water exceeding 
         the drinking water norm, g/m3.
     mean_concentration_pipe_drinking_water: float 
-    #@martin, should these be returned as simply concentratino_drinking_water to avoid confusion?
+    #@martin, should these be returned as simply concentration_drinking_water to avoid confusion?
         Calculates the mean concentration in drinking water for a 24 hour period
         given a groundwater concentration.
     peak_concentration_pipe_drinking_water: float
@@ -101,16 +101,23 @@ class Pipe:
         Concentration of the given chemical in soil, mg/kg.
     scale_factor_upper_limit: float
         Scale factor used to set the upper limit of the bounds for calculating 
-        the mean concentration of drinking water. Upper limit taken as the 
+        the mean concentration of drinking water or groundwater. Upper limit taken as the 
         concentration of groundwater (solving for drinking water concentration) 
         or solubility (solving for groundwater concentration) multiplied by the 
         scale factor. Default value of 0.999 
     scale_factor_lower_limit: float    
         Scale factor used to set the upper limit of the bounds for calculating 
-        the mean concentration of drinking water. Lower limit taken as the 
+        the mean concentration of drinking water or groundwater. Lower limit taken as the 
         concentration of groundwater (solving for drinking water concentration) 
         or solubility (solving for groundwater concentration) multiplied by the 
         scale factor. Default value of 0.0001.  
+    ASSESSMENT_FACTOR_GROUNDWATER: float 
+        Factor used to correct calculations for observations in actual pipe 
+        permeation. Permeation of PE house connections in groundwater = 3, 
+        other pipe materials = 1. See section 7.2 in KWR 2016.056
+    ASSESSMENT_FACTOR_SOIL: float
+        Factor used to correct calculations for observations in actual pipe 
+        permeation. All pipe materials = 1.
             
     Note
     ----
@@ -118,13 +125,15 @@ class Pipe:
 
     '''
 
-    #Constants for iterative calculations, #ah_todo add self. to constants
+    #Constants for iterative calculations,
     TOLERANCE_DEFAULT = 0.01
     SCALE_FACTOR_UPPER_LIMIT = 0.999
     SCALE_FACTOR_LOWER_LIMIT = 0.0001
     MAX_ITERATIONS_DEFAULT = 1000
     TEMPERATURE_GROUNDWATER_DEFAULT = 12 # degrees C
     STAGNATION_TIME_DEFAULT = 8 * 60 * 60 # 8 hours in seconds
+    ASSESSMENT_FACTOR_GROUNDWATER = 3
+    ASSESSMENT_FACTOR_SOIL = 1
     # FLOW_RATE_DEFAULT = 0.5/ 24 / 60 / 60 # 0.5 m3/day in seconds 
     # @martin, do we want a default flow rate?
 
@@ -370,13 +379,22 @@ class Pipe:
         for k, v in pipe_permeability_dict.items():
             setattr(self, k, v)
 
+    def _soil_to_groundwater(self):
+        ''' 
+        Calculate the concentration in soil given the concentration in 
+        groundwater
+        '''
+        
+        concentration_soil = (10 ** self.log_distribution_coefficient * self.concentration_groundwater * self.ASSESSMENT_FACTOR_SOIL / self.ASSESSMENT_FACTOR_GROUNDWATER)
+
+        return concentration_soil
 
     def set_conditions(self,
                     chemical_name,                                    
                     concentration_groundwater=None,
                     concentration_soil=None,
                     flow_rate=None,
-                    concentration_drinking_water=None, #ah_todo finish  add to param list
+                    concentration_drinking_water=None,
                     temperature_groundwater=TEMPERATURE_GROUNDWATER_DEFAULT, 
                     stagnation_time = STAGNATION_TIME_DEFAULT,
                     suppress_print = False, 
@@ -443,15 +461,15 @@ class Pipe:
         if (concentration_groundwater is None) and (concentration_soil is None):
             pass #values already assigned, are None
         if (concentration_groundwater is not None) and (concentration_soil is None):
-            if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * self.concentration_groundwater
+            if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
             # else: self.concentration_soil = None
         if (concentration_groundwater is None) and (concentration_soil is not None):
-            if self._Kd_known: self.concentration_groundwater = self.concentration_soil / self.log_distribution_coefficient
+            if self._Kd_known: self.concentration_groundwater = self.concentration_soil / (self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL / self.ASSESSMENT_FACTOR_GROUNDWATER)
             # else: self.concentration_soil = given value, self.concentration_groudnwater = None
         if (concentration_groundwater is not None) and (concentration_soil is not None):
             # @martin, take the gw concentration over the given soil concentration?
             # or check the Kd? 
-            if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * self.concentration_groundwater
+            if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
             # else: self.concentration_soil = given value
 
         if self.concentration_groundwater is not None:
@@ -464,10 +482,6 @@ class Pipe:
         else: 
             self.concentration_drinking_water = concentration_drinking_water
 
-        #@Martin, this is the easiest way for now, calculate if we know the 
-        # groundwater concentration, if not it is only calculated in the DW-> GW functions,
-        # since we don't need those in the sensitivity analysis, leave for now?
-        # ah_todo
         if self.concentration_groundwater is not None: 
             for segment in self.segment_list:          
                 segment._calculate_pipe_K_D(pipe = self, 
@@ -609,7 +623,7 @@ class Pipe:
         self.max_iterations = int(max_iterations)
         self.tolerance = tolerance
 
-        if self.stagnation_time != self.STAGNATION_TIME_DEFAULT: #ah_todo write test for this
+        if self.stagnation_time != self.STAGNATION_TIME_DEFAULT: 
             print("Warning: the stagnation factor is only valid for a stagnation time of 8 hours. Using a different stagnation time is not advised.")
 
         # Check if the conditions have been set and parameters 
@@ -749,7 +763,7 @@ class Pipe:
 
                 # initial guess concentration in groundwater
                 concentration_groundwater_n_plus_1 = (self.concentration_drinking_water * (1
-                                         + self.flow_rate * segment.ASSESSMENT_FACTOR_GROUNDWATER ) 
+                                         + self.flow_rate * self.ASSESSMENT_FACTOR_GROUNDWATER ) 
                                             / sum_KDA_d ) * 24* 60 * 60
             
             counter = 0
@@ -816,7 +830,7 @@ class Pipe:
         if concentration_groundwater_n_min_1 > self.solubility:
             raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubulity}.')
 
-        if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater_n_min_1
+        if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
 
         return concentration_groundwater_n_min_1 
@@ -898,7 +912,7 @@ class Pipe:
 
             # initial guess concentration in groundwater
             concentration_groundwater_n_plus_1 = self.concentration_drinking_water * (1 
-                                        + self.total_volume * segment.ASSESSMENT_FACTOR_GROUNDWATER 
+                                        + self.total_volume * self.ASSESSMENT_FACTOR_GROUNDWATER 
                                         / self.stagnation_time / sum_KDA_d) 
             
             counter = 0
@@ -965,7 +979,7 @@ class Pipe:
         if concentration_groundwater_n_min_1 > self.solubility:
             raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubulity}.')
 
-        if self._Kd_known: self.concentration_soil = self.log_distribution_coefficient * concentration_groundwater_n_min_1
+        if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
 
         return concentration_groundwater_n_min_1 
