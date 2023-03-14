@@ -464,7 +464,7 @@ class Pipe:
             if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
             # else: self.concentration_soil = None
         if (concentration_groundwater is None) and (concentration_soil is not None):
-            if self._Kd_known: self.concentration_groundwater = self.concentration_soil / (self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL / self.ASSESSMENT_FACTOR_GROUNDWATER)
+            if self._Kd_known: self.concentration_groundwater = (self.concentration_soil * self.ASSESSMENT_FACTOR_GROUNDWATER) / ( 10 ** self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL )
             # else: self.concentration_soil = given value, self.concentration_groudnwater = None
         if (concentration_groundwater is not None) and (concentration_soil is not None):
             # @martin, take the gw concentration over the given soil concentration?

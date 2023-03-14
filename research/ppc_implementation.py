@@ -22,7 +22,27 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
+#%%
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
 
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(
+    chemical_name="Benzeen", #"fluorene", #
+    temperature_groundwater=12, 
+    concentration_soil=2.7527429729399238,
+    flow_rate=0.5 )
+
+pipe1.validate_input_parameters()
+
+pipe1.calculate_mean_dw_concentration()
+
+#%%
 
 seg1 = Segment(name='seg1',
                 material='PE40',
@@ -32,24 +52,16 @@ seg1 = Segment(name='seg1',
 
 pipe4 = Pipe(segment_list=[seg1])
 
-pipe4.set_conditions(concentration_drinking_water=60,
-                    chemical_name="Benzeen", 
+pipe4.set_conditions(
+                    chemical_name="Antraceen", 
                     temperature_groundwater=12,
                     flow_rate=0.5)
 
 pipe4.validate_input_parameters()
 
-mean_conc = pipe4.calculate_mean_allowable_gw_concentration(tolerance = 0.1, 
-                            max_iterations=1000, 
-                            debug = True,)
+pipe4.calculate_mean_allowable_gw_concentration()
 
-
-# print("The mean concentration is:", round(mean_conc,3), "g/m3")
-
-# mean_conc = pipe4.calculate_mean_allowable_gw_concentration(tolerance = 0.001, 
-#                             max_iterations=1000)
-
-# print("The peak concentration is:", round(mean_conc,3), "g/m3")
+pipe4.concentration_soil
 
 #%% PEAK
 chem_name = []
