@@ -24,23 +24,64 @@ from pipepermcalc.segment import *
 
 #%%
 seg1 = Segment(name='seg1',
-            material= 'PE40',
-            length=25,
-            inner_diameter=0.0196,
-            wall_thickness=0.0027,
+            material= 'SBR',
+            length=7.5/1000,
+            inner_diameter=30.3/1000,
+            wall_thickness=1.5/1000,
+            permeation_direction='parallel',
+            diffusion_path_length= 7.5/1000,
             )
 
-pipe1 = Pipe(segment_list=[seg1])
+seg2 = Segment(name='seg2',
+            material= 'SBR',
+            length=1/1000,
+            inner_diameter=33.5/1000,
+            wall_thickness=10/1000,
+            )
+
+seg3 = Segment(name='seg3',
+            material= 'SBR',
+            length=6/1000,
+            inner_diameter=23.5/1000,
+            wall_thickness=1/1000,
+            permeation_direction='parallel',
+            diffusion_path_length= 6/1000,
+            )
+
+seg4 = Segment(name='seg4',
+            material= 'PE40',
+            length=25/1000,
+            inner_diameter=33.3/1000,
+            wall_thickness=2.7/1000,
+            )
+
+seg5 = Segment(name='seg5',
+            material= 'PE40',
+            length=100/1000,
+            inner_diameter=33.3/1000,
+            wall_thickness=2.7/1000,
+            )
+
+seg6 = Segment(name='seg6',
+            material= 'PVC',
+            length=6,
+            inner_diameter=40/1000,
+            wall_thickness=2.7/1000,
+            )
+
+pipe1 = Pipe(segment_list=[seg1, seg2, seg3, seg4, seg5, seg6])
 
 pipe1.set_conditions(
-    chemical_name="Benzeen", #"fluorene", #
+    chemical_name="benzeen", #"fluorene", #
     temperature_groundwater=12, 
-    concentration_soil=2.7527429729399238,
     flow_rate=0.5 )
 
 pipe1.validate_input_parameters()
 
-pipe1.calculate_mean_dw_concentration()
+peak_conc = pipe1.calculate_peak_allowable_gw_concentration()
+mean_conc = pipe1.calculate_mean_allowable_gw_concentration()
+
+peak_conc, mean_conc
 
 #%%
 

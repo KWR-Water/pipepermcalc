@@ -290,7 +290,29 @@ class Segment:
                 2: -0.3002,
                 3: -0.3002,
                 },
-        },      
+        },  
+        "PVC": { #Diffusion through PVC is zero
+            "REF_LOG_D_A": {
+                1: 0,	
+                2: 0,
+                3: 0,
+                },
+            "REF_LOG_D_B": {
+                1: 0,	
+                2: 0,
+                3: 0,
+                },
+            "REF_LOG_K_A": {
+                1: 0,	
+                2: 0,
+                3: 0,
+                },
+            "REF_LOG_K_B": {
+                1: 0,	
+                2: 0,
+                3: 0,
+                },
+        },               
         }
 
     def _correct_for_temperature(self,
@@ -480,6 +502,12 @@ class Segment:
         
         f_Kage = self._correct_for_age()
 
+        if self.material == 'PVC':
+            f_Ktemp = 0
+            f_Kconc = 0
+            f_Kage = 0
+            log_Kpw_ref = 0
+
         # sum corrections for final Log k
         log_Kpw = log_Kpw_ref + f_Ktemp + f_Kconc + f_Kage
         
@@ -528,6 +556,12 @@ class Segment:
                                 Cref_Sw = self.DIFFUSION_CREF_SW) 
         
         f_Dage = self._correct_for_age()
+
+        if self.material == 'PVC':
+            f_Dtemp = 0
+            f_Dconc = 0
+            f_Dage = 0
+            log_Dp_ref = 0
 
         # sum corrections for final Log D
         log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
@@ -615,6 +649,9 @@ class Segment:
                                           * delta_c / self.diffusion_path_length ) 
                                             / pipe.ASSESSMENT_FACTOR_GROUNDWATER
                                             * 24 * 60 * 60)
+        
+        if self.material == 'PVC':
+            self.mass_chemical_drinkwater = 0
 
 
     def _calculate_peak_dw_mass_per_segment(self, 
@@ -647,4 +684,5 @@ class Segment:
                                              * delta_c / self.diffusion_path_length 
                                              * pipe.stagnation_time * self.stagnation_factor) 
                                             / pipe.ASSESSMENT_FACTOR_GROUNDWATER)
-
+        if self.material == 'PVC':
+            self.mass_chemical_drinkwater = 0

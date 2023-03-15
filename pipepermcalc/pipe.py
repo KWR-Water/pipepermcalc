@@ -143,7 +143,7 @@ class Pipe:
     parameter_validation_dictionary = \
         {
         'name':     {'value_dtype': [str]}, 
-        'material': {'str_options': ['PE40', 'PE80', 'PVC', 'EPDM'],
+        'material': {'str_options': ['PE40', 'PE80', 'SBR', 'EPDM', 'PVC'],
                     'value_dtype': [str]}, 
         'permeation_direction': {'str_options': ['perpendicular', 'parallel'],
                     'value_dtype': [str]}, 

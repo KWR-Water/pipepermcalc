@@ -71,15 +71,16 @@ def load_pickle(filename, foldername=None):
     # Flow rate, from Mirjam?
     # Pipe thickness ?
 
-
 # Steps
-# import the data on plume concentration
-# set range lenth pipe: = [1-20m] ? @MartinvdS -> start, stop, step
+# import the data on plume concentration, contact length
 # set range for diffusion coefficient, D_ref +/- XX -> start, stop, step See table 5-1 KWR 2016.056
 # set range for partitioning coefficient, K_ref +/- XX -> start, stop, step See table 5-1 KWR 2016.056
+# set range flow rate
+# set range pipe thickness
 
-# Create linear combinations of the different parameters to create total simulations
-
+# Normal distrbution from mean (mu) and standard deviation (sigma), p is the 
+# random number from the random number generator between 0 and 1
+# NormalDist(mu, sigma).inv_cdf(p)
 
 #%%
 # import the data on plume concentration
@@ -93,16 +94,13 @@ length_range =pd.read_excel(module_path / 'research' / '20190702 kans normoversc
 length_values = list(length_range.contactlengte)
 
 #%%
-# Normal distrbution from mean (mu) and standard deviation (sigma), p is the 
-# random number from the random number generator between 0 and 1
-# NormalDist(mu, sigma).inv_cdf(p)
-
-
-#%%
-# Function to calculate mean dw concentration
-def calculate_dw_concentration(ext_values, 
-                                length_values, 
-                                assessment_factor = 3 ):
+# Function to create pipe
+def create_pipe(ext_values, 
+                length_values, 
+                assessment_factor = 3 ):
+    '''
+    Create the pipe and set the conditions for the Monte-Carlo simulation
+    '''
 
     gw_conc = random.choice(ext_values)
     
@@ -119,9 +117,11 @@ def calculate_dw_concentration(ext_values,
     #ah_todo
     # Update with information from Mirjam
     flow_rate = NormalDist(mu=0.5, sigma=0.1).inv_cdf(p=random.random())
+    #ah_todo change this to be the 1,2,4 person households at 120 L per person per day
 
     # add pipe_thickness
     wall_thickness = NormalDist(mu=0.0027, sigma=0.0001).inv_cdf(p=random.random())
+    # change this when contacted Amitosh/Aulia from distribution
 
     seg1 = Segment(name='seg1',
                     material='PE40',
@@ -146,10 +146,14 @@ def calculate_dw_concentration(ext_values,
 
     pipe1.validate_input_parameters()
 
-    dw_conc = pipe1.calculate_mean_dw_concentration()
-    return gw_conc, log_Kpw, log_Dp, length, dw_conc
+    return pipe1, seg1
+
+    # dw_conc = pipe1.calculate_mean_dw_concentration()
+    # return gw_conc, log_Kpw, log_Dp, length, dw_conc
 
 #%%
+save_results_to = check_create_folders(folder_name='monte-carlo_output')
+
 # Loop through the combinations, save the dw concentrations
 dw_concs = []
 gw_concs = []
@@ -164,19 +168,22 @@ ninety_perc_n_min_1 = 0
 # Random number seeded to always produce the same sequence of random numbers
 random.seed(5) 
 
+# Set number of simulations per round, set tolerance for checking simulation rounds
 sims = range(1000)
 tolerance = 0.01
 
 while True:
 
     for lp in tqdm(sims):
+        pipe1, seg1 = create_pipe(ext_values=ext_values, length_values=length_values)
+        dw_conc = pipe1.calculate_peak_dw_concentration()
 
-        gw_conc, log_Kpw, log_Dp, length, dw_conc = calculate_dw_concentration(ext_values=ext_values, length_values=length_values)
+        # gw_conc, log_Kpw, log_Dp, length, dw_conc = create_pipe(ext_values=ext_values, length_values=length_values)
         dw_concs.append(dw_conc)
-        gw_concs.append(gw_conc) 
-        log_Kpws.append(log_Kpw)  
-        log_Dps.append(log_Dp)
-        lengths.append(length)
+        gw_concs.append(pipe1.concentration_groundwater)  
+        log_Kpws.append(seg1.log_Kpw)  
+        log_Dps.append(seg1.log_Dp)
+        lengths.append(seg1.length)
 
     # check if the 10th and 90th percentile within tolerance, then stop the loop
     tenth_perc = np.percentile(dw_concs, 10)
@@ -191,9 +198,7 @@ while True:
         ninety_perc_n_min_1 = ninety_perc
         tenth_perc_n_min_1 = tenth_perc
 
-#%%
-save_results_to = check_create_folders(folder_name='monte-carlo_output')
-
+# put the data into a df, sort by the dw_conc and save
 data = zip(dw_concs, gw_concs, log_Kpws, log_Dps, lengths)
 df = pd.DataFrame(data,  columns = ['dw_concs', 'gw_conc', 'Kpw', 'Dp', 'Length'])
 df.sort_values(by=['dw_concs'], inplace=True)

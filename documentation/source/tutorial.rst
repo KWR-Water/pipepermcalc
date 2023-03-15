@@ -219,7 +219,7 @@ The model contains a chemical database from which the partitioning (Kpw) and dif
     print(seg1.log_Kpw, seg1.log_Dp)
 
 
-Change the tolerance, relaxation_factor and max_iterations
+Change the tolerance and max_iterations
 ==========================================================
 
 When calculating the concentration in drinking water or the allowable concentration in groundwater, the calculations are iterative and it is possible to specify the tolerance and maximum number of iterations. 
