@@ -22,96 +22,9 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
-
-# Check that pipe summation is going correctly
-seg1 = Segment(name='seg1',
-            material= 'PE40',
-            length=1,
-            inner_diameter=0.0196,
-            wall_thickness=0.0027,
-            )
-
-pipe1 = Pipe(segment_list=[seg1])
-
-pipe1.set_conditions(
-    chemical_name="benzene", #"fluorene", #
-    temperature_groundwater=12, 
-    concentration_groundwater=65,
-    flow_rate=0.5 )
-
-pipe1.validate_input_parameters()
-
-pipe1.calculate_mean_allowable_gw_concentration()
-
-pipe1.concentration_groundwater, pipe1.concentration_drinking_water
-
-#%%
-pipe1.set_conditions( 
-     concentration_groundwater=154,
-    concentration_drinking_water=0.1,
-                    chemical_name="Benzeen", 
-                    temperature_groundwater=12,
-                    flow_rate=0.5, 
-                    suppress_print = True)
-
-
-pipe1.validate_input_parameters()
-
-pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
-
-pipe1.concentration_groundwater, pipe1.concentration_drinking_water
-
 #%%
 
-test_kpw = 1.472233
-test_Dp = -12.243587
-stagnation_factor = 10 ** max((((test_Dp + 12.5) / 2 + 
-                                test_kpw) * 0.73611 + 
-                                -1.03574 ), 0)
-
-C_gw = 0.1129
-C_dw = 0.001
-delta_c = C_gw - C_dw
-mass_chemical_drinkwater = (((10 ** test_Dp * 10 ** test_kpw)
-                                        * seg1.permeation_surface_area 
-                                        * delta_c / seg1.diffusion_path_length 
-                                        * pipe1.stagnation_time ) 
-                                    / (pipe1.ASSESSMENT_FACTOR_GROUNDWATER* stagnation_factor))
-
-concentration_drinking_water_n = (mass_chemical_drinkwater / 
-                                pipe1.total_volume ) # ah_todo @Martin, this is not correst??
-concentration_drinking_water_n
-
-J = C_dw *pipe1.total_volume / pipe1.stagnation_time
-
-c_gw = C_dw *pipe1.total_volume / pipe1.stagnation_time / seg1.permeation_surface_area *seg1.diffusion_path_length / ( 10 ** test_Dp * 10 ** test_kpw ) * pipe1.ASSESSMENT_FACTOR_GROUNDWATER * stagnation_factor
-c_gw
-#%%
-pipe1.set_conditions(concentration_groundwater=1,
-                    chemical_name="Benzeen", 
-                    temperature_groundwater=12,
-                    flow_rate=0.5, 
-                    suppress_print = True)
-
-pipe1.calculate_peak_dw_concentration()
-
-pipe1.concentration_groundwater, pipe1.concentration_drinking_water
-
-#%%
-ASSESSMENT_FACTOR_GROUNDWATER = 3
-delta_c = (0.01 - 0.001)
-stagnation_factor = 10 ** max((((seg1.log_Dp + 12.5) / 2 + 
-                                seg1.log_Kpw) * 0.73611 + 
-                                -1.03574 ), 0)
-
-mass_chemical_drinkwater = (((10 ** seg1.log_Dp * 10 ** seg1.log_Kpw) * seg1.permeation_surface_area * delta_c * pipe1.stagnation_time)
-                            / (seg1.diffusion_path_length * stagnation_factor * ASSESSMENT_FACTOR_GROUNDWATER))
-mass_chemical_drinkwater
-
-# (pipe1.concentration_drinking_water * pipe1.total_volume) / pipe1.stagnation_time #2.619084708773991e-10
-#%%
-
-mat = 'EPDM'
+mat = 'SBR'
 
 seg1 = Segment(name='seg1',
             material= mat,
@@ -148,7 +61,7 @@ seg3 = Segment(name='seg3',
 
 seg4 = Segment(name='seg4',
             material= 'PE40',
-            length=25/1000,
+            length=0.025 , #/1000,
             inner_diameter=33.3/1000,
             wall_thickness=2.7/1000,
             )
@@ -167,10 +80,10 @@ seg6 = Segment(name='seg6',
             wall_thickness=2.7/1000,
             )
 
-pipe1 = Pipe(segment_list=[ seg4,])
-# pipe1 = Pipe(segment_list=[seg1, seg7, seg2, seg3, seg4, seg5, seg6])
+# pipe1 = Pipe(segment_list=[ seg4,])
+pipe1 = Pipe(segment_list=[seg1, seg7, seg2, seg3, seg4, seg5, seg6])
 # 
-chemicals = ['ethylbenzene' ]#,'ethylbenzene', 'toluene']
+chemicals = ['benzene','ethylbenzene', 'toluene']
 for chemical in chemicals:
     pipe1.set_conditions(
         chemical_name=chemical, #"fluorene", #
@@ -184,17 +97,88 @@ for chemical in chemicals:
     mean_conc = pipe1.calculate_mean_allowable_gw_concentration()
 
     print(peak_conc, mean_conc)
+
+#%%
+
+# As the dimensions change, the mean allowable concentration increases, however, 
+# the increased concentration is not taken into account in the excel sheet - the 
+# log Kpw and Log Dp do not change with the increased concentrations. 
+# We can test if this is the issue, by copying the excel supplied mean allowable 
+# concentration and inputting that as the gw concentration and calculating the 
+# logKpw and LogDp values. These do not match with the excel, and get worse with 
+# the decrease in the pipe length. 
+
+# Ultimately the problem is that the PE40 sheets are based on the mean allowable 
+# concentration for a 25 m pipe, but the connecting pipes are much, much smaller.
+
+# The tertiary excel sheet *does* match the PE40 sheet for the mean concentrations, 
+# however it does not match for the peak concentrations. The tertiary sheet changes t
+# he peak concentration for the changes in the dimensions, while the PE40 sheet 
+# does not (which is correct, the dimensions should not change the peak concentration).
+
+# Also the tertiary sheets did not have the assessment factor in them. 
+# Also found an error in the peak formula, also a typo elsewhere. fixed now.
+
+
+Ls = [25, 2.5, 0.25, 0.025]
+C_gws = [1.8, 17.988, 179.867, 1798.661]
+
+for L, C_gw in zip (Ls, C_gws):
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=L , #/1000,
+                inner_diameter=19.6/1000,
+                wall_thickness=2.7/1000,
+                )
+    pipe1 = Pipe(segment_list=[ seg1,])
+    # C_gw = 1.800
+
+    pipe1.set_conditions(
+        concentration_groundwater = C_gw,
+        chemical_name='benzeen',
+        temperature_groundwater=12, 
+        flow_rate=0.5, 
+        suppress_print=True )
+
+    pipe1.validate_input_parameters()
+    pipe1.calculate_mean_dw_concentration()
+
+
+    concentration_drinking_water =  0.001
+    test_Kpw = 1.472233
+    test_Dp = -12.243587
+    delta_c = C_gw - concentration_drinking_water
+
+    mass_chemical_drinkwater = (((10 ** test_Dp * 10 ** test_Kpw)
+                                        * seg1.permeation_surface_area 
+                                        * delta_c / seg1.diffusion_path_length ) 
+                                        / pipe1.ASSESSMENT_FACTOR_GROUNDWATER
+                                        * 24 * 60 * 60)
+
+    mean_dw_conc = mass_chemical_drinkwater / pipe1.flow_rate
+    print(mean_dw_conc, pipe1.calculate_mean_dw_concentration(), abs(1-mean_dw_conc/pipe1.calculate_mean_dw_concentration()), test_Dp, seg1.log_Dp)
+
 #%%
 #MEAN
-pipe1 = Pipe(segment_list=[seg1, seg7, seg2, seg3, seg4, seg5, seg6])
+seg4 = Segment(name='seg4',
+            material= 'PE40',
+            length=2500/1000,
+            inner_diameter=33.3/1000,
+            wall_thickness=2.7/1000,
+            )
+pipe1 = Pipe(segment_list=[ seg4,])
+
+# pipe1 = Pipe(segment_list=[seg1, seg7, seg2, seg3, seg4, seg5, seg6])
 pipe1.set_conditions(
-    chemical_name='benzeen',
+    concentration_groundwater=0.161,
+    chemical_name='ethylbenzeen',
     temperature_groundwater=12, 
     flow_rate=0.5, 
     suppress_print=True )
 pipe1.validate_input_parameters()
-pipe1.calculate_mean_allowable_gw_concentration()
+pipe1.calculate_peak_dw_concentration()
 
+#%%
 mean_mass_drinkingwater = (pipe1.concentration_drinking_water * pipe1.flow_rate)
 
 sum_mass_segment = 0
