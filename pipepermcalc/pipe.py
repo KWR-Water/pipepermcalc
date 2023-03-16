@@ -660,7 +660,7 @@ class Pipe:
                     sum_mass_segment += segment.mass_chemical_drinkwater
 
                 concentration_drinking_water_n = (sum_mass_segment / 
-                                                self.total_volume ) 
+                                                self.total_volume ) # ah_todo @Martin, this is not correst??
                 counter +=1
 
                 criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
@@ -764,7 +764,7 @@ class Pipe:
                 # initial guess concentration in groundwater
                 concentration_groundwater_n_plus_1 = (self.concentration_drinking_water * (1
                                          + self.flow_rate * self.ASSESSMENT_FACTOR_GROUNDWATER ) 
-                                            / sum_KDA_d ) * 24* 60 * 60
+                                            / sum_KDA_d ) * 24 * 60 * 60 #ah_todo is this correct??
             
             counter = 0
             lower_limit = self.concentration_drinking_water # initial value for the lower limit
@@ -905,8 +905,7 @@ class Pipe:
                                     -1.03574 ), 0)            
 
                 sum_KDA_d_segment = ( 10 ** log_Dp_ref * 10 ** log_Kpw_ref * segment.permeation_surface_area 
-                                    * stagnation_factor
-                                    / segment.diffusion_path_length )
+                                    * stagnation_factor / segment.diffusion_path_length )
 
                 sum_KDA_d += sum_KDA_d_segment
 
@@ -936,7 +935,7 @@ class Pipe:
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm
-                mass_drinkingwater_norm = (self.concentration_drinking_water * self.total_volume)
+                mass_drinkingwater_norm = (self.concentration_drinking_water * self.total_volume) / self.stagnation_time
 
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe=self, 
