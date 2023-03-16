@@ -315,9 +315,9 @@ def test_calculate_peak_dw_concentration():
     
     pipe1.calculate_peak_dw_concentration()    
 
-    raise_exception_two_values(answer=pipe1.peak_concentration_pipe_drinking_water, 
-                               ref_answer = 0.0018895450941979206, 
-                               round_values=4)
+    raise_exception_two_values(answer=pipe1.concentration_drinking_water, 
+                               ref_answer = 0.001, 
+                               round_values=3)
     
 def test_calculate_peak_dw_mass():
     ''' Test the calculation for the peak concentration in drinking water given 
@@ -341,8 +341,8 @@ def test_calculate_peak_dw_mass():
     pipe1.calculate_peak_dw_concentration()    
 
     raise_exception_two_values(answer=seg1.mass_chemical_drinkwater, 
-                               ref_answer = 1.425277054872773e-05, 
-                               round_values=4)    
+                               ref_answer = 7.469113135415852e-06, 
+                               round_values=9)    
 
 def test_calculate_mean_dw_concentration():
     ''' Test the calculation for the mean concentration in drinking water given 
@@ -365,7 +365,7 @@ def test_calculate_mean_dw_concentration():
     
     pipe1.calculate_mean_dw_concentration()    
 
-    raise_exception_two_values(answer=pipe1.mean_concentration_pipe_drinking_water, 
+    raise_exception_two_values(answer=pipe1.concentration_drinking_water, 
                                ref_answer = 0.001, 
                                round_values=5)
 
@@ -499,8 +499,8 @@ def test_calculate_peak_allowable_gw_concentration():
     peak_conc = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
 
     raise_exception_two_values(answer=peak_conc, 
-                               ref_answer = 0.059593, 
-                               round_values=6)
+                               ref_answer = 0.1138, 
+                               round_values=4)
 
 def test_groundwater_to_soil_conversion():
     seg1 = Segment(name='seg1',
@@ -513,10 +513,9 @@ def test_groundwater_to_soil_conversion():
     pipe1 = Pipe(segment_list=[seg1])
 
     pipe1.set_conditions(
-        chemical_name="Benzeen", #"fluorene", #
+        chemical_name="Benzeen", 
         temperature_groundwater=12, 
         concentration_groundwater=1.8,
-        # concentration_drinking_water=0.001,
         flow_rate=0.5 )
 
     pipe1.validate_input_parameters()
@@ -524,8 +523,31 @@ def test_groundwater_to_soil_conversion():
     pipe1.calculate_mean_dw_concentration()
 
     raise_exception_two_values(answer=pipe1.concentration_soil, 
-                               ref_answer = 1.187200593, 
-                               round_values=5)
+                               ref_answer =2.74, 
+                               round_values=3)
+    # Check that pipe summation is going correctly
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,
+                )
+
+    pipe1 = Pipe(segment_list=[seg1])
+
+    pipe1.set_conditions(
+        chemical_name="ethylbenzene", 
+        temperature_groundwater=12, 
+        concentration_groundwater=0.277,
+        flow_rate=0.5 )
+
+    pipe1.validate_input_parameters()
+
+    pipe1.calculate_mean_dw_concentration()
+
+    raise_exception_two_values(answer=pipe1.concentration_soil, 
+                               ref_answer =1.842, 
+                               round_values=3)
 
 def test_soil_to_groundwater_conversion():
     seg1 = Segment(name='seg1',
@@ -538,7 +560,7 @@ def test_soil_to_groundwater_conversion():
     pipe1 = Pipe(segment_list=[seg1])
 
     pipe1.set_conditions(
-        chemical_name="Benzeen", #"fluorene", #
+        chemical_name="Benzeen",
         temperature_groundwater=12, 
         concentration_soil=2.7527429729399238,
         flow_rate=0.5 )

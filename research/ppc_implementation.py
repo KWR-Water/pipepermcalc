@@ -25,26 +25,67 @@ from pipepermcalc.segment import *
 
 # Check that pipe summation is going correctly
 seg1 = Segment(name='seg1',
-                material='PE40',
-                length=25,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027)
+            material= 'PE40',
+            length=1,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
 
 pipe1 = Pipe(segment_list=[seg1])
 
-pipe1.set_conditions(concentration_groundwater=60,
+pipe1.set_conditions(
+    chemical_name="benzene", #"fluorene", #
+    temperature_groundwater=12, 
+    concentration_groundwater=65,
+    flow_rate=0.5 )
+
+pipe1.validate_input_parameters()
+
+pipe1.calculate_mean_allowable_gw_concentration()
+
+pipe1.concentration_groundwater, pipe1.concentration_drinking_water
+
+#%%
+pipe1.set_conditions( 
+     concentration_groundwater=154,
+    concentration_drinking_water=0.1,
                     chemical_name="Benzeen", 
                     temperature_groundwater=12,
                     flow_rate=0.5, 
                     suppress_print = True)
 
-pipe1.validate_input_parameters()
-seg1.__dict__
 
-pipe1.calculate_mean_dw_concentration()
+pipe1.validate_input_parameters()
+
+pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
 
 pipe1.concentration_groundwater, pipe1.concentration_drinking_water
 
+#%%
+
+test_kpw = 1.472233
+test_Dp = -12.243587
+stagnation_factor = 10 ** max((((test_Dp + 12.5) / 2 + 
+                                test_kpw) * 0.73611 + 
+                                -1.03574 ), 0)
+
+C_gw = 0.1129
+C_dw = 0.001
+delta_c = C_gw - C_dw
+mass_chemical_drinkwater = (((10 ** test_Dp * 10 ** test_kpw)
+                                        * seg1.permeation_surface_area 
+                                        * delta_c / seg1.diffusion_path_length 
+                                        * pipe1.stagnation_time ) 
+                                    / (pipe1.ASSESSMENT_FACTOR_GROUNDWATER* stagnation_factor))
+
+concentration_drinking_water_n = (mass_chemical_drinkwater / 
+                                pipe1.total_volume ) # ah_todo @Martin, this is not correst??
+concentration_drinking_water_n
+
+J = C_dw *pipe1.total_volume / pipe1.stagnation_time
+
+c_gw = C_dw *pipe1.total_volume / pipe1.stagnation_time / seg1.permeation_surface_area *seg1.diffusion_path_length / ( 10 ** test_Dp * 10 ** test_kpw ) * pipe1.ASSESSMENT_FACTOR_GROUNDWATER * stagnation_factor
+c_gw
 #%%
 pipe1.set_conditions(concentration_groundwater=1,
                     chemical_name="Benzeen", 

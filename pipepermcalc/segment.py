@@ -682,7 +682,7 @@ class Segment:
         self.mass_chemical_drinkwater = (((10 ** self.log_Dp * 10 ** self.log_Kpw)
                                              * self.permeation_surface_area 
                                              * delta_c / self.diffusion_path_length 
-                                             * pipe.stagnation_time * self.stagnation_factor) 
-                                            / pipe.ASSESSMENT_FACTOR_GROUNDWATER)
+                                             * pipe.stagnation_time ) 
+                                            / (pipe.ASSESSMENT_FACTOR_GROUNDWATER* self.stagnation_factor))
         if self.material == 'PVC':
             self.mass_chemical_drinkwater = 0

@@ -589,7 +589,7 @@ class Pipe:
                             upper_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                             
-            self.mean_concentration_pipe_drinking_water = concentration_drinking_water_n
+            self.concentration_drinking_water = concentration_drinking_water_n
             if concentration_drinking_water_n > self.solubility:
                 raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubulity}.')
 
@@ -686,7 +686,7 @@ class Pipe:
                             upper_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                 
-            self.peak_concentration_pipe_drinking_water = concentration_drinking_water_n
+            self.concentration_drinking_water = concentration_drinking_water_n
             if concentration_drinking_water_n > self.solubility:
                 raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubulity}.')
 
@@ -826,7 +826,7 @@ class Pipe:
                     if debug: #counter % 100 ==0 :
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
         
-        self.concentration_mean_allowable_groundwater = concentration_groundwater_n_min_1
+        self.concentration_groundwater = concentration_groundwater_n_min_1
         if concentration_groundwater_n_min_1 > self.solubility:
             raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubulity}.')
 
@@ -935,7 +935,7 @@ class Pipe:
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm
-                mass_drinkingwater_norm = (self.concentration_drinking_water * self.total_volume) / self.stagnation_time
+                mass_drinkingwater_norm = (self.concentration_drinking_water * self.total_volume) 
 
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe=self, 
@@ -974,7 +974,7 @@ class Pipe:
                     if debug: #counter % 100 ==0 :
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
 
-        self.concentration_peak_allowable_groundwater = concentration_groundwater_n_min_1
+        self.concentration_groundwater = concentration_groundwater_n_min_1
         if concentration_groundwater_n_min_1 > self.solubility:
             raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubulity}.')
 
