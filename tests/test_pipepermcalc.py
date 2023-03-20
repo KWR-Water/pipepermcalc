@@ -574,14 +574,15 @@ def test_soil_to_groundwater_conversion():
                                round_values=5)
 
 def test_GW_to_DW_to_GW_peak():
+    '''Tests if the calculation from GW to DW gives the same result as DW to GW 
+    for the peak concentrations'''
+
     seg1 = Segment(name='seg1',
                 material= 'PE40',
                 length=25,
                 inner_diameter=0.0196,
                 wall_thickness=0.0027,
                 )
-    '''Tests if the calculation from GW to DW gives the same result as DW to GW 
-    for the peak concentrations'''
 
     pipe1 = Pipe(segment_list=[seg1])
     input_gw = 1
@@ -625,14 +626,15 @@ def test_GW_to_DW_to_GW_peak():
 
 
 def test_GW_to_DW_to_GW_mean():
+    '''Tests if the calculation from GW to DW gives the same result as DW to GW 
+    for the mean concentrations'''
+
     seg1 = Segment(name='seg1',
                 material= 'PE40',
                 length=25,
                 inner_diameter=0.0196,
                 wall_thickness=0.0027,
                 )
-    '''Tests if the calculation from GW to DW gives the same result as DW to GW 
-    for the mean concentrations'''
 
     pipe1 = Pipe(segment_list=[seg1])
     input_gw = 1
