@@ -104,26 +104,33 @@ for chemical in chemicals:
 # the increased concentration is not taken into account in the excel sheet - the 
 # log Kpw and Log Dp do not change with the increased concentrations. 
 # We can test if this is the issue, by copying the excel supplied mean allowable 
-# concentration and inputting that as the gw concentration and calculating the 
+# concentration (C_gws) and inputting that as the gw concentration and calculating the 
 # logKpw and LogDp values. These do not match with the excel, and get worse with 
-# the decrease in the pipe length. 
+# the decrease in the pipe length. This is because the excel sheet still uses a 
+# gw concentration of 1.8 (for benzene) for the calculation of the LogK and LogD, 
+# while the code iteratively updates these for each new gw concentration. This 
+# leads to differences in the final allowable gw concentration calculated 
+# -> excel over estimates the mean allowable gw concentration (see next set of calcs)
 
 # Ultimately the problem is that the PE40 sheets are based on the mean allowable 
-# concentration for a 25 m pipe, but the connecting pipes are much, much smaller.
+# concentration for a 25 m pipe, but the connecting pipes are much, much smaller (1000x).
 
 # The tertiary excel sheet *does* match the PE40 sheet for the mean concentrations, 
-# however it does not match for the peak concentrations. The tertiary sheet changes t
-# he peak concentration for the changes in the dimensions, while the PE40 sheet 
+# however it does not match for the peak concentrations. The tertiary sheet changes 
+# the peak concentration for the changes in the dimensions, while the PE40 sheet 
 # does not (which is correct, the dimensions should not change the peak concentration).
 
 # Also the tertiary sheets did not have the assessment factor in them. 
 # Also found an error in the peak formula, also a typo elsewhere. fixed now.
 
-
 Ls = [25, 2.5, 0.25, 0.025]
+# mean allowable gw concentrations from the excel sheet PE40 for the lengths above
 C_gws = [1.8, 17.988, 179.867, 1798.661]
 
 for L, C_gw in zip (Ls, C_gws):
+
+    # Calculated mean dw conc given the mean allowable gw conc for each length
+    # do we get the same dw concentration and Log K and LogD?
     seg1 = Segment(name='seg1',
                 material= 'PE40',
                 length=L , #/1000,
@@ -144,6 +151,8 @@ for L, C_gw in zip (Ls, C_gws):
     pipe1.calculate_mean_dw_concentration()
 
 
+    # Same calculation, but fix the logK and logD values to the excel sheet values
+    # outcome is that we get the same dw conc as in excel
     concentration_drinking_water =  0.001
     test_Kpw = 1.472233
     test_Dp = -12.243587
@@ -156,7 +165,45 @@ for L, C_gw in zip (Ls, C_gws):
                                         * 24 * 60 * 60)
 
     mean_dw_conc = mass_chemical_drinkwater / pipe1.flow_rate
-    print(mean_dw_conc, pipe1.calculate_mean_dw_concentration(), abs(1-mean_dw_conc/pipe1.calculate_mean_dw_concentration()), test_Dp, seg1.log_Dp)
+
+    print(mean_dw_conc, 
+          pipe1.calculate_mean_dw_concentration(), 
+          abs(1-mean_dw_conc/pipe1.calculate_mean_dw_concentration()), 
+          test_Dp, 
+          seg1.log_Dp)
+
+#%%
+# If we calculate the mean allowable gw conc for the different lengths and 
+# compare to the excel, we see the excel values are larger than the code values 
+# for the very small lengths, therefore the excel over estimates the mean allowable gw concentrations
+
+
+allowable_gw = []
+for L in Ls:
+
+    # Calculated mean allowable gw conc for the different lengths
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=L , #/1000,
+                inner_diameter=19.6/1000,
+                wall_thickness=2.7/1000,
+                )
+    pipe1 = Pipe(segment_list=[ seg1,])
+
+    pipe1.set_conditions(
+        chemical_name='benzeen',
+        temperature_groundwater=12, 
+        flow_rate=0.5, 
+        suppress_print=True )
+
+    pipe1.validate_input_parameters()
+    mean_gw_conc = pipe1.calculate_mean_allowable_gw_concentration()
+
+    allowable_gw.append(mean_gw_conc)
+res = [i / j for i, j in zip(allowable_gw, C_gws)]
+
+allowable_gw, C_gws, res
+
 
 #%%
 #MEAN
