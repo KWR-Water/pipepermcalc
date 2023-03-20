@@ -63,13 +63,13 @@ def load_pickle(filename, foldername=None):
 # Overview of steps for Monte-Carlo simulations
 
 #Parameters to vary:
-    # size of plume (length of segment) (excel file) @Martin to discuss more complicated version later
+    # size of plume (length of segment) (excel file) -> Amitosh/Auliato discuss more complicated version later
     # concentration of plume (excel file)
     # partitioning coefficient, K_ref, +/- 0.5 st. dev, @Martin to give the real values later
     # diffusion coefficient, K_ref, +/- 0.5 st. dev, @Martin to give the real values later
     # Assessment factor = 1 or 3
-    # Flow rate, from Mirjam?
-    # Pipe thickness ?
+    # Flow rate -> @Martin, contact dw companies for distribution 
+    # Pipe thickness ? -> Amitosh/Aulia
 
 # Steps
 # import the data on plume concentration, contact length
@@ -97,20 +97,24 @@ length_values = list(length_range.contactlengte)
 # Function to create pipe
 def create_pipe(ext_values, 
                 length_values, 
-                assessment_factor = 3 ):
+                assessment_factor = 3):
     '''
     Create the pipe and set the conditions for the Monte-Carlo simulation
     '''
 
     gw_conc = random.choice(ext_values)
-    
+
+    # ah_todo
+    # Update with information from Amitosh/Aulia
     length = random.choice(length_values)
 
     # set range for diffusion coefficient, for benzene
+    #@Martin, is this the LogKpw_ref value update or the LogKpw?
     log_Dp_ref = -11.54717333172
     log_Dp = NormalDist(mu=log_Dp_ref, sigma=0.5).inv_cdf(p=random.random())
     
     # set range for partitioning coefficient, for benzene
+    #@Martin, is this the LogDp_ref value update or the LogDp?
     log_Kpw_ref = 1.6476099999999998
     log_Kpw = NormalDist(mu=log_Kpw_ref, sigma=0.5).inv_cdf(p=random.random())
     
@@ -119,9 +123,9 @@ def create_pipe(ext_values,
     flow_rate = NormalDist(mu=0.5, sigma=0.1).inv_cdf(p=random.random())
     #ah_todo change this to be the 1,2,4 person households at 120 L per person per day
 
-    # add pipe_thickness
+    # ah_todo
+    # Update with information from Amitosh/Aulia
     wall_thickness = NormalDist(mu=0.0027, sigma=0.0001).inv_cdf(p=random.random())
-    # change this when contacted Amitosh/Aulia from distribution
 
     seg1 = Segment(name='seg1',
                     material='PE40',
@@ -160,6 +164,8 @@ gw_concs = []
 log_Kpws = []
 log_Dps = []
 lengths = []
+flow_rates = []
+wall_thicknesses =[]
 
 # initialize the index parameters
 tenth_perc_n_min_1 = 0
@@ -176,7 +182,8 @@ while True:
 
     for lp in tqdm(sims):
         pipe1, seg1 = create_pipe(ext_values=ext_values, length_values=length_values)
-        dw_conc = pipe1.calculate_peak_dw_concentration()
+
+        dw_conc = pipe1.calculate_mean_dw_concentration()
 
         # gw_conc, log_Kpw, log_Dp, length, dw_conc = create_pipe(ext_values=ext_values, length_values=length_values)
         dw_concs.append(dw_conc)
@@ -184,10 +191,12 @@ while True:
         log_Kpws.append(seg1.log_Kpw)  
         log_Dps.append(seg1.log_Dp)
         lengths.append(seg1.length)
+        flow_rates.append(pipe1.flow_rate)
+        wall_thicknesses.append(seg1.wall_thickness)
 
     # check if the 10th and 90th percentile within tolerance, then stop the loop
     tenth_perc = np.percentile(dw_concs, 10)
-    ninety_perc = np.percentile(dw_concs, 10)
+    ninety_perc = np.percentile(dw_concs, 90)
 
     criteria_ten = abs(1 - tenth_perc / tenth_perc_n_min_1)
     criteria_nine = abs(1 - ninety_perc / ninety_perc_n_min_1)
@@ -198,9 +207,11 @@ while True:
         ninety_perc_n_min_1 = ninety_perc
         tenth_perc_n_min_1 = tenth_perc
 
+    print('ninety_perc:', ninety_perc, 'tenth_per:c', tenth_perc)
+
 # put the data into a df, sort by the dw_conc and save
-data = zip(dw_concs, gw_concs, log_Kpws, log_Dps, lengths)
-df = pd.DataFrame(data,  columns = ['dw_concs', 'gw_conc', 'Kpw', 'Dp', 'Length'])
+data = zip(dw_concs, gw_concs, log_Kpws, log_Dps, lengths, flow_rates, wall_thicknesses)
+df = pd.DataFrame(data,  columns = ['dw_concs', 'gw_conc', 'Kpw', 'Dp', 'Length', 'flow_rates', 'wall_thicknesses'])
 df.sort_values(by=['dw_concs'], inplace=True)
 df.reset_index(inplace=True)
 
@@ -209,7 +220,7 @@ save_df_pickle(filename='example_monte-carlo_loop_df', df= df, foldername='monte
 #%%
 save_results_to = check_create_folders(folder_name='figures')
 
-df = load_pickle(filename='example_monte-carlo_loop_df')
+df = load_pickle(filename='example_monte-carlo_loop_df', foldername='monte-carlo_output')
 dw_norm = 0.001 # Benzene drinking water norm, g/m3
 
 fig = plt.figure(figsize=[10, 5])
@@ -220,6 +231,9 @@ plt.xlabel('Mean DW concentration (g/m3)')
 plt.ylabel('Probability')
 plt.xscale('log')
 plt.legend()
-plt.savefig(save_results_to +'/example_monte-carlo_simulation.png', dpi=300, bbox_inches='tight')
+# plt.savefig(save_results_to +'/example_monte-carlo_simulation.png', dpi=300, bbox_inches='tight')
 
 #%%
+
+len(df.loc[df.dw_concs > dw_norm]) / len(df)
+# %%
