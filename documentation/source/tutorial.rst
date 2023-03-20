@@ -251,7 +251,83 @@ These values can be manually changed in the four concentration calculations by s
 
     print("The mean concentration is:", round(mean_conc,3), "g/m3")
 
-    mean_conc = pipe4.calculate_mean_allowable_gw_concentration(tolerance = 0.001, 
+    peak_conc = pipe4.calculate_mean_allowable_gw_concentration(tolerance = 0.001, 
                                 max_iterations=1000)
 
-    print("The peak concentration is:", round(mean_conc,3), "g/m3")
+    print("The peak concentration is:", round(peak_conc,3), "g/m3")
+
+Model Testing
+============= 
+
+The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular wieght, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.
+
+
+.. ipython:: python
+
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,
+                )
+
+    pipe1 = Pipe(segment_list=[seg1])
+    input_gw = 1
+
+    pipe1.set_conditions(
+        chemical_name='Benzeen', 
+                        concentration_groundwater =input_gw,
+                        temperature_groundwater=12, 
+                        flow_rate=0.5)
+
+    pipe1.validate_input_parameters()
+
+    peak_conc=pipe1.calculate_peak_dw_concentration()
+
+    print("The peak drinking water concentration is:", round(peak_conc,3), "g/m3")
+
+    pipe1.set_conditions(chemical_name='Benzeen', 
+                        temperature_groundwater=12, 
+                        concentration_drinking_water = peak_conc,
+                        flow_rate=0.5)
+
+    output_gw = pipe1.calculate_peak_allowable_gw_concentration()
+
+    print("The peak allowable groundwater concentration is:", round(output_gw,3), "g/m3")
+
+    print("The output groundwater concentraion is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
+
+.. ipython:: python
+
+    seg1 = Segment(name='seg1',
+                material= 'PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,
+                )
+
+    pipe1 = Pipe(segment_list=[seg1])
+    input_gw = 1
+
+    pipe1.set_conditions(
+        chemical_name='Benzeen', 
+                        concentration_groundwater =input_gw,
+                        temperature_groundwater=12, 
+                        flow_rate=0.5)
+
+    pipe1.validate_input_parameters()
+
+    mean_conc=pipe1.calculate_mean_dw_concentration()
+
+    print("The mean drinking water concentration is:", round(mean_conc,5), "g/m3")
+
+    pipe1.set_conditions(chemical_name='Benzeen', 
+                        temperature_groundwater=12, 
+                        concentration_drinking_water = mean_conc,
+                        flow_rate=0.5)
+
+    output_gw = pipe1.calculate_mean_allowable_gw_concentration()
+
+    print("The mean allowable groundwater concentration is:", round(output_gw,3), "g/m3")
+
+    print("The output groundwater concentraion is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
