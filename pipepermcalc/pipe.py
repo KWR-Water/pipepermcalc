@@ -316,7 +316,7 @@ class Pipe:
             must be determined.
         database: pandas df
             Dataframe of the database of chemical information, including chemical 
-            name, CAS number, molecular weight, solubulity, LKow, Kd etc. 
+            name, CAS number, molecular weight, solubility, LKow, Kd etc. 
 
         Returns
         -------
@@ -591,7 +591,7 @@ class Pipe:
                             
             self.concentration_drinking_water = concentration_drinking_water_n
             if concentration_drinking_water_n > self.solubility:
-                raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubulity}.')
+                print(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubility}.')
 
         return concentration_drinking_water_n 
 
@@ -688,7 +688,7 @@ class Pipe:
                 
             self.concentration_drinking_water = concentration_drinking_water_n
             if concentration_drinking_water_n > self.solubility:
-                raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubulity}.')
+                print(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubility}.')
 
         return concentration_drinking_water_n
 
@@ -828,7 +828,7 @@ class Pipe:
         
         self.concentration_groundwater = concentration_groundwater_n_min_1
         if concentration_groundwater_n_min_1 > self.solubility:
-            raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubulity}.')
+            print(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubility}.')
 
         if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
@@ -976,7 +976,7 @@ class Pipe:
 
         self.concentration_groundwater = concentration_groundwater_n_min_1
         if concentration_groundwater_n_min_1 > self.solubility:
-            raise ValueError(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubulity}.')
+            print(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubility}.')
 
         if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
         else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
