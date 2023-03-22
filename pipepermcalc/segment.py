@@ -347,7 +347,7 @@ class Segment:
         reference_temperature = 25 # deg. C
         dh = a_dh * np.log10(coefficient_name) + b_dh
         f_temp = dh / (R * np.log(10)) * (1 / (reference_temperature + 273) - 1 / (temperature_groundwater + 273))
-        return f_temp
+        return f_temp, dh
 
 
     def _concentration_correction(self,
@@ -490,7 +490,7 @@ class Segment:
                                                log_octanol_water_partitioning_coefficient= pipe.log_octanol_water_partitioning_coefficient)
 
         # correct for temperature, concentration, age
-        f_Ktemp = self._correct_for_temperature(coefficient_name = pipe.solubility,
+        K_dh, f_Ktemp = self._correct_for_temperature(coefficient_name = pipe.solubility,
                             temperature_groundwater = pipe.temperature_groundwater, 
                             a_dh = self._PARTITIONING_A_DH, 
                             b_dh = self._PARTITIONING_B_DH, )
@@ -514,6 +514,7 @@ class Segment:
         self.log_Kpw_ref = log_Kpw_ref
         self.f_Ktemp = f_Ktemp   
         self.f_Kconc = f_Kconc
+        self.partitioning_enthalpie = K_dh
         self.log_Kpw = log_Kpw
 
         return log_Kpw
@@ -544,7 +545,7 @@ class Segment:
                             molecular_weight=pipe.molecular_weight)
 
         # correct for temperature, concentration, age
-        f_Dtemp = self._correct_for_temperature(coefficient_name =pipe.molecular_weight,
+        D_dh, f_Dtemp = self._correct_for_temperature(coefficient_name =pipe.molecular_weight,
                             temperature_groundwater = pipe.temperature_groundwater, 
                             a_dh = self._DIFFUSION_A_DH, 
                             b_dh = self._DIFFUSION_B_DH,)
@@ -567,7 +568,8 @@ class Segment:
         log_Dp = log_Dp_ref + f_Dtemp + f_Dconc + f_Dage
 
         self.log_Dp_ref = log_Dp_ref
-        self.f_Dtemp = f_Dtemp    
+        self.f_Dtemp = f_Dtemp  
+        self.activattion_energy = D_dh
         self.f_Dconc = f_Dconc
         self.log_Dp = log_Dp #m2/s
 
