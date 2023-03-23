@@ -490,7 +490,7 @@ class Segment:
                                                log_octanol_water_partitioning_coefficient= pipe.log_octanol_water_partitioning_coefficient)
 
         # correct for temperature, concentration, age
-        K_dh, f_Ktemp = self._correct_for_temperature(coefficient_name = pipe.solubility,
+        f_Ktemp, K_dh = self._correct_for_temperature(coefficient_name = pipe.solubility,
                             temperature_groundwater = pipe.temperature_groundwater, 
                             a_dh = self._PARTITIONING_A_DH, 
                             b_dh = self._PARTITIONING_B_DH, )
@@ -545,7 +545,7 @@ class Segment:
                             molecular_weight=pipe.molecular_weight)
 
         # correct for temperature, concentration, age
-        D_dh, f_Dtemp = self._correct_for_temperature(coefficient_name =pipe.molecular_weight,
+        f_Dtemp, D_dh = self._correct_for_temperature(coefficient_name =pipe.molecular_weight,
                             temperature_groundwater = pipe.temperature_groundwater, 
                             a_dh = self._DIFFUSION_A_DH, 
                             b_dh = self._DIFFUSION_B_DH,)
