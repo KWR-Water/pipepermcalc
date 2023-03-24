@@ -7,3 +7,4 @@ pandas>=1
 cloudpickle>=1.2.2
 xlrd>=1.0.0
 scipy>=1.5.2
+fuzzywuzzy>=0.18.0
