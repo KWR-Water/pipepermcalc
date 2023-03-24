@@ -11,7 +11,7 @@ import pandas as pd
 import fuzzywuzzy.fuzz as fwf
 import fuzzywuzzy.process as fwp
 
-from project_path import file_path, module_path
+from project_path import module_path
 
 from pipepermcalc.segment import * 
 
@@ -262,7 +262,7 @@ class Pipe:
             for segment in self.segment_list:
                 self._validate_object(segment)
                 if segment.permeation_direction == 'perpendicular':
-                    self._permeation_direction = True
+                    self._permeation_direction = True # @alex this is a confusing name i would say _permeation_direction_set or something similar
         
             #validate the pipe attributes
             self._validate_object(self)
@@ -395,7 +395,7 @@ class Pipe:
                     concentration_soil=None,
                     flow_rate=None,
                     concentration_drinking_water=None,
-                    temperature_groundwater=TEMPERATURE_GROUNDWATER_DEFAULT, 
+                    temperature_groundwater= TEMPERATURE_GROUNDWATER_DEFAULT, 
                     stagnation_time = STAGNATION_TIME_DEFAULT,
                     suppress_print = False, 
                     language = 'NL'
@@ -458,18 +458,22 @@ class Pipe:
         self.concentration_groundwater = concentration_groundwater
         self.concentration_soil = concentration_soil
 
+        # @alex I find this block of if statements a little confusing. I have the feeling it should be able to make it easier. Also if not neccesary remove all the commented out else statements
         if (concentration_groundwater is None) and (concentration_soil is None):
             pass #values already assigned, are None
-        if (concentration_groundwater is not None) and (concentration_soil is None):
-            if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
+        if (concentration_groundwater is not None) and (concentration_soil is None): # @alex since there is no else it could also be if .... and .... and self.Kd_known:
+            if self._Kd_known: 
+                self.concentration_soil = self._soil_to_groundwater()
             # else: self.concentration_soil = None
-        if (concentration_groundwater is None) and (concentration_soil is not None):
-            if self._Kd_known: self.concentration_groundwater = (self.concentration_soil * self.ASSESSMENT_FACTOR_GROUNDWATER) / ( 10 ** self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL )
+        if (concentration_groundwater is None) and (concentration_soil is not None): # @alex same here
+            if self._Kd_known: 
+                self.concentration_groundwater = (self.concentration_soil * self.ASSESSMENT_FACTOR_GROUNDWATER) / ( 10 ** self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL )
             # else: self.concentration_soil = given value, self.concentration_groudnwater = None
-        if (concentration_groundwater is not None) and (concentration_soil is not None):
+        if (concentration_groundwater is not None) and (concentration_soil is not None): # @alex and again same here
             # @martin, take the gw concentration over the given soil concentration?
             # or check the Kd? 
-            if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
+            if self._Kd_known: 
+                self.concentration_soil = self._soil_to_groundwater()
             # else: self.concentration_soil = given value
 
         if self.concentration_groundwater is not None:
@@ -549,7 +553,7 @@ class Pipe:
             upper_limit = self.concentration_groundwater # initial value for the upper limit
             criteria_list = [0] # initial list of criteria values
             min_criteria = 100 # initial value for minimum criteria value, high
-            while True:    
+            while True: # @alex in my experience this loop could do with a little more comments    
                 concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
 
                 sum_mass_segment = 0
@@ -646,7 +650,7 @@ class Pipe:
             criteria_list = [0] # initial list of criteria values
             min_criteria = 100 # initial value for minimum criteria value, high
 
-            while True:    
+            while True:  # @alex this loop could also do with a little more comments  
 
                 concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
 
@@ -772,7 +776,7 @@ class Pipe:
             criteria_list = [0] # initial list of criteria values
             min_criteria = 100 # initial value for minimum criteria value, high
 
-            while True:
+            while True: # @alex and this loop could also do with a little more comments
                 concentration_groundwater_n_min_1 = concentration_groundwater_n_plus_1
 
                 self.set_conditions(chemical_name=self.chemical_name,                                    
@@ -830,8 +834,10 @@ class Pipe:
         if concentration_groundwater_n_min_1 > self.solubility:
             print(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubility}.')
 
-        if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
-        else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
+        if self._Kd_known: 
+            self.concentration_soil = self._soil_to_groundwater()
+        else: 
+            self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
 
         return concentration_groundwater_n_min_1 
 
@@ -920,7 +926,7 @@ class Pipe:
             criteria_list = [0] # initial list of criteria values
             min_criteria = 100 # initial value for minimum criteria value, high
 
-            while True:
+            while True: # @alex this loop could also do with a little more comments.
                 concentration_groundwater_n_min_1 = concentration_groundwater_n_plus_1
 
                 self.set_conditions(chemical_name=self.chemical_name,                                    
