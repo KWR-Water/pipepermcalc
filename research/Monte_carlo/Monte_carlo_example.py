@@ -59,6 +59,22 @@ def load_pickle(filename, foldername=None):
     return df
 
 #%%
+
+seg1 = Segment(name='seg1',
+            material='PE40',
+            length=25, #here set the length
+            inner_diameter=0.0196,
+            wall_thickness=0.0027)
+
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(concentration_soil = 15, #here set the gw conc
+                chemical_name="Benzeen", 
+                temperature_groundwater=12,
+                flow_rate=1.5, 
+                suppress_print=True)
+seg1.partitioning_enthalpie
+#%%
 # Overview of steps for Monte-Carlo simulations
 
 #Parameters to vary:
@@ -83,17 +99,17 @@ def load_pickle(filename, foldername=None):
 
 #%%
 # import the data on plume concentration
-df = pd.read_excel(module_path / 'research' / 'Monte_carlo' / '20190702 kans normoverschrijding.xlsx', 
-                    sheet_name='RGW_AH', header=[175], usecols = "A:E", ) 
+# df = pd.read_excel(module_path / 'research' / 'Monte_carlo' / '20190702 kans normoverschrijding.xlsx', 
+#                     sheet_name='RGW_AH', header=[175], usecols = "A:E", ) 
 
-save_df_pickle(filename='monte-carlo_plume_concs', df= df, foldername='monte-carlo_output')
+# save_df_pickle(filename='monte-carlo_plume_concs', df= df, foldername='monte-carlo_output')
 df = load_pickle(filename='monte-carlo_plume_concs', foldername='monte-carlo_output')
 ext_values = list(df.ext_value)
 
 # range lenth pipe 
-length_range =pd.read_excel(module_path / 'research' / 'Monte_carlo' / '20190702 kans normoverschrijding.xlsx', 
-                    sheet_name='RGW_AH', header=[0], usecols = "U", nrows=12) 
-save_df_pickle(filename='monte-carlo_lenths', df= length_range, foldername='monte-carlo_output')
+# length_range =pd.read_excel(module_path / 'research' / 'Monte_carlo' / '20190702 kans normoverschrijding.xlsx', 
+#                     sheet_name='RGW_AH', header=[0], usecols = "U", nrows=12) 
+# save_df_pickle(filename='monte-carlo_lenths', df= length_range, foldername='monte-carlo_output')
 length_range = load_pickle(filename='monte-carlo_lenths', foldername='monte-carlo_output')
 length_values = list(length_range.contactlengte)
 
@@ -126,6 +142,8 @@ random.seed(5)
 # Set number of simulations per round, set tolerance for checking simulation rounds
 sims = range(1000)
 tolerance = 0.01
+
+# Choice of assessment factor, 3 or 1
 assessment_factor = 3
 
 while True:
