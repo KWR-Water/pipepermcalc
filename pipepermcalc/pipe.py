@@ -239,7 +239,7 @@ class Pipe:
         ''' Check that the input parameters are valid values and types for the 
         Pipe and Segment objects'''
 
-        #check if 
+        #check if conditions are set
         if self._conditions_set is False:
             raise ValueError('Error, the pipe conditions must first be set. To set pipe conditions use .set_conditions() ')
         else: 
@@ -280,7 +280,7 @@ class Pipe:
         """
         DEFAULT_FUZZY_MINSCORES = {1: 100, 3: 100, 4: 90, 5: 85, 6: 80, 8: 75}
 
-        xp = list(DEFAULT_FUZZY_MINSCORES.keys()) #@martin comment: #@@ maybe it's easier to enter a list directly, instead of extract the dictionary.
+        xp = list(DEFAULT_FUZZY_MINSCORES.keys()) 
         fp = [v for v in DEFAULT_FUZZY_MINSCORES.values()]
         # Use the interp function from NumPy. By default this function
         # yields fp[0] for x < xp[0] and fp[-1] for x > xp[-1]
@@ -291,7 +291,8 @@ class Pipe:
                                         chemical_name, 
                                         database):
         
-        ''' Search and extract the highest matching chemical name from the 
+        ''' 
+        Search and extract the highest matching chemical name from the 
         database for the given input.
 
         Parameters
@@ -369,8 +370,8 @@ class Pipe:
         Calculate the concentration in soil given the concentration in 
         groundwater
         '''
-        
-        concentration_soil = (10 ** self.log_distribution_coefficient * self.concentration_groundwater * self.ASSESSMENT_FACTOR_SOIL / self.ASSESSMENT_FACTOR_GROUNDWATER)
+        concentration_soil = (10 ** self.log_distribution_coefficient * self.concentration_groundwater 
+                              * self.ASSESSMENT_FACTOR_SOIL / self.ASSESSMENT_FACTOR_GROUNDWATER)
 
         return concentration_soil
 
@@ -418,12 +419,12 @@ class Pipe:
             English ('EN') also possible
 
         '''
+
         self.chemical_name = chemical_name
         self.temperature_groundwater = temperature_groundwater
         self.stagnation_time = stagnation_time
         self.language = language
 
-        #return to these checks...
         self._conditions_set = True
 
         self.flow_rate = flow_rate
@@ -805,7 +806,7 @@ class Pipe:
                 # break loop is maximum iterations is exceeded
                 # if not calculate the new gw concentration
                 if goodness_fit <= tolerance:
-                    if debug: #counter % 100 ==0 :
+                    if debug:
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, goodness_fit, lower_limit, upper_limit) #for debugging
                     break
                 elif counter > max_iterations:
@@ -831,7 +832,7 @@ class Pipe:
                         else:
                             upper_limit = concentration_groundwater_n_min_1
                             concentration_groundwater_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
-                    if debug: #counter % 100 ==0 :
+                    if debug: 
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, goodness_fit, lower_limit, upper_limit) #for debugging
 
         # assign the groundwater concentration to be the concentration calculated in the loop                            
@@ -885,8 +886,7 @@ class Pipe:
         if self.stagnation_time != self.STAGNATION_TIME_DEFAULT:
             print("Warning: the stagnation factor is only valid for a stagnation time of 8 hours. Using a different stagnation time is not advised.")
 
-        # Check if the conditions have been set and parameters 
-        # validated, if not raise error
+        # Check if the conditions have been set and parameters validated, if not raise error
         elif self._conditions_set is False:
             raise ValueError('Error, the pipe conditions must first be set. To set pipe conditions use .set_conditions() ')
 
@@ -990,11 +990,12 @@ class Pipe:
                         else:
                             upper_limit = concentration_groundwater_n_min_1
                             concentration_groundwater_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
-                    if debug: #counter % 100 ==0 :
+                    if debug: 
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, goodness_fit, lower_limit, upper_limit) #for debugging
         
         # assign the groundwater concentration to be the concentration calculated in the loop
         self.concentration_groundwater = concentration_groundwater_n_min_1
+        
         if concentration_groundwater_n_min_1 > self.solubility:
             print(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubility}.')
 

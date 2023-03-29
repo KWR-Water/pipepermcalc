@@ -51,7 +51,6 @@ class Segment:
         Reference concentration used in the correction for the diffusion 
         coefficent due to the influence of temperature. Ssee section 5.4.6 in 
         KWR 2016.056. For partitioning, Cref_SW = 0.5.
-
     name: string
         name of the pipe segment
     material: string
@@ -110,8 +109,6 @@ class Segment:
 
 
     '''
-
-    count = 0 # count of pipe segments
 
     def __init__(self, 
                 name=None,
@@ -343,7 +340,7 @@ class Segment:
             coefficient.
         '''
 
-        R = 0.008314 #universal gas constant
+        R = 0.008314 #universal gas constant [J/k/mol]
         reference_temperature = 25 # deg. C
         dh = a_dh * np.log10(coefficient_name) + b_dh
         f_temp = dh / (R * np.log(10)) * (1 / (reference_temperature + 273) - 1 / (temperature_groundwater + 273))
@@ -502,6 +499,7 @@ class Segment:
         
         f_Kage = self._correct_for_age()
 
+        # No diffusion though PVC, assign values to zero
         if self.material == 'PVC':
             f_Ktemp = 0
             f_Kconc = 0
@@ -558,6 +556,7 @@ class Segment:
         
         f_Dage = self._correct_for_age()
 
+        # No diffusion though PVC, assign values to zero
         if self.material == 'PVC':
             f_Dtemp = 0
             f_Dconc = 0
@@ -620,6 +619,7 @@ class Segment:
         stagnation_factor = 10 ** max((((self.log_Dp + 12.5) / 2 + 
                                 self.log_Kpw) * 0.73611 + 
                                 -1.03574 ), 0)
+        
         return stagnation_factor
     
 
