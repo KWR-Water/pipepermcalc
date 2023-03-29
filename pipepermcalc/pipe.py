@@ -208,7 +208,7 @@ class Pipe:
         self._flow_rate_set = False
         self._concentration_groundwater_set = False
         self._is_validated = False
-        self._permeation_direction = False
+        self._set_permeation_direction = False
 
         sum_total_volume = 0
         sum_total_length = 0
@@ -262,12 +262,12 @@ class Pipe:
             for segment in self.segment_list:
                 self._validate_object(segment)
                 if segment.permeation_direction == 'perpendicular':
-                    self._permeation_direction = True # @alex this is a confusing name i would say _permeation_direction_set or something similar
+                    self._set_permeation_direction = True 
         
             #validate the pipe attributes
             self._validate_object(self)
 
-            if self._permeation_direction is False:
+            if self._set_permeation_direction is False:
                 raise ValueError('Error, there must be atlease one pipe segment with permeation perpendicular to the flow rate.')
             else:
                 self._is_validated=True
@@ -458,17 +458,16 @@ class Pipe:
         self.concentration_groundwater = concentration_groundwater
         self.concentration_soil = concentration_soil
 
-        # @alex I find this block of if statements a little confusing. I have the feeling it should be able to make it easier. Also if not neccesary remove all the commented out else statements
+        # @alex I find this block of if statements a little confusing. I have the feeling it should be able to make it easier. 
+        # Also if not neccesary remove all the commented out else statements
         if (concentration_groundwater is None) and (concentration_soil is None):
             pass #values already assigned, are None
         if (concentration_groundwater is not None) and (concentration_soil is None): # @alex since there is no else it could also be if .... and .... and self.Kd_known:
             if self._Kd_known: 
                 self.concentration_soil = self._soil_to_groundwater()
-            # else: self.concentration_soil = None
         if (concentration_groundwater is None) and (concentration_soil is not None): # @alex same here
             if self._Kd_known: 
                 self.concentration_groundwater = (self.concentration_soil * self.ASSESSMENT_FACTOR_GROUNDWATER) / ( 10 ** self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL )
-            # else: self.concentration_soil = given value, self.concentration_groudnwater = None
         if (concentration_groundwater is not None) and (concentration_soil is not None): # @alex and again same here
             # @martin, take the gw concentration over the given soil concentration?
             # or check the Kd? 
@@ -553,25 +552,32 @@ class Pipe:
             upper_limit = self.concentration_groundwater # initial value for the upper limit
             criteria_list = [0] # initial list of criteria values
             min_criteria = 100 # initial value for minimum criteria value, high
-            while True: # @alex in my experience this loop could do with a little more comments    
+            while True: 
+
+                # counter for the number of loops in the while statement, used to prevent infinite looping
+                counter +=1
+                # set the drinking water concentration to be the updated one from the last loop
                 concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
-
+                # initalize summed mass of chemical in segments to 0
                 sum_mass_segment = 0
-
+                # calculate the mean dw mass per segment, and sum all segments for the pipe
                 for segment in self.segment_list:
                     segment._calculate_mean_dw_mass_per_segment(pipe=self, 
                                             concentration_drinking_water=concentration_drinking_water_n_min_1,
                                             concentration_groundwater=self.concentration_groundwater,)
-
                     sum_mass_segment += segment.mass_chemical_drinkwater
 
+                #calculate the dw concentration from the summed segments
                 concentration_drinking_water_n = (sum_mass_segment / 
                                                 self.flow_rate ) 
-                counter +=1
-
+                
+                # criteria used to test if the calculated dw concentration is within the tolerance value for a correct solution
                 criteria = abs(1 - concentration_drinking_water_n_min_1 
                                     / concentration_drinking_water_n)
-
+                
+                # check if criteria value meets the allowed tolerance value, 
+                # break loop is maximum iterations is exceeded
+                # if not calculate the new dw concentration
                 if criteria <= tolerance:
                     break
                 elif counter > max_iterations:
@@ -580,8 +586,10 @@ class Pipe:
                 else:
                     min_criteria = min(min_criteria, criteria)
                     criteria_list.append(criteria)
-
-                    if counter == 1:
+                    
+                    # For the first two iterations use two set concentrations to begin the search for the solution, 
+                    # after the 2nd iteration, search for solution by half interval search
+                    if counter == 1: 
                         concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_UPPER_LIMIT 
                     if counter == 2:
                         concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_LOWER_LIMIT
@@ -592,7 +600,8 @@ class Pipe:
                         else:
                             upper_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
-                            
+
+            # assign the drinking water concentration to be the concentration calculated in the loop                            
             self.concentration_drinking_water = concentration_drinking_water_n
             if concentration_drinking_water_n > self.solubility:
                 print(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubility}.')
@@ -650,25 +659,30 @@ class Pipe:
             criteria_list = [0] # initial list of criteria values
             min_criteria = 100 # initial value for minimum criteria value, high
 
-            while True:  # @alex this loop could also do with a little more comments  
-
+            while True:                
+                # counter for the number of loops in the while statement, used to prevent infinite looping
+                counter +=1
+                # set the drinking water concentration to be the updated one from the last loop
                 concentration_drinking_water_n_min_1 = concentration_drinking_water_n_plus_1
-
+                # initalize summed mass of chemical in segments to 0
                 sum_mass_segment = 0
-
+                # calculate the mean dw mass per segment, and sum all segments for the pipe
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe=self, 
                                             concentration_drinking_water=concentration_drinking_water_n_min_1,
                                             concentration_groundwater=self.concentration_groundwater,)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
-
+                
+                #calculate the dw concentration from the summed segments
                 concentration_drinking_water_n = (sum_mass_segment / 
-                                                self.total_volume ) # ah_todo @Martin, this is not correst??
-                counter +=1
-
+                                                self.total_volume ) 
+                # criteria used to test if the calculated dw concentration is within the tolerance value for a correct solution
                 criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
-
+                
+                # check if criteria value meets the allowed tolerance value, 
+                # break loop is maximum iterations is exceeded
+                # if not calculate the new dw concentration
                 if criteria <= tolerance:
                     break
                 elif counter > max_iterations:
@@ -677,7 +691,9 @@ class Pipe:
                 else:
                     min_criteria = min(min_criteria, criteria)
                     criteria_list.append(criteria)
-
+                    
+                    # For the first two iterations use two set concentrations to begin the search for the solution, 
+                    # after the 2nd iteration, search for solution by half interval search
                     if counter == 1:
                         concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_UPPER_LIMIT
                     if counter == 2:
@@ -689,7 +705,8 @@ class Pipe:
                         else:
                             upper_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
-                
+
+            # assign the drinking water concentration to be the concentration calculated in the loop                            
             self.concentration_drinking_water = concentration_drinking_water_n
             if concentration_drinking_water_n > self.solubility:
                 print(f'Warning, the calculated drinking water concentration ({concentration_drinking_water_n}) is above the solubility limit, {self.solubility}.')
@@ -776,9 +793,13 @@ class Pipe:
             criteria_list = [0] # initial list of criteria values
             min_criteria = 100 # initial value for minimum criteria value, high
 
-            while True: # @alex and this loop could also do with a little more comments
+            while True:
+                # counter for the number of loops in the while statement, used to prevent infinite looping
+                counter +=1                
+                # set the groundwater concentration to be the updated one from the last loop
                 concentration_groundwater_n_min_1 = concentration_groundwater_n_plus_1
 
+                # set the conditions for the pipe with the updated groundwater concentration
                 self.set_conditions(chemical_name=self.chemical_name,                                    
                     concentration_groundwater=concentration_groundwater_n_min_1,
                     flow_rate=self.flow_rate,
@@ -788,20 +809,26 @@ class Pipe:
                     suppress_print = True, 
                     language = self.language)
 
+                # initalize summed mass of chemical in segments to 0
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm
                 mass_drinkingwater_norm = (self.concentration_drinking_water * self.flow_rate)
 
+                # calculate the mean dw mass per segment, and sum all segments for the pipe
                 for segment in self.segment_list:
                     segment._calculate_mean_dw_mass_per_segment(pipe=self, 
                                             concentration_drinking_water=self.concentration_drinking_water,
                                             concentration_groundwater=self.concentration_groundwater,)
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
-
-                counter +=1
+                
+                # criteria used to test if the calculated dw concentration is within the tolerance value for a correct solution
                 criteria = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
+
+                # check if criteria value meets the allowed tolerance value, 
+                # break loop is maximum iterations is exceeded
+                # if not calculate the new gw concentration
                 if criteria <= tolerance:
                     if debug: #counter % 100 ==0 :
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
@@ -815,7 +842,10 @@ class Pipe:
                 else:
                     min_criteria = min(min_criteria, criteria)
                     criteria_list.append(criteria)
-                    # two initial guesses to compare the goodness of fit
+
+                    # For the first two iterations use two set concentrations to 
+                    # begin the search for the solution, after the 2nd iteration
+                    # search for solution by half interval search
                     if counter == 1:
                         concentration_groundwater_n_plus_1 = self.solubility * self.SCALE_FACTOR_UPPER_LIMIT
                     if counter == 2:
@@ -829,8 +859,10 @@ class Pipe:
                             concentration_groundwater_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                     if debug: #counter % 100 ==0 :
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
-        
+
+        # assign the groundwater concentration to be the concentration calculated in the loop                            
         self.concentration_groundwater = concentration_groundwater_n_min_1
+
         if concentration_groundwater_n_min_1 > self.solubility:
             print(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubility}.')
 
@@ -926,9 +958,13 @@ class Pipe:
             criteria_list = [0] # initial list of criteria values
             min_criteria = 100 # initial value for minimum criteria value, high
 
-            while True: # @alex this loop could also do with a little more comments.
+            while True: 
+                # counter for the number of loops in the while statement, used to prevent infinite looping
+                counter +=1                
+                # set the groundwater concentration to be the updated one from the last loop
                 concentration_groundwater_n_min_1 = concentration_groundwater_n_plus_1
 
+                # set the conditions for the pipe with the updated groundwater concentration
                 self.set_conditions(chemical_name=self.chemical_name,                                    
                     concentration_groundwater=concentration_groundwater_n_min_1,
                     flow_rate=self.flow_rate,
@@ -937,12 +973,14 @@ class Pipe:
                     stagnation_time = self.stagnation_time,
                     suppress_print = True, 
                     language = self.language)
-
+                
+                # initalize summed mass of chemical in segments to 0
                 sum_mass_segment = 0
 
                 # mass of chemical in pipe water to meet drinking water norm
                 mass_drinkingwater_norm = (self.concentration_drinking_water * self.total_volume) 
 
+                # calculate the mean dw mass per segment, and sum all segments for the pipe
                 for segment in self.segment_list:
                     segment._calculate_peak_dw_mass_per_segment(pipe=self, 
                                             concentration_drinking_water=self.concentration_drinking_water,
@@ -950,9 +988,12 @@ class Pipe:
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
 
-                counter +=1
+                # criteria used to test if the calculated dw concentration is within the tolerance value for a correct solution
                 criteria = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
-                
+
+                # check if criteria value meets the allowed tolerance value, 
+                # break loop is maximum iterations is exceeded
+                # if not calculate the new gw concentration
                 if criteria <= tolerance:
                     break
                 elif counter > max_iterations:
@@ -979,13 +1020,16 @@ class Pipe:
                             concentration_groundwater_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                     if debug: #counter % 100 ==0 :
                         print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
-
+        
+        # assign the groundwater concentration to be the concentration calculated in the loop
         self.concentration_groundwater = concentration_groundwater_n_min_1
         if concentration_groundwater_n_min_1 > self.solubility:
             print(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubility}.')
 
-        if self._Kd_known: self.concentration_soil = self._soil_to_groundwater()
-        else: self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
+        if self._Kd_known: 
+            self.concentration_soil = self._soil_to_groundwater()
+        else: 
+            self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
 
         return concentration_groundwater_n_min_1 
 

@@ -198,9 +198,9 @@ class Segment:
     #     plastics (PE40, PE80, SBR, EPDM) per chemical groups. 
     #     Used to calculate the specifice partitioning or diffusion coefficient 
     #     from the reference value. 
-    #     Chemical group numbers: Expert opinion (M. Meerkerk), @alex be aware of dutch in the comments (onbekend, overig)
-    #     see table 5-4 KWR 2016.056, Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk
-    #     Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE
+    #     Chemical group numbers: Expert opinion (M. Meerkerk)
+    #     see table 5-4 KWR 2016.056, Group 1: PAH, MAH, ClArom, ClAlk, Arom, Alk
+    #     Group 2: PCB, Group 3: other, unknown, O2, Cl, BDE
     reference_pipe_material_dict = \
         {
         "PE40": {
