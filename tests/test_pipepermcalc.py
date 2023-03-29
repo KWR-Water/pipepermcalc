@@ -26,7 +26,6 @@ import datetime
 from datetime import timedelta
 
 from pathlib import Path
-from project_path import file_path
 
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 

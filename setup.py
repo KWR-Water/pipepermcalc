@@ -8,8 +8,8 @@ def read(fname):
 package_name = 'pipepermcalc'
 setup(
     name=package_name,
-    version='0.1',
-    packages=find_packages(exclude=['tests*']),
+    version='0.0.5',
+    packages=find_packages(exclude=['tests*', 'tests.*', 'research*',]),
     license='All rights reserved',
     description='A python package to ',
     long_description=read('README.rst'),
@@ -18,10 +18,9 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Scientific/Engineering :: Water treatment',
+        'Programming Language :: Python :: 3.7',
     ],
-    python_requires='>=3.9',
+    python_requires='>=3.7',
     project_urls={
     'Source': f'https://github.com/KWR-Water/{package_name}',
     'Documentation': f'http://{package_name}.readthedocs.io/en/latest/',
@@ -32,8 +31,10 @@ setup(
         'pandas',
         'openpyxl',
         'pytest',
+        'fuzzywuzzy',
         ],
     url=f'https://github.com/KWR-Water/{package_name}',
     author='KWR Water Research Institute',
-    author_email='martin.korevaar@kwrwater.nl, bas.wols@kwrwater.nl'
+    author_email='alex.hockin@kwrwater.nl, bram.hillebrand@kwrwater.nl',
+    package_data={'': ['database/*.csv']},
 )

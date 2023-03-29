@@ -8,8 +8,6 @@
 import numpy as np
 import pandas as pd
 
-from project_path import file_path
-
 from pipepermcalc.pipe import * 
 
 class Segment:

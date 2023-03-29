@@ -11,9 +11,8 @@ import pandas as pd
 import fuzzywuzzy.fuzz as fwf
 import fuzzywuzzy.process as fwp
 
-from project_path import module_path
-
-from pipepermcalc.segment import * 
+from pipepermcalc.segment import *
+from pipepermcalc.database import DATA_DIR 
 
 class Pipe:
     '''
@@ -122,7 +121,7 @@ class Pipe:
     # FLOW_RATE_DEFAULT = 0.5/ 24 / 60 / 60 # 0.5 m3/day in seconds 
     # @martin, do we want a default flow rate?
 
-    ppc_database = pd.read_csv(module_path / 'database' / 'ppc_database.csv',  skiprows=[1, 2] ) 
+    ppc_database = pd.read_csv(DATA_DIR + '/ppc_database.csv',  skiprows=[1, 2] ) 
 
     #dictionary to check input parameter value and dtype
     parameter_validation_dictionary = \
