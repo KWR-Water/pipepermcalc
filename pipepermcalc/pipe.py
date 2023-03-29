@@ -82,21 +82,6 @@ class Pipe:
         Time in seconds which water in pipe is stagnant, unit of seconds. The 
         stagnation factor is only valid for a stagnation time of 8 hours 
         (28800 seconds), therefore using another other stagnation time is not advised.
-    concentration_peak_allowable_groundwater: float
-        Concentration in groundwater which, after a stagnation period, 
-        would not result in a peak concentration in drinking water exceeding 
-        the drinking water norm, g/m3.
-    concentration_mean_allowable_groundwater: float
-        Mean concentration in groundwater which would would not result in 
-        a mean daily (24 hours) concentration in drinking water exceeding 
-        the drinking water norm, g/m3.
-    mean_concentration_pipe_drinking_water: float 
-    #@martin, should these be returned as simply concentration_drinking_water to avoid confusion?
-        Calculates the mean concentration in drinking water for a 24 hour period
-        given a groundwater concentration.
-    peak_concentration_pipe_drinking_water: float
-        Calculates the peak (maximum) concentration in drinking water for a 
-        given a stagnation period given a groundwater concentration.
     concentration_soil: float
         Concentration of the given chemical in soil, mg/kg.
     scale_factor_upper_limit: float
@@ -458,22 +443,17 @@ class Pipe:
         self.concentration_groundwater = concentration_groundwater
         self.concentration_soil = concentration_soil
 
-        # @alex I find this block of if statements a little confusing. I have the feeling it should be able to make it easier. 
-        # Also if not neccesary remove all the commented out else statements
         if (concentration_groundwater is None) and (concentration_soil is None):
             pass #values already assigned, are None
-        if (concentration_groundwater is not None) and (concentration_soil is None): # @alex since there is no else it could also be if .... and .... and self.Kd_known:
-            if self._Kd_known: 
-                self.concentration_soil = self._soil_to_groundwater()
-        if (concentration_groundwater is None) and (concentration_soil is not None): # @alex same here
-            if self._Kd_known: 
-                self.concentration_groundwater = (self.concentration_soil * self.ASSESSMENT_FACTOR_GROUNDWATER) / ( 10 ** self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL )
-        if (concentration_groundwater is not None) and (concentration_soil is not None): # @alex and again same here
+        if (concentration_groundwater is not None) and (concentration_soil is None) and (self._Kd_known): 
+            self.concentration_soil = self._soil_to_groundwater()
+        if (concentration_groundwater is None) and (concentration_soil is not None) and (self._Kd_known): 
+            self.concentration_groundwater = ((self.concentration_soil * self.ASSESSMENT_FACTOR_GROUNDWATER) 
+                                                / ( 10 ** self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL ))
+        if (concentration_groundwater is not None) and (concentration_soil is not None) and (self._Kd_known):
             # @martin, take the gw concentration over the given soil concentration?
             # or check the Kd? 
-            if self._Kd_known: 
-                self.concentration_soil = self._soil_to_groundwater()
-            # else: self.concentration_soil = given value
+            self.concentration_soil = self._soil_to_groundwater()
 
         if self.concentration_groundwater is not None:
             self._concentration_groundwater_set = True
@@ -550,8 +530,7 @@ class Pipe:
             concentration_drinking_water_n_plus_1 = 0 #initial guess for drinking water 
             lower_limit = 0 # initial value for the lower limit
             upper_limit = self.concentration_groundwater # initial value for the upper limit
-            criteria_list = [0] # initial list of criteria values
-            min_criteria = 100 # initial value for minimum criteria value, high
+            goodness_fit_list = [0] # initial list of goodness_fit values
             while True: 
 
                 # counter for the number of loops in the while statement, used to prevent infinite looping
@@ -571,21 +550,20 @@ class Pipe:
                 concentration_drinking_water_n = (sum_mass_segment / 
                                                 self.flow_rate ) 
                 
-                # criteria used to test if the calculated dw concentration is within the tolerance value for a correct solution
-                criteria = abs(1 - concentration_drinking_water_n_min_1 
+                # goodness_fit used to test if the calculated dw concentration is within the tolerance value for a correct solution
+                goodness_fit = abs(1 - concentration_drinking_water_n_min_1 
                                     / concentration_drinking_water_n)
                 
-                # check if criteria value meets the allowed tolerance value, 
+                # check if goodness_fit value meets the allowed tolerance value, 
                 # break loop is maximum iterations is exceeded
                 # if not calculate the new dw concentration
-                if criteria <= tolerance:
+                if goodness_fit <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
                     break
                 else:
-                    min_criteria = min(min_criteria, criteria)
-                    criteria_list.append(criteria)
+                    goodness_fit_list.append(goodness_fit)
                     
                     # For the first two iterations use two set concentrations to begin the search for the solution, 
                     # after the 2nd iteration, search for solution by half interval search
@@ -594,7 +572,7 @@ class Pipe:
                     if counter == 2:
                         concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_LOWER_LIMIT
                     if counter >2:
-                        if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
+                        if (goodness_fit < goodness_fit_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
                             lower_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
                         else:
@@ -656,8 +634,7 @@ class Pipe:
             concentration_drinking_water_n_plus_1 = 0
             lower_limit = 0 # initial value for the lower limit
             upper_limit = self.concentration_groundwater # initial value for the upper limit
-            criteria_list = [0] # initial list of criteria values
-            min_criteria = 100 # initial value for minimum criteria value, high
+            goodness_fit_list = [0] # initial list of goodness_fit values
 
             while True:                
                 # counter for the number of loops in the while statement, used to prevent infinite looping
@@ -677,20 +654,19 @@ class Pipe:
                 #calculate the dw concentration from the summed segments
                 concentration_drinking_water_n = (sum_mass_segment / 
                                                 self.total_volume ) 
-                # criteria used to test if the calculated dw concentration is within the tolerance value for a correct solution
-                criteria = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
+                # goodness_fit used to test if the calculated dw concentration is within the tolerance value for a correct solution
+                goodness_fit = abs(1 - concentration_drinking_water_n_min_1 / concentration_drinking_water_n)
                 
-                # check if criteria value meets the allowed tolerance value, 
+                # check if goodness_fit value meets the allowed tolerance value, 
                 # break loop is maximum iterations is exceeded
                 # if not calculate the new dw concentration
-                if criteria <= tolerance:
+                if goodness_fit <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
                     break
                 else:
-                    min_criteria = min(min_criteria, criteria)
-                    criteria_list.append(criteria)
+                    goodness_fit_list.append(goodness_fit)
                     
                     # For the first two iterations use two set concentrations to begin the search for the solution, 
                     # after the 2nd iteration, search for solution by half interval search
@@ -699,7 +675,7 @@ class Pipe:
                     if counter == 2:
                         concentration_drinking_water_n_plus_1 = self.concentration_groundwater * self.SCALE_FACTOR_LOWER_LIMIT
                     if counter >2:
-                        if (criteria < criteria_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
+                        if (goodness_fit < goodness_fit_list[counter-1]) or (concentration_drinking_water_n > self.concentration_groundwater):
                             lower_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
                         else:
@@ -731,7 +707,7 @@ class Pipe:
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
         debug: Boolean
-            If True, return the groundwater concentration, criteria and lower and 
+            If True, return the groundwater concentration, goodness_fit and lower and 
             upper limits every iteration.
  
         Returns
@@ -790,8 +766,7 @@ class Pipe:
             counter = 0
             lower_limit = self.concentration_drinking_water # initial value for the lower limit
             upper_limit = self.solubility # initial value for the upper limit
-            criteria_list = [0] # initial list of criteria values
-            min_criteria = 100 # initial value for minimum criteria value, high
+            goodness_fit_list = [0] # initial list of goodness_fit values
 
             while True:
                 # counter for the number of loops in the while statement, used to prevent infinite looping
@@ -823,15 +798,15 @@ class Pipe:
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
                 
-                # criteria used to test if the calculated dw concentration is within the tolerance value for a correct solution
-                criteria = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
+                # goodness_fit used to test if the calculated dw concentration is within the tolerance value for a correct solution
+                goodness_fit = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
 
-                # check if criteria value meets the allowed tolerance value, 
+                # check if goodness_fit value meets the allowed tolerance value, 
                 # break loop is maximum iterations is exceeded
                 # if not calculate the new gw concentration
-                if criteria <= tolerance:
+                if goodness_fit <= tolerance:
                     if debug: #counter % 100 ==0 :
-                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
+                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, goodness_fit, lower_limit, upper_limit) #for debugging
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
@@ -840,8 +815,7 @@ class Pipe:
                     print('No solution found, lower_limit = upper_limit. Groundwater concentration necesary to satisfy the given drinking water concentration may be above the solubility limit.')
                     break
                 else:
-                    min_criteria = min(min_criteria, criteria)
-                    criteria_list.append(criteria)
+                    goodness_fit_list.append(goodness_fit)
 
                     # For the first two iterations use two set concentrations to 
                     # begin the search for the solution, after the 2nd iteration
@@ -851,14 +825,14 @@ class Pipe:
                     if counter == 2:
                         concentration_groundwater_n_plus_1 = 0
                     if counter >2:
-                        if (criteria < criteria_list[counter-1]) or (concentration_groundwater_n_plus_1 < self.concentration_drinking_water):
+                        if (goodness_fit < goodness_fit_list[counter-1]) or (concentration_groundwater_n_plus_1 < self.concentration_drinking_water):
                             lower_limit = concentration_groundwater_n_min_1
                             concentration_groundwater_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
                         else:
                             upper_limit = concentration_groundwater_n_min_1
                             concentration_groundwater_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                     if debug: #counter % 100 ==0 :
-                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
+                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, goodness_fit, lower_limit, upper_limit) #for debugging
 
         # assign the groundwater concentration to be the concentration calculated in the loop                            
         self.concentration_groundwater = concentration_groundwater_n_min_1
@@ -893,7 +867,7 @@ class Pipe:
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
         debug: Boolean
-            If True, return the groundwater concentration, criteria and lower and 
+            If True, return the groundwater concentration, goodness_fit and lower and 
             upper limits every iteration.
 
             
@@ -955,8 +929,7 @@ class Pipe:
             counter = 0
             lower_limit = self.concentration_drinking_water # initial value for the lower limit
             upper_limit = self.solubility # initial value for the upper limit
-            criteria_list = [0] # initial list of criteria values
-            min_criteria = 100 # initial value for minimum criteria value, high
+            goodness_fit_list = [0] # initial list of goodness_fit values
 
             while True: 
                 # counter for the number of loops in the while statement, used to prevent infinite looping
@@ -988,13 +961,13 @@ class Pipe:
 
                     sum_mass_segment += segment.mass_chemical_drinkwater
 
-                # criteria used to test if the calculated dw concentration is within the tolerance value for a correct solution
-                criteria = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
+                # goodness_fit used to test if the calculated dw concentration is within the tolerance value for a correct solution
+                goodness_fit = abs(1 - mass_drinkingwater_norm / sum_mass_segment)
 
-                # check if criteria value meets the allowed tolerance value, 
+                # check if goodness_fit value meets the allowed tolerance value, 
                 # break loop is maximum iterations is exceeded
                 # if not calculate the new gw concentration
-                if criteria <= tolerance:
+                if goodness_fit <= tolerance:
                     break
                 elif counter > max_iterations:
                     print('Max iterations exceeded')
@@ -1003,8 +976,7 @@ class Pipe:
                     print('No solution found, lower_limit = upper_limit. Groundwater concentration necesary to satisfy the given drinking water concentration may be above the solubility limit.')
                     break
                 else:
-                    min_criteria = min(min_criteria, criteria)
-                    criteria_list.append(criteria)
+                    goodness_fit_list.append(goodness_fit)
 
                     # two initial guesses to compare the goodness of fit
                     if counter == 1:
@@ -1012,14 +984,14 @@ class Pipe:
                     if counter == 2:
                         concentration_groundwater_n_plus_1 = 0
                     if counter >2:
-                        if (criteria < criteria_list[counter-1]) or (concentration_groundwater_n_plus_1 < self.concentration_drinking_water):
+                        if (goodness_fit < goodness_fit_list[counter-1]) or (concentration_groundwater_n_plus_1 < self.concentration_drinking_water):
                             lower_limit = concentration_groundwater_n_min_1
                             concentration_groundwater_n_plus_1 = lower_limit + (upper_limit -lower_limit)/2
                         else:
                             upper_limit = concentration_groundwater_n_min_1
                             concentration_groundwater_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
                     if debug: #counter % 100 ==0 :
-                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, criteria, lower_limit, upper_limit) #for debugging
+                        print(concentration_groundwater_n_min_1, concentration_groundwater_n_plus_1, goodness_fit, lower_limit, upper_limit) #for debugging
         
         # assign the groundwater concentration to be the concentration calculated in the loop
         self.concentration_groundwater = concentration_groundwater_n_min_1
