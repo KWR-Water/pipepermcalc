@@ -59,39 +59,16 @@ def load_pickle(filename, foldername=None):
     return df
 
 #%%
-
-seg1 = Segment(name='seg1',
-            material='PE40',
-            length=25, #here set the length
-            inner_diameter=0.0196,
-            wall_thickness=0.0027)
-
-pipe1 = Pipe(segment_list=[seg1])
-
-pipe1.set_conditions(concentration_soil = 15, #here set the gw conc
-                chemical_name="Benzeen", 
-                temperature_groundwater=12,
-                flow_rate=1.5, 
-                suppress_print=True)
-seg1.partitioning_enthalpie
-#%%
 # Overview of steps for Monte-Carlo simulations
 
 #Parameters to vary:
-    # size of plume (length of segment) (excel file) -> Amitosh/Auliato discuss more complicated version later
+    # size of plume (length of segment) (excel file)
     # concentration of plume (excel file)
-    # partitioning coefficient, K_ref, +/- 0.5 st. dev, @Martin to give the real values later
-    # diffusion coefficient, K_ref, +/- 0.5 st. dev, @Martin to give the real values later
+    # partitioning coefficient, K_ref, +/- st. dev, @Martin to give the real values later
+    # diffusion coefficient, K_ref, +/- st. dev, @Martin to give the real values later
     # Assessment factor = 1 or 3
     # Flow rate -> @Martin, contact dw companies for distribution 
     # Pipe thickness ? -> Amitosh/Aulia
-
-# Steps
-# import the data on plume concentration, contact length
-# set range for diffusion coefficient, D_ref +/- XX ->  See table 5-1 KWR 2016.056
-# set range for partitioning coefficient, K_ref +/- XX ->  See table 5-1 KWR 2016.056
-# set range flow rate
-# set range pipe thickness
 
 # Normal distrbution from mean (mu) and standard deviation (sigma), p is the 
 # random number from the random number generator between 0 and 1
@@ -103,187 +80,250 @@ seg1.partitioning_enthalpie
 #                     sheet_name='RGW_AH', header=[175], usecols = "A:E", ) 
 
 # save_df_pickle(filename='monte-carlo_plume_concs', df= df, foldername='monte-carlo_output')
-df = load_pickle(filename='monte-carlo_plume_concs', foldername='monte-carlo_output')
-ext_values = list(df.ext_value)
 
-# range lenth pipe 
+# range lenth pipe - OLD
 # length_range =pd.read_excel(module_path / 'research' / 'Monte_carlo' / '20190702 kans normoverschrijding.xlsx', 
 #                     sheet_name='RGW_AH', header=[0], usecols = "U", nrows=12) 
 # save_df_pickle(filename='monte-carlo_lenths', df= length_range, foldername='monte-carlo_output')
-length_range = load_pickle(filename='monte-carlo_lenths', foldername='monte-carlo_output')
-length_values = list(length_range.contactlengte)
+# length_range = load_pickle(filename='monte-carlo_lenths', foldername='monte-carlo_output')
+# length_values = list(length_range.contactlengte)
+
+#%%
+# import data on pipe dimentsion and concentrations
+df = load_pickle(filename='monte-carlo_plume_concs', foldername='monte-carlo_output')
+plume_concs = list(df.ext_value)
+
+# Import the pipe information - inner diameter, thickness, length
+df_PE40 = load_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN_PE40')
+
+# range lenth pipe
+df_PE40_Lengte_GIS = df_PE40.sort_values(by='Lengte_GIS')
+length_values = list(df_PE40_Lengte_GIS.Lengte_GIS)
+
+# range inner diameter
+df_PE40_inner_diam = df_PE40[df_PE40['Binnendiam'] > 0]  
+df_PE40_inner_diam = df_PE40_inner_diam.sort_values(by='Binnendiam')
+inner_diam_values = list(df_PE40_inner_diam.Binnendiam)
+
+# dictionary relating specific inner diameters to specific wall thicknesses    
+wall_thickness_dict = {12.39999962: 1.8,
+                        15.60000038: 2.2, 
+                        19.60000038: 2.7,
+                        25: 3.5,
+                        31.39999962: 4.3,
+                        39.20000076: 5.4,
+                        49.40000153: 6.8,}
 
 #%%
 save_results_to = check_create_folders(folder_name='monte-carlo_output')
 
-# Loop through the combinations, save the dw concentrations
-dw_concs = []
-soil_concs = []
-log_Kpws = []
-log_Dps = []
-lengths = []
-flow_rates = []
-wall_thicknesses =[]
+def run_Monte_Carlo_simulation (plume_concs, 
+                                length_values,
+                                inner_diam_values,
+                                wall_thickness_dict,
+                                assessment_factor,
+                                calculate_peak=False, 
+                                calculate_mean=False,):
 
-log_Dp_refs =[]
-log_Kpw_refs =[]
-f_Dconcs =[]
-f_Kconcs =[]
-f_Dtemps =[]
-f_Ktemps =[]
+    # Loop through the combinations, save the dw concentrations
+    dw_concs = []
+    soil_concs = []
+    gw_concs = []
+    log_Kpws = []
+    log_Dps = []
+    lengths = []
+    flow_rates = []
+    inner_diameters = []
+    wall_thicknesses =[]
 
-# initialize the index parameters
-tenth_perc_n_min_1 = 0
-ninety_perc_n_min_1 = 0
+    log_Dp_refs =[]
+    log_Kpw_refs =[]
+    f_Dconcs =[]
+    f_Kconcs =[]
+    f_Dtemps =[]
+    f_Ktemps =[]
 
-# Random number seeded to always produce the same sequence of random numbers
-random.seed(5) 
+    # initialize the index parameters
+    tenth_perc_n_min_1 = 0
+    ninety_perc_n_min_1 = 0
 
-# Set number of simulations per round, set tolerance for checking simulation rounds
-sims = range(1000)
-tolerance = 0.01
+    # Random number seeded to always produce the same sequence of random numbers
+    random.seed(5) 
 
-# Choice of assessment factor, 3 or 1
-assessment_factor = 3
+    # Set number of simulations per round, set tolerance for checking simulation rounds
+    sims = range(1000)
+    tolerance = 0.01
 
-while True:
+    while True:
 
-    for lp in tqdm(sims):
-        # Input variables
-        # ---------------
-        soil_conc = random.choice(ext_values)
+        for lp in tqdm(sims):
+            # Input variables
+            # ---------------
+            # Soil Concentration, NBNL data
+            soil_conc = random.choice(plume_concs)
 
-        # ah_todo
-        # Update with information from Amitosh/Aulia
-        length = random.choice(length_values)
+            # Length, PWN data given in meters
+            length = random.choice(length_values)
 
-        #ah_todo
-        # Update with information from Mirjam/DWC
-        flow_rate = NormalDist(mu=0.5, sigma=0.1).inv_cdf(p=random.random())
-        #ah_todo change this to be the 1,2,4 person households at 120 L per person per day
+            # Inner diameter, PWN data, given in mm (convert to m)
+            inner_diameter_mm = random.choice(inner_diam_values) 
+            inner_diameter = inner_diameter_mm / 1000
 
-        # ah_todo
-        # Update with information from Amitosh/Aulia
-        wall_thickness = NormalDist(mu=0.0027, sigma=0.0001).inv_cdf(p=random.random())
+            # matching wall thicnkess from inner diameter, PWN data, given in mm (convert to m)
+            wall_thickness_mm = (wall_thickness_dict[inner_diameter_mm])
+            wall_thickness = wall_thickness_mm / 1000
 
-        seg1 = Segment(name='seg1',
-                        material='PE40',
-                        length=length, #here set the length
-                        inner_diameter=0.0196,
-                        wall_thickness=wall_thickness)
+            #ah_todo
+            # Update with information from Mirjam/DWC ? @MartinvdS
+            flow_rate = NormalDist(mu=0.5, sigma=0.1).inv_cdf(p=random.random())
+            #ah_todo change this to be the 1,2,4 person households at 120 L per person per day?
 
-        pipe1 = Pipe(segment_list=[seg1])
+            # Create pipe and set conditions
+            # ------------------------------
+            seg1 = Segment(name='seg1',
+                            material='PE40',
+                            length=length,
+                            inner_diameter=inner_diameter,
+                            wall_thickness=wall_thickness)
 
-        pipe1.set_conditions(concentration_soil = soil_conc, #here set the gw conc
-                            chemical_name="Benzeen", 
-                            temperature_groundwater=12,
-                            flow_rate=flow_rate, 
-                            suppress_print=True)
+            pipe1 = Pipe(segment_list=[seg1])
 
-        # Update the partitioning and diffusion coefficients
-        # --------------------------------------------------
-        #Sr = standard error of regression
-        # Values from 20160703 Database labmetingen
+            pipe1.set_conditions(concentration_soil = soil_conc, #here set the gw conc
+                                chemical_name="Benzeen", 
+                                temperature_groundwater=12,
+                                flow_rate=flow_rate, 
+                                suppress_print=True)
 
-        #Reference D, K values
-        Sr_D = 0.19572320 #Table 5-5, KWR 2016.056, excel:'PermDbase' DM-25
-        log_Dp_ref = NormalDist(mu=seg1.log_Dp_ref, #-11.54717333172 #
-                                sigma=Sr_D).inv_cdf(p=random.random())
+            # Update the partitioning and diffusion coefficients
+            # --------------------------------------------------
+            # Sr = standard error of regression
+            # Values from 20160703 Database labmetingen excel file
+
+            #Reference D, K values
+            Sr_D = 0.19572320 #Table 5-5, KWR 2016.056, excel:'PermDbase' DM-25
+            log_Dp_ref = NormalDist(mu=seg1.log_Dp_ref, #-11.54717333172 #
+                                    sigma=Sr_D).inv_cdf(p=random.random())
+            
+            Sr_K = 0.31397266 #Table 5-5, KWR 2016.056, excel:'PermDbase' AL-25
+            log_Kpw_ref = NormalDist(mu=seg1.log_Kpw_ref, #1.6476099999999998 #
+                                    sigma=Sr_K).inv_cdf(p=random.random())
+            
+            # concentration corrections
+            Sr_conc_D = 0.07662645 #excel:'CONC' AE-4
+            f_Dconc = NormalDist(mu=seg1.f_Dconc, 
+                                sigma=Sr_conc_D).inv_cdf(p=random.random())
+            
+            Sr_conc_K = 0.10106212 #excel:'CONC' W-4
+            f_Kconc = NormalDist(mu=seg1.f_Kconc, 
+                                sigma=Sr_conc_K).inv_cdf(p=random.random())
+
+            # temperature corrections
+            #@MartinvdS corrections on the act. engergy/enthalpie itself not the factor
+            Sr_temp_D = 11.7958431 #Table 5-6, KWR 2016.056, excel:'TEMP' CO-125
+            activattion_energy = NormalDist(mu=seg1.activattion_energy, 
+                                sigma=Sr_temp_D).inv_cdf(p=random.random())
+            
+            f_Dtemp = (activattion_energy / (0.008314 * np.log(10)) 
+                    * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+
+            Sr_temp_K = 13.2239059 #Table 5-6, KWR 2016.056, excel:'TEMP' CJ-125
+            partitioning_enthalpie = NormalDist(mu=seg1.partitioning_enthalpie, 
+                                sigma=Sr_temp_K).inv_cdf(p=random.random())
+            
+            f_Ktemp = (partitioning_enthalpie / (0.008314 * np.log(10)) 
+                    * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+
+            # age corrections @MartinvdS include the age corrections?
+            Sr_age_D = 0.17 #Eqn 21, KWR 2016.056
+            f_Dage = NormalDist(mu=0, 
+                                sigma=Sr_age_D).inv_cdf(p=random.random())
+            
+            Sr_age_K = 0.05 #Eqn 22, KWR 2016.056
+            f_Kage = NormalDist(mu=0, 
+                                sigma=Sr_age_K).inv_cdf(p=random.random())
+
+            # Set the Kpw and Dp
+            seg1.log_Kpw = log_Kpw_ref + f_Kconc + f_Ktemp + f_Kage
+            seg1.log_Dp = log_Dp_ref + f_Dconc + f_Dtemp + f_Dage
+
+            #set assessment_factor
+            pipe1.ASSESSMENT_FACTOR_GROUNDWATER = assessment_factor
+
+            pipe1.validate_input_parameters()
         
-        Sr_K = 0.31397266 #Table 5-5, KWR 2016.056, excel:'PermDbase' AL-25
-        log_Kpw_ref = NormalDist(mu=seg1.log_Kpw_ref, #1.6476099999999998 #
-                                sigma=Sr_K).inv_cdf(p=random.random())
-        
-        # concentration corrections
-        Sr_conc_D = 0.07662645 #excel:'CONC' AE-4
-        f_Dconc = NormalDist(mu=seg1.f_Dconc, 
-                            sigma=Sr_conc_D).inv_cdf(p=random.random())
-        
-        Sr_conc_K = 0.10106212 #excel:'CONC' W-4
-        f_Kconc = NormalDist(mu=seg1.f_Kconc, 
-                            sigma=Sr_conc_K).inv_cdf(p=random.random())
+            # Calculate concentrations, can we do in one loop and store seperate peak/mean conc
+            if calculate_peak:
+                dw_conc = pipe1.calculate_peak_dw_concentration()
+            elif calculate_mean:
+                dw_conc = pipe1.calculate_mean_dw_concentration()
+                    
+            # Save the calculation information
+            dw_concs.append(dw_conc)
+            soil_concs.append(pipe1.concentration_soil)  
+            gw_concs.append(pipe1.concentration_groundwater)  
+            lengths.append(seg1.length)
+            flow_rates.append(pipe1.flow_rate)
+            inner_diameters.append(inner_diameter)
+            wall_thicknesses.append(seg1.wall_thickness)
+            log_Dp_refs.append(log_Dp_ref)
+            log_Kpw_refs.append(log_Kpw_ref)
+            f_Dconcs.append(f_Dconc)
+            f_Kconcs.append(f_Kconc)
+            f_Dtemps.append(f_Dtemp)
+            f_Ktemps.append(f_Ktemp)
+            log_Kpws.append(seg1.log_Kpw)  
+            log_Dps.append(seg1.log_Dp)
 
-        # temperature corrections
-        #@MartinvdS corrections on the act. engergy/enthalpie itself not the factor
-        Sr_temp_D = 11.7958431 #Table 5-6, KWR 2016.056, excel:'TEMP' CO-125
-        activattion_energy = NormalDist(mu=seg1.activattion_energy, 
-                            sigma=Sr_temp_D).inv_cdf(p=random.random())
-        
-        f_Dtemp = (activattion_energy / (0.008314 * np.log(10)) 
-                  * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+        # check if the 10th and 90th percentile within tolerance, then stop the loop
+        tenth_perc = np.percentile(dw_concs, 10)
+        ninety_perc = np.percentile(dw_concs, 90)
 
-        Sr_temp_K = 13.2239059 #Table 5-6, KWR 2016.056, excel:'TEMP' CJ-125
-        partitioning_enthalpie = NormalDist(mu=seg1.partitioning_enthalpie, 
-                            sigma=Sr_temp_K).inv_cdf(p=random.random())
-        
-        f_Ktemp = (partitioning_enthalpie / (0.008314 * np.log(10)) 
-                  * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+        criteria_ten = abs(1 - tenth_perc / tenth_perc_n_min_1)
+        criteria_nine = abs(1 - ninety_perc / ninety_perc_n_min_1)
 
-        # age corrections @MartinvdS include the age corrections?
-        Sr_age_D = 0.17 #Eqn 21, KWR 2016.056, excel:?
-        f_Dage = NormalDist(mu=0, 
-                            sigma=Sr_age_D).inv_cdf(p=random.random())
-        
-        Sr_age_K = 0.05 #Eqn 22, KWR 2016.056, excel:?
-        f_Kage = NormalDist(mu=0, 
-                            sigma=Sr_age_K).inv_cdf(p=random.random())
+        if (criteria_ten <= tolerance) and (criteria_nine <= tolerance):
+            break
+        elif len(dw_concs) > 100000: # break if the code takes too many simulations
+            break
+        else: 
+            ninety_perc_n_min_1 = ninety_perc
+            tenth_perc_n_min_1 = tenth_perc
 
-        # Set the Kpw and Dp
-        seg1.log_Kpw = log_Kpw_ref + f_Kconc + f_Ktemp + f_Kage
-        seg1.log_Dp = log_Dp_ref + f_Dconc + f_Dtemp + f_Dage
+        print('ninety_perc:', ninety_perc, 'tenth_per:c', tenth_perc)
 
-        #set assessment_factor
-        pipe1.ASSESSMENT_FACTOR_GROUNDWATER = assessment_factor
+    # put the data into a df, sort by the dw_conc and save
+    data = zip(dw_concs, soil_concs, gw_concs, log_Kpws, log_Dps, lengths, inner_diameters, flow_rates, wall_thicknesses, 
+            log_Dp_refs, log_Kpw_refs, f_Dconcs, f_Kconcs, f_Dtemps, f_Ktemps)
+    df = pd.DataFrame(data,  columns = ['dw_concs', 'soil_conc', 'gw_concs', 'Kpw', 'Dp', 'Length', 'inner_diameter', 'flow_rates', 'wall_thicknesses',
+                                        'log_Dp_refs', 'log_Kpw_refs','f_Dconcs', 'f_Kconcs', 'f_Dtemps', 'f_Ktemps'])
+    df.sort_values(by=['dw_concs'], inplace=True)
+    df.reset_index(inplace=True)
 
-        pipe1.validate_input_parameters()
-    
-        # Calculate concentrations, can we do in one loop and store seperate peak/mean conc
-        # dw_conc = pipe1.calculate_mean_dw_concentration()
-        dw_conc = pipe1.calculate_peak_dw_concentration()
+    return df
+#%%
+df_peak = run_Monte_Carlo_simulation (plume_concs=plume_concs, 
+                                length_values=length_values,
+                                inner_diam_values=inner_diam_values,
+                                wall_thickness_dict=wall_thickness_dict,
+                                assessment_factor=3,
+                                calculate_peak=True,)
 
-        dw_concs.append(dw_conc)
-        soil_concs.append(pipe1.concentration_groundwater)  
-        lengths.append(seg1.length)
-        flow_rates.append(pipe1.flow_rate)
-        wall_thicknesses.append(seg1.wall_thickness)
-        log_Dp_refs.append(log_Dp_ref)
-        log_Kpw_refs.append(log_Kpw_ref)
-        f_Dconcs.append(f_Dconc)
-        f_Kconcs.append(f_Kconc)
-        f_Dtemps.append(f_Dtemp)
-        f_Ktemps.append(f_Ktemp)
-        log_Kpws.append(seg1.log_Kpw)  
-        log_Dps.append(seg1.log_Dp)
-
-    # check if the 10th and 90th percentile within tolerance, then stop the loop
-    tenth_perc = np.percentile(dw_concs, 10)
-    ninety_perc = np.percentile(dw_concs, 90)
-
-    criteria_ten = abs(1 - tenth_perc / tenth_perc_n_min_1)
-    criteria_nine = abs(1 - ninety_perc / ninety_perc_n_min_1)
-
-    if (criteria_ten <= tolerance) and (criteria_nine <= tolerance):
-        break
-    elif len(dw_concs) > 100000: # break if the code takes too many simulations
-        break
-    else: 
-        ninety_perc_n_min_1 = ninety_perc
-        tenth_perc_n_min_1 = tenth_perc
-
-    print('ninety_perc:', ninety_perc, 'tenth_per:c', tenth_perc)
-
-# put the data into a df, sort by the dw_conc and save
-data = zip(dw_concs, soil_concs, log_Kpws, log_Dps, lengths, flow_rates, wall_thicknesses, 
-           log_Dp_refs, log_Kpw_refs, f_Dconcs, f_Kconcs, f_Dtemps, f_Ktemps)
-df = pd.DataFrame(data,  columns = ['dw_concs', 'soil_conc', 'Kpw', 'Dp', 'Length', 'flow_rates', 'wall_thicknesses',
-                                    'log_Dp_refs', 'log_Kpw_refs','f_Dconcs', 'f_Kconcs', 'f_Dtemps', 'f_Ktemps'])
-df.sort_values(by=['dw_concs'], inplace=True)
-df.reset_index(inplace=True)
-
-save_df_pickle(filename='example_monte-carlo_loop_df', df= df, foldername='monte-carlo_output')
+save_df_pickle(filename='example_peak_monte-carlo_loop_df', df= df_peak, foldername='monte-carlo_output')
 
 dw_norm = 0.001 # Benzene drinking water norm, g/m3
-print('Exceedences:', round(len(df.loc[df.dw_concs > dw_norm]) / len(df)*100, 3), '%, total sims:', len(df) )
+print('Peak exceedences:', round(len(df_peak.loc[df_peak.dw_concs > dw_norm]) / len(df_peak)*100, 3), '%, total sims:', len(df_peak) )
+
+
+df_mean = run_Monte_Carlo_simulation (plume_concs=plume_concs, 
+                                length_values=length_values,
+                                inner_diam_values=inner_diam_values,
+                                wall_thickness_dict=wall_thickness_dict,
+                                assessment_factor=3,
+                                calculate_mean=True,)
+
+save_df_pickle(filename='example_mean_monte-carlo_loop_df', df= df_mean, foldername='monte-carlo_output')
+
+print('Mean exceedences:', round(len(df_mean.loc[df_mean.dw_concs > dw_norm]) / len(df_mean)*100, 3), '%, total sims:', len(df_mean) )
 
 #%%
 save_results_to = check_create_folders(folder_name='figures')
