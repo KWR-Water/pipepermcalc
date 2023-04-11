@@ -52,9 +52,9 @@ class Segment:
     name: string
         name of the pipe segment
     material: string
-        e.g. PE40, PE80, PVC, EPDM, rubber etc.
+        Choice of pipe material: PE40, PE80, PVC, EPDM.
     length: float
-        Length of the pipe segment in contact with the contaminated groundwater, meters 
+        Length of the pipe segment in contact with the contaminated groundwater, meters. 
     inner_diameter: float
         Inner diameter of the pipe segment, meters
     wall_thickness: float
@@ -76,7 +76,7 @@ class Segment:
         Surface area through which permeation takes place. If permeation is 
         perpendicular to the flow, the permeation surface area is the inner 
         surface area of the pipe. If diffusion is parallel to the flow, the 
-        permeation surface area is the annular area of the rubber. 
+        permeation surface area is the annular area of the pipe segment. 
     outer_diameter: float
         Outer diameter of the pipe segment, unit m.
     log_Kpw_ref: float
@@ -126,9 +126,9 @@ class Segment:
         name: string
             name of the pipe segment
         material: string
-            e.g. PE40, PE80, PVC, EPDM, rubber etc.
+            Choice of pipe material: PE40, PE80, PVC, EPDM.
         length: float
-            Length of pipe segment, meters 
+            Length of the pipe segment in contact with the contaminated groundwater, meters.         
         inner_diameter: float
             Inner diameter of pipe segment, meters
         wall_thickness: float
@@ -156,12 +156,29 @@ class Segment:
         self.DIFFUSION_A_C = 0.784077209735583 #see equation 5-18 in KWR 2016.056
         self.DIFFUSION_CREF_SW = 0.5 #see section 5.4.6 in KWR 2016.056
 
+        # check that segment values are defined (not None)
         self.name = name
-        self.material = material
 
-        self.length = float(length)
-        self.inner_diameter = float(inner_diameter)
-        self.wall_thickness = float(wall_thickness)
+        if material is None:
+            raise ValueError(f"material is not defined, choose one of 'PE40', 'PE80', 'SBR', 'EPDM', 'PVC'.")
+        else:
+            self.material = material
+
+        if length is None:
+            raise ValueError(f"length is not defined.")
+        else:
+            self.length = float(length)
+
+        if inner_diameter is None:
+            raise ValueError(f"inner_diameter is not defined.")
+        else:
+            self.inner_diameter = float(inner_diameter)
+
+        if wall_thickness is None:
+            raise ValueError(f"wall_thickness is not defined.")
+        else:
+            self.wall_thickness = float(wall_thickness)
+
         self.permeation_direction = permeation_direction
 
         if diffusion_path_length is None:

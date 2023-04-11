@@ -123,6 +123,9 @@ class Pipe:
     # @martin, do we want a default flow rate?
 
     ppc_database = pd.read_csv(DATA_DIR + '/ppc_database.csv',  skiprows=[1, 2] ) 
+    
+    # drop chemicals for which the partitiong and/or diffusion ccoefficient cannot be calculated
+    ppc_database = ppc_database.dropna(subset=['molecular_weight', 'solubility'])
 
     #dictionary to check input parameter value and dtype
     parameter_validation_dictionary = \
@@ -161,7 +164,7 @@ class Pipe:
         'language': {'str_options': ['NL', 'EN'],
                     'value_dtype': [str]}, 
         }
-    
+
     def __init__(self, 
                  segment_list,
                 ):
@@ -194,6 +197,7 @@ class Pipe:
         self._concentration_groundwater_set = False
         self._is_validated = False
         self._set_permeation_direction = False
+        self._check_not_all_PVC = False
 
         sum_total_volume = 0
         sum_total_length = 0
@@ -423,7 +427,11 @@ class Pipe:
         self.chemical_name = chemical_name
         self.temperature_groundwater = temperature_groundwater
         self.stagnation_time = stagnation_time
-        self.language = language
+
+        if (language == 'EN') or (language == 'NL'):
+            self.language = language
+        else: 
+            raise ValueError('Error, language must be one of "EN" or "NL" ')      
 
         self._conditions_set = True
 
@@ -454,6 +462,7 @@ class Pipe:
         if (concentration_groundwater is not None) and (concentration_soil is not None) and (self._Kd_known):
             # @martin, take the gw concentration over the given soil concentration?
             # or check the Kd? 
+            print('Warning, both concentration_groundwater and concentration_soil given. Only using concentration_groundwater')
             self.concentration_soil = self._soil_to_groundwater()
 
         if self.concentration_groundwater is not None:
@@ -467,6 +476,7 @@ class Pipe:
             self.concentration_drinking_water = concentration_drinking_water
 
         if self.concentration_groundwater is not None: 
+            # self.validate_input_parameters()
             for segment in self.segment_list:          
                 segment._calculate_pipe_K_D(pipe = self, 
                                             _conditions_set=self._conditions_set, )
@@ -486,10 +496,36 @@ class Pipe:
 
         return list(self.ppc_database['chemical_name_'+language])
 
+    def _check_max_terations_tolerance(self,
+                                       max_iterations, 
+                                       tolerance):
+        ''' 
+        Check the input values for max_iterations and the tolerance
+
+        Parameters
+        ----------
+        tolerance: float 
+            The degree of acceptable error in the accuracy of the calculation, 
+            calculated as the difference between the calculated and actual drinking 
+            water concentration, default value of 0.01 (1%), [-].
+        max_iterations: int
+            Maximum number of iterations allowed in the optimization scheme
+        '''
+
+        if max_iterations <= 0:
+            raise ValueError('Error, max_iterations must be > 0')
+        else: 
+            self.max_iterations = int(max_iterations)
+
+        if (tolerance <= 0) or (tolerance > 1):
+            raise ValueError('Error, tolerance must be between 0 and 1')
+        else: 
+            self.tolerance = tolerance
 
     def calculate_mean_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
-                                        max_iterations = MAX_ITERATIONS_DEFAULT,):
+                                        max_iterations = MAX_ITERATIONS_DEFAULT,
+                                        debug=False,):
         '''
         Calculates the mean concentration in drinking water for a 24 hour period
         given a groundwater concentration. 
@@ -510,8 +546,8 @@ class Pipe:
             given a groundwater concentration.
 
         '''
-        self.max_iterations = int(max_iterations)
-        self.tolerance = tolerance
+        self._check_max_terations_tolerance(max_iterations=max_iterations, 
+                                       tolerance=tolerance)
         
         # Check if the flow rate, conditions have been set and parameters 
         # validated, if not raise error
@@ -580,6 +616,8 @@ class Pipe:
                         else:
                             upper_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
+                    if debug: 
+                        print(concentration_drinking_water_n_min_1, concentration_drinking_water_n_plus_1, goodness_fit, lower_limit, upper_limit)
 
             # assign the drinking water concentration to be the concentration calculated in the loop                            
             self.concentration_drinking_water = concentration_drinking_water_n
@@ -591,7 +629,8 @@ class Pipe:
 
     def calculate_peak_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
-                                        max_iterations = MAX_ITERATIONS_DEFAULT,):
+                                        max_iterations = MAX_ITERATIONS_DEFAULT,
+                                        debug=True):
 
         '''
         Calculates the peak (maximum) concentration in drinking water for a 
@@ -614,9 +653,8 @@ class Pipe:
             given a stagnation period given a groundwater concentration.
 
         '''
-
-        self.max_iterations = int(max_iterations)
-        self.tolerance = tolerance
+        self._check_max_terations_tolerance(max_iterations=max_iterations, 
+                                       tolerance=tolerance, )
 
         if self.stagnation_time != self.STAGNATION_TIME_DEFAULT: 
             print("Warning: the stagnation factor is only valid for a stagnation time of 8 hours. Using a different stagnation time is not advised.")
@@ -685,6 +723,8 @@ class Pipe:
                         else:
                             upper_limit = concentration_drinking_water_n_min_1
                             concentration_drinking_water_n_plus_1 = lower_limit - (upper_limit -lower_limit)/2
+                    if debug: 
+                        print(concentration_drinking_water_n_min_1, concentration_drinking_water_n_plus_1, goodness_fit, lower_limit, upper_limit)
 
             # assign the drinking water concentration to be the concentration calculated in the loop                            
             self.concentration_drinking_water = concentration_drinking_water_n
@@ -724,8 +764,8 @@ class Pipe:
             the drinking water norm, g/m3.
                     
         '''
-        self.max_iterations = int(max_iterations)
-        self.tolerance = tolerance
+        self._check_max_terations_tolerance(max_iterations=max_iterations, 
+                                       tolerance=tolerance)
 
         # Check if the flow rate, conditions have been set and parameters 
         # validated, if not raise error
@@ -886,8 +926,8 @@ class Pipe:
             the drinking water norm, g/m3.
             
         '''
-        self.max_iterations = int(max_iterations)
-        self.tolerance = tolerance
+        self._check_max_terations_tolerance(max_iterations=max_iterations, 
+                                       tolerance=tolerance)
 
         if self.stagnation_time != self.STAGNATION_TIME_DEFAULT:
             print("Warning: the stagnation factor is only valid for a stagnation time of 8 hours. Using a different stagnation time is not advised.")

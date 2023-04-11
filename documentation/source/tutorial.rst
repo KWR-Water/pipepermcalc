@@ -30,7 +30,7 @@ We always start by importing pipepermcalc Pipe and Segment classes:
 
 Step 1: Define the pipe segment(s) 
 ==================================
-For this example there is only one pipe segment made of PE40. We define the length, inner diameter and wall_thickness of the pipe in meters.
+For this example there is only one pipe segment made of PE40. We define the length of the pipe in contact with the contamination plume, the inner diameter and wall_thickness of the pipe in meters.
 
 .. ipython:: python
     
@@ -101,6 +101,8 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 
 Miscellaneous
 =============
+The choice of pipe materials are: 'PE40', 'PE80', 'SBR', 'EPDM', 'PVC'. Note: The model assumes no permeation in PVC pipes.
+
 The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themselves:
 
 .. ipython:: python
