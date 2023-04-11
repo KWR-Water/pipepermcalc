@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pipepermcalc.segment module &mdash; pipepermcalc 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="About" href="../about.html" />
+    <link rel="prev" title="pipepermcalc.project_path module" href="pipepermcalc.project_path.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pipepermcalc
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pipepermcalc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pipepermcalc</a></li>
+          <li class="breadcrumb-item"><a href="pipepermcalc.html">pipepermcalc package</a></li>
+      <li class="breadcrumb-item active">pipepermcalc.segment module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pipepermcalc.segment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pipepermcalc.segment">
+<span id="pipepermcalc-segment-module"></span><h1>pipepermcalc.segment module<a class="headerlink" href="#module-pipepermcalc.segment" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipepermcalc.segment.</span></span><span class="sig-name descname"><span class="pre">Segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall_thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permeation_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'perpendicular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_path_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.segment.Segment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Segment object class to make segments of the pipe.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.PARTITIONING_A_DH">
+<span class="sig-name descname"><span class="pre">PARTITIONING_A_DH</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.PARTITIONING_A_DH" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient for correcting the partitioning coefficient for temperature.
+From regression analysis, a is the slope, see table 5-6 in
+KWR 2016.056. Constant equal to 7.92169801506708.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.PARTITIONING_B_DH">
+<span class="sig-name descname"><span class="pre">PARTITIONING_B_DH</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.PARTITIONING_B_DH" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient for correcting the partitioning coefficient for temperature.
+From regression analysis, b is the intercept, see table 5-6 in
+KWR 2016.056. Constant equal to -17.1875608983359.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.DIFFUSION_A_DH">
+<span class="sig-name descname"><span class="pre">DIFFUSION_A_DH</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.DIFFUSION_A_DH" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient for correcting the diffusion coefficient for temperature.
+From regression analysis, a is the slope, see table 5-6 in
+KWR 2016.056. Constant equal to 61.8565740136974.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.DIFFUSION_B_DH">
+<span class="sig-name descname"><span class="pre">DIFFUSION_B_DH</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.DIFFUSION_B_DH" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient for correcting the diffusion coefficient for temperature.
+From regression analysis, b is the intercept, see table 5-6 in
+KWR 2016.056. Constant equal to -78.9191401984509.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.PARTITIONING_A_C">
+<span class="sig-name descname"><span class="pre">PARTITIONING_A_C</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.PARTITIONING_A_C" title="Permalink to this definition"></a></dt>
+<dd><p>Constant used in the correction for the partitioning coefficent due to
+the influence of temperature. See equation 5-20 in KWR 2016.056, for
+partitioning a_c = 0.103965019849463.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.PARTITIONING_CREF_SW">
+<span class="sig-name descname"><span class="pre">PARTITIONING_CREF_SW</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.PARTITIONING_CREF_SW" title="Permalink to this definition"></a></dt>
+<dd><p>Reference concentration used in the correction for the partitioning
+coefficent due to the influence of temperature. Ssee section 5.4.7 in
+KWR 2016.056. For partitioning, Cref_SW = 1.0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.DIFFUSION_A_C">
+<span class="sig-name descname"><span class="pre">DIFFUSION_A_C</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.DIFFUSION_A_C" title="Permalink to this definition"></a></dt>
+<dd><p>Constant used in the correction for the diffusion coefficent due to
+the influence of temperature. See equation 5-18 in KWR 2016.056, for
+diffusion a_c = 0.784077209735583.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.DIFFUSION_CREF_SW">
+<span class="sig-name descname"><span class="pre">DIFFUSION_CREF_SW</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.DIFFUSION_CREF_SW" title="Permalink to this definition"></a></dt>
+<dd><p>Reference concentration used in the correction for the diffusion
+coefficent due to the influence of temperature. Ssee section 5.4.6 in
+KWR 2016.056. For partitioning, Cref_SW = 0.5.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.name" title="Permalink to this definition"></a></dt>
+<dd><p>name of the pipe segment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.material">
+<span class="sig-name descname"><span class="pre">material</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.material" title="Permalink to this definition"></a></dt>
+<dd><p>e.g. PE40, PE80, PVC, EPDM, rubber etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.length">
+<span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.length" title="Permalink to this definition"></a></dt>
+<dd><p>Length of the pipe segment, meters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.inner_diameter">
+<span class="sig-name descname"><span class="pre">inner_diameter</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.inner_diameter" title="Permalink to this definition"></a></dt>
+<dd><p>Inner diameter of the pipe segment, meters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.wall_thickness">
+<span class="sig-name descname"><span class="pre">wall_thickness</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.wall_thickness" title="Permalink to this definition"></a></dt>
+<dd><p>wall_thickness of the pipe segment, meters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.permeation_direction">
+<span class="sig-name descname"><span class="pre">permeation_direction</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.permeation_direction" title="Permalink to this definition"></a></dt>
+<dd><p>Direction of permeation through the pipe segment. Options are
+‘perpendicular’ or ‘parallel’. Default permeation is perpendicular
+to the flow direction. See schematic XX in read the docs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.diffusion_path_length">
+<span class="sig-name descname"><span class="pre">diffusion_path_length</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.diffusion_path_length" title="Permalink to this definition"></a></dt>
+<dd><p>In the case of permeation perpendicular to the flow direction, a
+diffusion path length is required to calculate the permeation through
+the pipe segment. For example in the case of a pipe coupling rings.
+Default permeation is perpendicular to the flow direction and the
+wall_thickness is used to calculate the diffusion through the pipe
+segment. Unit meters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.volume">
+<span class="sig-name descname"><span class="pre">volume</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.volume" title="Permalink to this definition"></a></dt>
+<dd><p>Volume of the pipe segment, m3</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.permeation_surface_area">
+<span class="sig-name descname"><span class="pre">permeation_surface_area</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.permeation_surface_area" title="Permalink to this definition"></a></dt>
+<dd><p>Surface area through which permeation takes place. If permeation is
+perpendicular to the flow, the permeation surface area is the inner
+surface area of the pipe. If diffusion is parallel to the flow, the
+permeation surface area is the annular area of the rubber.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.outer_diameter">
+<span class="sig-name descname"><span class="pre">outer_diameter</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.outer_diameter" title="Permalink to this definition"></a></dt>
+<dd><p>Outer diameter of the pipe segment, unit m.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.log_Kpw_ref">
+<span class="sig-name descname"><span class="pre">log_Kpw_ref</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.log_Kpw_ref" title="Permalink to this definition"></a></dt>
+<dd><p>partitioning coefiicient under lab conditions, [-]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.f_Ktemp">
+<span class="sig-name descname"><span class="pre">f_Ktemp</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.f_Ktemp" title="Permalink to this definition"></a></dt>
+<dd><p>Temperature correction factor for partitioning coefficient, [-]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.f_Kconc">
+<span class="sig-name descname"><span class="pre">f_Kconc</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.f_Kconc" title="Permalink to this definition"></a></dt>
+<dd><p>Concentration correction factor for partitioning coefficient, [-]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.log_Kpw">
+<span class="sig-name descname"><span class="pre">log_Kpw</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.log_Kpw" title="Permalink to this definition"></a></dt>
+<dd><p>Calculated log partitioning coefficient for the given chemical and pipe material, [-]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.log_Dp_ref">
+<span class="sig-name descname"><span class="pre">log_Dp_ref</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.log_Dp_ref" title="Permalink to this definition"></a></dt>
+<dd><p>Diffusion coefficient under lab conditions, m2/s.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.f_Dtemp">
+<span class="sig-name descname"><span class="pre">f_Dtemp</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.f_Dtemp" title="Permalink to this definition"></a></dt>
+<dd><p>Temperature correction factor for diffusion coefficient, m2/s.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.f_Dconc">
+<span class="sig-name descname"><span class="pre">f_Dconc</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.f_Dconc" title="Permalink to this definition"></a></dt>
+<dd><p>Concentration correction factor for diffusion coefficient, [m2/s.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.log_Dp">
+<span class="sig-name descname"><span class="pre">log_Dp</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.log_Dp" title="Permalink to this definition"></a></dt>
+<dd><p>Calculated log diffusion coefficient for the given chemical and pipe material, m2/s.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.stagnation_factor">
+<span class="sig-name descname"><span class="pre">stagnation_factor</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.stagnation_factor" title="Permalink to this definition"></a></dt>
+<dd><p>Correction for the decrease in the concentratino gradient near the
+inner wall of the pipe during stagnation (e.g. no flow at at night)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.mass_chemical_drinkwater">
+<span class="sig-name descname"><span class="pre">mass_chemical_drinkwater</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.mass_chemical_drinkwater" title="Permalink to this definition"></a></dt>
+<dd><p>Mass of the given chemical in the pipe segment, g.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds.</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.segment.Segment.reference_pipe_material_dict">
+<span class="sig-name descname"><span class="pre">reference_pipe_material_dict</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'EPDM':</span> <span class="pre">{'REF_LOG_D_A':</span> <span class="pre">{1:</span> <span class="pre">-0.0101309573581765,</span> <span class="pre">2:</span> <span class="pre">-0.005793065616630017,</span> <span class="pre">3:</span> <span class="pre">-0.005525976740823546},</span> <span class="pre">'REF_LOG_D_B':</span> <span class="pre">{1:</span> <span class="pre">-9.843606567653678,</span> <span class="pre">2:</span> <span class="pre">-10.1309573581765,</span> <span class="pre">3:</span> <span class="pre">-10.1309573581765},</span> <span class="pre">'REF_LOG_K_A':</span> <span class="pre">{1:</span> <span class="pre">1.0675,</span> <span class="pre">2:</span> <span class="pre">1.0675,</span> <span class="pre">3:</span> <span class="pre">1.0675},</span> <span class="pre">'REF_LOG_K_B':</span> <span class="pre">{1:</span> <span class="pre">-0.3002,</span> <span class="pre">2:</span> <span class="pre">-0.3002,</span> <span class="pre">3:</span> <span class="pre">-0.3002}},</span> <span class="pre">'PE40':</span> <span class="pre">{'REF_LOG_D_A':</span> <span class="pre">{1:</span> <span class="pre">-0.011,</span> <span class="pre">2:</span> <span class="pre">-0.00629,</span> <span class="pre">3:</span> <span class="pre">-0.006},</span> <span class="pre">'REF_LOG_D_B':</span> <span class="pre">{1:</span> <span class="pre">-10.688,</span> <span class="pre">2:</span> <span class="pre">-11.0,</span> <span class="pre">3:</span> <span class="pre">-11.0},</span> <span class="pre">'REF_LOG_K_A':</span> <span class="pre">{1:</span> <span class="pre">1.097,</span> <span class="pre">2:</span> <span class="pre">1.059,</span> <span class="pre">3:</span> <span class="pre">0.979},</span> <span class="pre">'REF_LOG_K_B':</span> <span class="pre">{1:</span> <span class="pre">-0.689,</span> <span class="pre">2:</span> <span class="pre">-0.67,</span> <span class="pre">3:</span> <span class="pre">-1.796}},</span> <span class="pre">'PE80':</span> <span class="pre">{'REF_LOG_D_A':</span> <span class="pre">{1:</span> <span class="pre">-0.011,</span> <span class="pre">2:</span> <span class="pre">-0.00629,</span> <span class="pre">3:</span> <span class="pre">-0.00629},</span> <span class="pre">'REF_LOG_D_B':</span> <span class="pre">{1:</span> <span class="pre">-11.188,</span> <span class="pre">2:</span> <span class="pre">-11.188,</span> <span class="pre">3:</span> <span class="pre">-11.5},</span> <span class="pre">'REF_LOG_K_A':</span> <span class="pre">{1:</span> <span class="pre">1.185,</span> <span class="pre">2:</span> <span class="pre">1.185,</span> <span class="pre">3:</span> <span class="pre">1.231},</span> <span class="pre">'REF_LOG_K_B':</span> <span class="pre">{1:</span> <span class="pre">-1.437,</span> <span class="pre">2:</span> <span class="pre">-1.437,</span> <span class="pre">3:</span> <span class="pre">-2.606}},</span> <span class="pre">'PVC':</span> <span class="pre">{'REF_LOG_D_A':</span> <span class="pre">{1:</span> <span class="pre">0,</span> <span class="pre">2:</span> <span class="pre">0,</span> <span class="pre">3:</span> <span class="pre">0},</span> <span class="pre">'REF_LOG_D_B':</span> <span class="pre">{1:</span> <span class="pre">0,</span> <span class="pre">2:</span> <span class="pre">0,</span> <span class="pre">3:</span> <span class="pre">0},</span> <span class="pre">'REF_LOG_K_A':</span> <span class="pre">{1:</span> <span class="pre">0,</span> <span class="pre">2:</span> <span class="pre">0,</span> <span class="pre">3:</span> <span class="pre">0},</span> <span class="pre">'REF_LOG_K_B':</span> <span class="pre">{1:</span> <span class="pre">0,</span> <span class="pre">2:</span> <span class="pre">0,</span> <span class="pre">3:</span> <span class="pre">0}},</span> <span class="pre">'SBR':</span> <span class="pre">{'REF_LOG_D_A':</span> <span class="pre">{1:</span> <span class="pre">-0.010457121519541696,</span> <span class="pre">2:</span> <span class="pre">-0.005979572214356115,</span> <span class="pre">3:</span> <span class="pre">-0.005703884465204562},</span> <span class="pre">'REF_LOG_D_B':</span> <span class="pre">{1:</span> <span class="pre">-10.16051952735106,</span> <span class="pre">2:</span> <span class="pre">-10.457121519541698,</span> <span class="pre">3:</span> <span class="pre">-10.457121519541698},</span> <span class="pre">'REF_LOG_K_A':</span> <span class="pre">{1:</span> <span class="pre">1.0452,</span> <span class="pre">2:</span> <span class="pre">1.0452,</span> <span class="pre">3:</span> <span class="pre">1.0452},</span> <span class="pre">'REF_LOG_K_B':</span> <span class="pre">{1:</span> <span class="pre">-0.3686,</span> <span class="pre">2:</span> <span class="pre">-0.3686,</span> <span class="pre">3:</span> <span class="pre">-0.3686}}}</span></em><a class="headerlink" href="#pipepermcalc.segment.Segment.reference_pipe_material_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pipepermcalc.project_path.html" class="btn btn-neutral float-left" title="pipepermcalc.project_path module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../about.html" class="btn btn-neutral float-right" title="About" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, KWR Water Research Institute.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

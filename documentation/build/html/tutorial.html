@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial &mdash; pipepermcalc 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="FAQ" href="faq.html" />
+    <link rel="prev" title="Getting Started" href="getting-started.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pipepermcalc
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#steps">Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-1-simple-example">Example 1 - Simple Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-define-the-pipe-segment-s">Step 1: Define the pipe segment(s)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-create-a-pipe-from-the-segment-s">Step 2: Create a pipe from the segment(s)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-set-the-groundwater-conditions-and-flow-rate">Step 3: Set the groundwater conditions and flow rate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-validate-the-input-parameters">Step 4: Validate the input parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-5-calculate-the-drinking-water-concentration">Step 5: Calculate the drinking water concentration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-6-calculate-the-allowable-groundwater-concentration">Step 6: Calculate the allowable groundwater concentration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-2-multiple-segments">Example 2 - Multiple segments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-3-advanced-settings">Example 3 - Advanced settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#change-the-partitioning-and-diffusion-coefficient">Change the partitioning and diffusion coefficient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#change-the-tolerance-and-max-iterations">Change the tolerance and max_iterations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-testing">Model Testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pipepermcalc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this heading"></a></h1>
+<section id="steps">
+<h2>Steps<a class="headerlink" href="#steps" title="Permalink to this heading"></a></h2>
+<p>The following steps are needed to calculate the permeation of an organic chemical to a pipe using pipepermcalc:</p>
+<ol class="arabic simple">
+<li><p>Define segment(s) of a pipe using the segment class (pipe material, size).</p></li>
+<li><p>Create a pipe from the segment(s).</p></li>
+<li><p>Set the groundwater contamination conditions (chemical, groundwater concentration and temperature) and mean daily flow rate.</p></li>
+<li><p>Validate the input parameters.</p></li>
+</ol>
+<p>Once a pipe has been created and the groundwater conditions and flow rate set, the following calculations are possible:</p>
+<ol class="arabic simple">
+<li><p>Calculate the maximum or mean daily concentration in drinking water from a known groundwater or soil concentration</p></li>
+<li><p>Calculate the maximum or mean daily allowable concentration in groundwater to meet a drinking water norm for a given chemical</p></li>
+</ol>
+</section>
+<section id="example-1-simple-example">
+<h2>Example 1 - Simple Example<a class="headerlink" href="#example-1-simple-example" title="Permalink to this heading"></a></h2>
+<p>Example for a single pipe segment.</p>
+<p>We always start by importing pipepermcalc Pipe and Segment classes:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">pipepermcalc.pipe</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">pipepermcalc.segment</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<section id="step-1-define-the-pipe-segment-s">
+<h3>Step 1: Define the pipe segment(s)<a class="headerlink" href="#step-1-define-the-pipe-segment-s" title="Permalink to this heading"></a></h3>
+<p>For this example there is only one pipe segment made of PE40. We define the length, inner diameter and wall_thickness of the pipe in meters.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [3]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<span class="gp">   ...: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ...: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+<span class="gp">   ...: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ...: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">,)</span>
+<span class="gp">   ...: </span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-create-a-pipe-from-the-segment-s">
+<h3>Step 2: Create a pipe from the segment(s)<a class="headerlink" href="#step-2-create-a-pipe-from-the-segment-s" title="Permalink to this heading"></a></h3>
+<p>We create a pipe from the segment using the Pipe() class by inputing the list of segment name(s).</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [4]: </span><span class="n">pipe1</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-set-the-groundwater-conditions-and-flow-rate">
+<h3>Step 3: Set the groundwater conditions and flow rate<a class="headerlink" href="#step-3-set-the-groundwater-conditions-and-flow-rate" title="Permalink to this heading"></a></h3>
+<p>Next we define the groundwater and pipe conditions. These are necessary if we want to calculate the concentration in drinking water for a given groundwater concentration.
+We define the chemical of interest, the concentration in groundwater (g/m3), groundwater temperature (degrees Celcius) and the flow rate (m3/day).
+The name of the chemical is checked against the chemical database and the closest matching chemical is printed.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [5]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
+<span class="gp">   ...: </span>                            <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ...: </span>                            <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="gp">   ...: </span>                            <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">   ...: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-validate-the-input-parameters">
+<h3>Step 4: Validate the input parameters<a class="headerlink" href="#step-4-validate-the-input-parameters" title="Permalink to this heading"></a></h3>
+<p>Before we proceed with any calculations we first validate the input parameters. This step ensures we chose a valid pipe material, permeation direction and input positive values for concentrations, pipe dimensions etc.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [6]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-calculate-the-drinking-water-concentration">
+<h3>Step 5: Calculate the drinking water concentration<a class="headerlink" href="#step-5-calculate-the-drinking-water-concentration" title="Permalink to this heading"></a></h3>
+<p>For the given conditions we can calculate the peak and mean daily concentration in drinking water for the pipe.
+The peak concentration is calculated as the concentration after a stagnation period (e.g. at night when there is little or no flow in the pipe). The default stagnation time of 8 hours is used.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [7]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [8]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The peak concentration is: 0.0158 g/m3</span>
+
+<span class="gp">In [9]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [10]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean daily concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean daily concentration is: 0.001 g/m3</span>
+</pre></div>
+</div>
+</section>
+<section id="step-6-calculate-the-allowable-groundwater-concentration">
+<h3>Step 6: Calculate the allowable groundwater concentration<a class="headerlink" href="#step-6-calculate-the-allowable-groundwater-concentration" title="Permalink to this heading"></a></h3>
+<p>It is also possible to calculate the allowable groundwater concentration which would result in a concentration in drinking water not exceeding a given value for the chemical. Often this value will be the drinking water norm.
+The drinking water concentration is given in the set_conditions() function, or if no concentration is specified, the default is set as the drinking water norm.
+Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [11]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_allowable_gw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [12]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak groundwater concentration, not exceeding the norm:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The peak groundwater concentration, not exceeding the norm: 0.1138 g/m3</span>
+
+<span class="gp">In [13]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [14]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean groundwater concentration, not exceeding the norm:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean groundwater concentration, not exceeding the norm: 1.8086 g/m3</span>
+</pre></div>
+</div>
+</section>
+<section id="miscellaneous">
+<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this heading"></a></h3>
+<p>The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themseles:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [15]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">volume</span>
+<span class="gh">Out[15]: </span><span class="go">0.007542963961269094</span>
+
+<span class="gp">In [16]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">permeation_surface_area</span>
+<span class="gh">Out[16]: </span><span class="go">1.5393804002589986</span>
+
+<span class="gp">In [17]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span>
+<span class="gh">Out[17]: </span><span class="go">-12.243583398069282</span>
+
+<span class="gp">In [18]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span>
+<span class="gh">Out[18]: </span><span class="go">1.4722335467272445</span>
+</pre></div>
+</div>
+<p>The flow rate, chemical information and the concentrations in drinking water, groundwater and/or soil are attributes of the pipe:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [19]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">flow_rate</span>
+<span class="gh">Out[19]: </span><span class="go">0.5</span>
+
+<span class="gp">In [20]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">solubility</span>
+<span class="gh">Out[20]: </span><span class="go">1988.898826</span>
+
+<span class="gp">In [21]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_drinking_water</span>
+<span class="gh">Out[21]: </span><span class="go">0.0010001918150199251</span>
+
+<span class="gp">In [22]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_groundwater</span>
+<span class="gh">Out[22]: </span><span class="go">1.8085521338873325</span>
+
+<span class="gp">In [23]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_soil</span>
+<span class="gh">Out[23]: </span><span class="go">2.7527429729399238</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-2-multiple-segments">
+<h2>Example 2 - Multiple segments<a class="headerlink" href="#example-2-multiple-segments" title="Permalink to this heading"></a></h2>
+<p>In this example we create a pipe made from multiple segments with different permeation directions.</p>
+<p>Depending on the types of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The diffusion path length is the length of permeation through the pipe segment.</p>
+<a class="reference internal image-reference" href="_images/pipe_schematic.png"><img alt="pipe_schematic.png" src="_images/pipe_schematic.png" style="width: 600px;" /></a>
+<p>In scenarios 1 and 3 above, the permeaiton is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the wall_thickness of the pipe length.</p>
+<p>In the example shown above, permeation is <em>parallel</em> to the flow direction through a connecting rubber in scenario 2. For this scenario, the volume is assumed to be zero and the permeation surface area is the annular area of the rubber. The diffusion path length in this case is equal to the length of the segment.</p>
+<p>In the following example we create a pipe made from two 5m PE40 pipe segments, joined by a EPDM ring with permeation parallel to the flow direciton:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [24]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [25]: </span><span class="n">seg2</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg2&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;EPDM&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">diffusion_path_length</span> <span class="o">=</span> <span class="mf">0.06</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">permeation_direction</span> <span class="o">=</span> <span class="s1">&#39;parallel&#39;</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [26]: </span><span class="n">seg3</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg3&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [27]: </span><span class="n">pipe2</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">,</span> <span class="n">seg2</span><span class="p">,</span> <span class="n">seg3</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>As seen in the example above, only the segment with the parallel flow requires a specified permeation direction (default is perpendicular) and the diffusion path length (default is the wall_thickness).</p>
+<p>Note: it is <em>not</em> possible to have a pipe made exclusively of segments with parallel permeation, at lease one segment must have permeation perpendicular to the flow.</p>
+<p>The remaining calculations are done the same as for the simple example:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [28]: </span><span class="n">pipe2</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+
+<span class="gp">In [29]: </span><span class="n">pipe2</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
+
+<span class="gp">In [30]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [31]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The peak concentration is: 0.0158 g/m3</span>
+
+<span class="gp">In [32]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [33]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean daily concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean daily concentration is: 0.0004 g/m3</span>
+</pre></div>
+</div>
+</section>
+<section id="example-3-advanced-settings">
+<h2>Example 3 - Advanced settings<a class="headerlink" href="#example-3-advanced-settings" title="Permalink to this heading"></a></h2>
+<section id="change-the-partitioning-and-diffusion-coefficient">
+<h3>Change the partitioning and diffusion coefficient<a class="headerlink" href="#change-the-partitioning-and-diffusion-coefficient" title="Permalink to this heading"></a></h3>
+<p>The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possibe to input a specific a partitioning and diffusion coefficient for a pipe segment.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [35]: </span><span class="n">pipe3</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
+
+<span class="gp">In [36]: </span><span class="n">pipe3</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                                <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                                <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+
+<span class="gp">In [37]: </span><span class="nb">print</span><span class="p">(</span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span><span class="p">,</span> <span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="p">)</span>
+<span class="go">1.47223309968451 -12.243586769549616</span>
+
+<span class="gp">In [38]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span> <span class="o">=</span> <span class="mf">0.912</span>
+
+<span class="gp">In [39]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="o">=</span> <span class="o">-</span><span class="mf">10.63</span>
+
+<span class="gp">In [40]: </span><span class="nb">print</span><span class="p">(</span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span><span class="p">,</span> <span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="p">)</span>
+<span class="go">0.912 -10.63</span>
+</pre></div>
+</div>
+</section>
+<section id="change-the-tolerance-and-max-iterations">
+<h3>Change the tolerance and max_iterations<a class="headerlink" href="#change-the-tolerance-and-max-iterations" title="Permalink to this heading"></a></h3>
+<p>When calculating the concentration in drinking water or the allowable concentration in groundwater, the calculations are iterative and it is possible to specify the tolerance and maximum number of iterations.</p>
+<ul class="simple">
+<li><p>The <em>tolerance</em> is the degree of acceptable error in the accuracy of the calculation, default value of 0.01 (1%).</p></li>
+<li><p>The <em>maximum number of iterations</em> is the maximum number of calculations allowed before the calculation stops. A default value of 1000 is used.</p></li>
+</ul>
+<p>These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iteratoins:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [41]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [42]: </span><span class="n">pipe4</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
+
+<span class="gp">In [43]: </span><span class="n">pipe4</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">concentration_drinking_water</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+
+<span class="gp">In [44]: </span><span class="n">pipe4</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
+
+<span class="gp">In [45]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe4</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">(</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">max_iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [46]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean concentration is: 1.774 g/m3</span>
+
+<span class="gp">In [47]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe4</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">(</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">max_iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [48]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The peak concentration is: 1.801 g/m3</span>
+</pre></div>
+</div>
+</section>
+<section id="model-testing">
+<h3>Model Testing<a class="headerlink" href="#model-testing" title="Permalink to this heading"></a></h3>
+<p>The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular wieght, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [49]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span> <span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [50]: </span><span class="n">pipe1</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
+
+<span class="gp">In [51]: </span><span class="n">input_gw</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="gp">In [52]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span>
+<span class="gp">   ....: </span>    <span class="n">chemical_name</span><span class="o">=</span><span class="s1">&#39;Benzeen&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">concentration_groundwater</span> <span class="o">=</span><span class="n">input_gw</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+
+<span class="gp">In [53]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
+
+<span class="go"># Peak concentration testing</span>
+<span class="gp">In [54]: </span><span class="n">peak_conc</span><span class="o">=</span><span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [55]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak drinking water concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The peak drinking water concentration is: 0.009 g/m3</span>
+
+<span class="gp">In [56]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s1">&#39;Benzeen&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">concentration_drinking_water</span> <span class="o">=</span> <span class="n">peak_conc</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+
+<span class="gp">In [57]: </span><span class="n">output_gw</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_allowable_gw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [58]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak allowable groundwater concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">output_gw</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The peak allowable groundwater concentration is: 0.998 g/m3</span>
+
+<span class="gp">In [59]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentraion is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
+<span class="go">The output groundwater concentraion is within  0.218 % of input groundwater concentration.</span>
+
+<span class="go"># Mean concentration testing</span>
+<span class="gp">In [60]: </span><span class="n">mean_conc</span><span class="o">=</span><span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [61]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean drinking water concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean drinking water concentration is: 0.00055 g/m3</span>
+
+<span class="gp">In [62]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s1">&#39;Benzeen&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">concentration_drinking_water</span> <span class="o">=</span> <span class="n">mean_conc</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+
+<span class="gp">In [63]: </span><span class="n">output_gw</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [64]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean allowable groundwater concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">output_gw</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean allowable groundwater concentration is: 0.998 g/m3</span>
+
+<span class="gp">In [65]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentraion is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
+<span class="go">The output groundwater concentraion is within  0.218 % of input groundwater concentration.</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="getting-started.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="faq.html" class="btn btn-neutral float-right" title="FAQ" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, KWR Water Research Institute.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

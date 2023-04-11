@@ -54,7 +54,7 @@ class Segment:
     material: string
         e.g. PE40, PE80, PVC, EPDM, rubber etc.
     length: float
-        Length of the pipe segment, meters 
+        Length of the pipe segment in contact with the contaminated groundwater, meters 
     inner_diameter: float
         Inner diameter of the pipe segment, meters
     wall_thickness: float
@@ -96,7 +96,7 @@ class Segment:
     log_Dp: float
         Calculated log diffusion coefficient for the given chemical and pipe material, m2/s.
     stagnation_factor: float
-        Correction for the decrease in the concentratino gradient near the 
+        Correction for the decrease in the concentration gradient near the 
         inner wall of the pipe during stagnation (e.g. no flow at at night)
     mass_chemical_drinkwater: float
         Mass of the given chemical in the pipe segment, g.
@@ -609,7 +609,7 @@ class Segment:
         Returns
         -------
         stagnation_factor: float
-            Correction for the decrease in the concentratino gradient near the 
+            Correction for the decrease in the concentration gradient near the 
             inner wall of the pipe during stagnation (e.g. no flow at at night).
 
         '''

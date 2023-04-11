@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pipepermcalc.pipe module &mdash; pipepermcalc 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pipepermcalc.project_path module" href="pipepermcalc.project_path.html" />
+    <link rel="prev" title="pipepermcalc package" href="pipepermcalc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pipepermcalc
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pipepermcalc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pipepermcalc</a></li>
+          <li class="breadcrumb-item"><a href="pipepermcalc.html">pipepermcalc package</a></li>
+      <li class="breadcrumb-item active">pipepermcalc.pipe module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pipepermcalc.pipe.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pipepermcalc.pipe">
+<span id="pipepermcalc-pipe-module"></span><h1>pipepermcalc.pipe module<a class="headerlink" href="#module-pipepermcalc.pipe" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipepermcalc.pipe.</span></span><span class="sig-name descname"><span class="pre">Pipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.pipe.Pipe" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Pipe object class to make segments of the pipe and calculate the peak and
+mean concentration of a chemical in groundwater and soil.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.segment_list">
+<span class="sig-name descname"><span class="pre">segment_list</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.segment_list" title="Permalink to this definition"></a></dt>
+<dd><p>list of the pipe segment objects which make up the pipe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe._conditions_set">
+<span class="sig-name descname"><span class="pre">_conditions_set</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe._conditions_set" title="Permalink to this definition"></a></dt>
+<dd><p>Default False, True when the groundwater conditions have been set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe._flow_rate_set">
+<span class="sig-name descname"><span class="pre">_flow_rate_set</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe._flow_rate_set" title="Permalink to this definition"></a></dt>
+<dd><p>Default False, True when the flow rate has been set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe._concentration_groundwater_set">
+<span class="sig-name descname"><span class="pre">_concentration_groundwater_set</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe._concentration_groundwater_set" title="Permalink to this definition"></a></dt>
+<dd><p>Default False, True when the flow rate has been set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe._is_validated">
+<span class="sig-name descname"><span class="pre">_is_validated</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe._is_validated" title="Permalink to this definition"></a></dt>
+<dd><p>Default False, True when the flow rate has been set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.total_volume">
+<span class="sig-name descname"><span class="pre">total_volume</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.total_volume" title="Permalink to this definition"></a></dt>
+<dd><p>Total volume of the pipe, summed from the pipe segments, m3</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">total_length'</span></span></dt>
+<dd><p>Total length of the pipe, summed from the pipe segments, m</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.flow_rate">
+<span class="sig-name descname"><span class="pre">flow_rate</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.flow_rate" title="Permalink to this definition"></a></dt>
+<dd><p>Flow rate through pipe, m3/day.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.CAS_number">
+<span class="sig-name descname"><span class="pre">CAS_number</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.CAS_number" title="Permalink to this definition"></a></dt>
+<dd><p>CAS is a unique identification number assigned by the Chemical
+Abstracts Service (CAS)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.chemical_name_EN">
+<span class="sig-name descname"><span class="pre">chemical_name_EN</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.chemical_name_EN" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the chemical in English</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.chemical_name_NL">
+<span class="sig-name descname"><span class="pre">chemical_name_NL</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.chemical_name_NL" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the chemical in Dutch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.molecular_weight">
+<span class="sig-name descname"><span class="pre">molecular_weight</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.molecular_weight" title="Permalink to this definition"></a></dt>
+<dd><p>Mass of one mole of a given chemical, g/mol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.solubility">
+<span class="sig-name descname"><span class="pre">solubility</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.solubility" title="Permalink to this definition"></a></dt>
+<dd><p>solubility of given chemical in water, g/m3</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.log_octanol_water_partitioning_coefficient">
+<span class="sig-name descname"><span class="pre">log_octanol_water_partitioning_coefficient</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.log_octanol_water_partitioning_coefficient" title="Permalink to this definition"></a></dt>
+<dd><p>Partition coefficient for the two-phase system consisting of
+n-octanol and water, Log Kow, [-]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.log_distribution_coefficient">
+<span class="sig-name descname"><span class="pre">log_distribution_coefficient</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.log_distribution_coefficient" title="Permalink to this definition"></a></dt>
+<dd><p>Ratio of the amount of chemical  adsorbed onto soil per amount
+of water, m3/g</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.chemical_group">
+<span class="sig-name descname"><span class="pre">chemical_group</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.chemical_group" title="Permalink to this definition"></a></dt>
+<dd><p>Grouping of chemicals (expert opinion) with similar properties
+for permeation: Group 1: PAK, MAK, ClArom, ClAlk, Arom, Alk,
+Group 2: PCB, Group 3: overig, onbekend, O2, Cl, BDE. See KWR 2016.056</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.chemical_group_number">
+<span class="sig-name descname"><span class="pre">chemical_group_number</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.chemical_group_number" title="Permalink to this definition"></a></dt>
+<dd><p>Integer corresponding to the chemical group</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>integer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.molecular_volume">
+<span class="sig-name descname"><span class="pre">molecular_volume</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.molecular_volume" title="Permalink to this definition"></a></dt>
+<dd><p>Volume occupied by one mole of the substance at a given
+temperature and pressure, cm3/mol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.Drinking_water_norm">
+<span class="sig-name descname"><span class="pre">Drinking_water_norm</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.Drinking_water_norm" title="Permalink to this definition"></a></dt>
+<dd><p>Concentration allowable in the Dutch Drinking water decree, g/m3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe._Kd_known">
+<span class="sig-name descname"><span class="pre">_Kd_known</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe._Kd_known" title="Permalink to this definition"></a></dt>
+<dd><p>True when a distribution coefficient (Kd) for the chemical is known.
+Kd is needed to convert from soil to groundwater concentration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.concentration_groundwater">
+<span class="sig-name descname"><span class="pre">concentration_groundwater</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.concentration_groundwater" title="Permalink to this definition"></a></dt>
+<dd><p>Concentration of the given chemical in groundwater, g/m3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.tolerance">
+<span class="sig-name descname"><span class="pre">tolerance</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.tolerance" title="Permalink to this definition"></a></dt>
+<dd><p>The allowable difference between the calculated and actual drinking
+water concentration, [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.max_iterations">
+<span class="sig-name descname"><span class="pre">max_iterations</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.max_iterations" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of iterations allowed in the optimization scheme.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.temperature_groundwater">
+<span class="sig-name descname"><span class="pre">temperature_groundwater</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.temperature_groundwater" title="Permalink to this definition"></a></dt>
+<dd><p>Temperature of the groundwater, degrees Celcius.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.stagnation_time">
+<span class="sig-name descname"><span class="pre">stagnation_time</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.stagnation_time" title="Permalink to this definition"></a></dt>
+<dd><p>Time in seconds which water in pipe is stagnant, unit of seconds. The
+stagnation factor is only valid for a stagnation time of 8 hours
+(28800 seconds), therefore using another other stagnation time is not advised.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.concentration_soil">
+<span class="sig-name descname"><span class="pre">concentration_soil</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.concentration_soil" title="Permalink to this definition"></a></dt>
+<dd><p>Concentration of the given chemical in soil, mg/kg.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.scale_factor_upper_limit">
+<span class="sig-name descname"><span class="pre">scale_factor_upper_limit</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.scale_factor_upper_limit" title="Permalink to this definition"></a></dt>
+<dd><p>Scale factor used to set the upper limit of the bounds for calculating
+the mean concentration of drinking water or groundwater. Upper limit taken as the
+concentration of groundwater (solving for drinking water concentration)
+or solubility (solving for groundwater concentration) multiplied by the
+scale factor. Default value of 0.999</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.scale_factor_lower_limit">
+<span class="sig-name descname"><span class="pre">scale_factor_lower_limit</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.scale_factor_lower_limit" title="Permalink to this definition"></a></dt>
+<dd><p>Scale factor used to set the upper limit of the bounds for calculating
+the mean concentration of drinking water or groundwater. Lower limit taken as the
+concentration of groundwater (solving for drinking water concentration)
+or solubility (solving for groundwater concentration) multiplied by the
+scale factor. Default value of 0.0001.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.ASSESSMENT_FACTOR_GROUNDWATER">
+<span class="sig-name descname"><span class="pre">ASSESSMENT_FACTOR_GROUNDWATER</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.ASSESSMENT_FACTOR_GROUNDWATER" title="Permalink to this definition"></a></dt>
+<dd><p>Factor used to correct calculations for observations in actual pipe
+permeation. Permeation of PE house connections in groundwater = 3,
+other pipe materials = 1. See section 7.2 in KWR 2016.056</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.ASSESSMENT_FACTOR_SOIL">
+<span class="sig-name descname"><span class="pre">ASSESSMENT_FACTOR_SOIL</span></span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.ASSESSMENT_FACTOR_SOIL" title="Permalink to this definition"></a></dt>
+<dd><p>Factor used to correct calculations for observations in actual pipe
+permeation. All pipe materials = 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds.</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">ASSESSMENT_FACTOR_GROUNDWATER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">ASSESSMENT_FACTOR_SOIL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.MAX_ITERATIONS_DEFAULT">
+<span class="sig-name descname"><span class="pre">MAX_ITERATIONS_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#pipepermcalc.pipe.Pipe.MAX_ITERATIONS_DEFAULT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.SCALE_FACTOR_LOWER_LIMIT">
+<span class="sig-name descname"><span class="pre">SCALE_FACTOR_LOWER_LIMIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0001</span></em><a class="headerlink" href="#pipepermcalc.pipe.Pipe.SCALE_FACTOR_LOWER_LIMIT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.SCALE_FACTOR_UPPER_LIMIT">
+<span class="sig-name descname"><span class="pre">SCALE_FACTOR_UPPER_LIMIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.999</span></em><a class="headerlink" href="#pipepermcalc.pipe.Pipe.SCALE_FACTOR_UPPER_LIMIT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.STAGNATION_TIME_DEFAULT">
+<span class="sig-name descname"><span class="pre">STAGNATION_TIME_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">28800</span></em><a class="headerlink" href="#pipepermcalc.pipe.Pipe.STAGNATION_TIME_DEFAULT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.TEMPERATURE_GROUNDWATER_DEFAULT">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_GROUNDWATER_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#pipepermcalc.pipe.Pipe.TEMPERATURE_GROUNDWATER_DEFAULT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.TOLERANCE_DEFAULT">
+<span class="sig-name descname"><span class="pre">TOLERANCE_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></em><a class="headerlink" href="#pipepermcalc.pipe.Pipe.TOLERANCE_DEFAULT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.calculate_mean_allowable_gw_concentration">
+<span class="sig-name descname"><span class="pre">calculate_mean_allowable_gw_concentration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.calculate_mean_allowable_gw_concentration" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the mean 24 hour concentration in groundwater which would not
+result in a drinking water concentration exceeding the drinking water
+norm. If the distribution coefficient is known the soil concentration is
+also calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tolerance</strong> (<em>float</em>) – The allowable difference between the calculated and actual drinking water concentration, [-]</p></li>
+<li><p><strong>max_iterations</strong> (<em>int</em>) – Maximum number of iterations allowed in the optimization scheme</p></li>
+<li><p><strong>debug</strong> (<em>Boolean</em>) – If True, return the groundwater concentration, goodness_fit and lower and
+upper limits every iteration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>concentration_mean_allowable_groundwater</strong> – Mean concentration in groundwater which would would not result in
+a mean daily (24 hours) concentration in drinking water exceeding
+the drinking water norm, g/m3.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.calculate_mean_dw_concentration">
+<span class="sig-name descname"><span class="pre">calculate_mean_dw_concentration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.calculate_mean_dw_concentration" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the mean concentration in drinking water for a 24 hour period
+given a groundwater concentration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tolerance</strong> (<em>float</em>) – The allowable difference between the calculated and actual drinking
+water concentration, [-]</p></li>
+<li><p><strong>max_iterations</strong> (<em>int</em>) – Maximum number of iterations allowed in the optimization scheme</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>mean_concentration_pipe_drinking_water</strong> – Calculates the mean concentration in drinking water for a 24 hour period
+given a groundwater concentration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.calculate_peak_allowable_gw_concentration">
+<span class="sig-name descname"><span class="pre">calculate_peak_allowable_gw_concentration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.calculate_peak_allowable_gw_concentration" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the peak (maximum) concentration in groundwater water for a
+given a stagnation period that would not result in a peak concentration
+in drinking water exceeding the drinking water norm for each pipe segment.
+Stagnation period default of 8 hours. If the distribution coefficient is
+known the soil concentration is also calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tolerance</strong> (<em>float</em>) – The allowable difference between the calculated and actual drinking
+water concentration, [-]</p></li>
+<li><p><strong>max_iterations</strong> (<em>int</em>) – Maximum number of iterations allowed in the optimization scheme</p></li>
+<li><p><strong>debug</strong> (<em>Boolean</em>) – If True, return the groundwater concentration, goodness_fit and lower and
+upper limits every iteration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>concentration_peak_allowable_groundwater</strong> – Concentration in groundwater which, after a stagnation period,
+would not result in a peak concentration in drinking water exceeding
+the drinking water norm, g/m3.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.calculate_peak_dw_concentration">
+<span class="sig-name descname"><span class="pre">calculate_peak_dw_concentration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.calculate_peak_dw_concentration" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the peak (maximum) concentration in drinking water for a
+given a stagnation period given a groundwater concentration.
+Stagnation period default of 8 hours.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tolerance</strong> (<em>float</em>) – The allowable difference between the calculated and actual drinking water concentration, [-]</p></li>
+<li><p><strong>max_iterations</strong> (<em>int</em>) – Maximum number of iterations allowed in the optimization scheme</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>peak_concentration_pipe_drinking_water</strong> – Calculates the peak (maximum) concentration in drinking water for a
+given a stagnation period given a groundwater concentration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.parameter_validation_dictionary">
+<span class="sig-name descname"><span class="pre">parameter_validation_dictionary</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'chemical_name':</span> <span class="pre">{'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'str'&gt;]},</span> <span class="pre">'concentration_drinking_water':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'concentration_groundwater':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'concentration_soil':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'diffusion_path_length':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'flow_rate':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'inner_diameter':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'language':</span> <span class="pre">{'str_options':</span> <span class="pre">['NL',</span> <span class="pre">'EN'],</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'str'&gt;]},</span> <span class="pre">'length':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'material':</span> <span class="pre">{'str_options':</span> <span class="pre">['PE40',</span> <span class="pre">'PE80',</span> <span class="pre">'SBR',</span> <span class="pre">'EPDM',</span> <span class="pre">'PVC'],</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'str'&gt;]},</span> <span class="pre">'max_iterations':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'name':</span> <span class="pre">{'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'str'&gt;]},</span> <span class="pre">'permeation_direction':</span> <span class="pre">{'str_options':</span> <span class="pre">['perpendicular',</span> <span class="pre">'parallel'],</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'str'&gt;]},</span> <span class="pre">'stagnation_time':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'temperature_groundwater':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]},</span> <span class="pre">'tolerance':</span> <span class="pre">{'max_value':</span> <span class="pre">1,</span> <span class="pre">'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;]},</span> <span class="pre">'wall_thickness':</span> <span class="pre">{'min_value':</span> <span class="pre">0,</span> <span class="pre">'value_dtype':</span> <span class="pre">[&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]}}</span></em><a class="headerlink" href="#pipepermcalc.pipe.Pipe.parameter_validation_dictionary" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.ppc_database">
+<span class="sig-name descname"><span class="pre">ppc_database</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">CAS_number</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">chemical_name_NL</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">chemical_name_EN</span>&#160; <span class="pre">molecular_weight</span>&#160;&#160; <span class="pre">solubility</span>&#160; <span class="pre">log_octanol_water_partitioning_coefficient</span>&#160; <span class="pre">log_distribution_coefficient</span> <span class="pre">chemical_group</span>&#160; <span class="pre">chemical_group_number</span>&#160; <span class="pre">molecular_volume</span>&#160; <span class="pre">Drinking_water_norm</span> <span class="pre">0</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">66-25-1</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Hexaldehyde</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Hexaldehyde</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">100.160000</span>&#160; <span class="pre">6000.000000</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.78</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">overige</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">3.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span> <span class="pre">1</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">71-55-6</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">1,1,1-Trichloorethaan</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">1,1,1-Trichloroethane</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">133.400000</span>&#160; <span class="pre">2343.333333</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">2.80</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">0.760444</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">ClAlk</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">0.0010</span> <span class="pre">2</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">79-34-5</span>&#160; <span class="pre">1,1,2,2-Tetrachloorethaan</span>&#160; <span class="pre">1,1,2,2-Tetrachloroethane</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">167.850000</span>&#160; <span class="pre">2900.000000</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">2.39</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">ClAlk</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span> <span class="pre">3</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">79-00-5</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">1,1,2-Trichloorethaan</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">1,1,2-Trichloroethane</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">133.400000</span>&#160; <span class="pre">3055.000000</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.89</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">0.753447</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">ClAlk</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">0.0010</span> <span class="pre">4</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">75342</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1,1-Dichloorethaan</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1,1-Dichloroethane</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">98.965000</span>&#160; <span class="pre">5223.690293</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.79</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">0.360666</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">ClAlk</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">0.0010</span> <span class="pre">..</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...</span> <span class="pre">433</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">UV7</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">UV7</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">388.000000</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">overige</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">3.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span> <span class="pre">434</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">UV8</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">UV8</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">445.000000</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">overige</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">3.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span> <span class="pre">435</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">UV9</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">UV9</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">551.000000</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">overige</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">3.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span> <span class="pre">436</span>&#160;&#160;&#160;&#160; <span class="pre">75-01-4</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Vinylchloride</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Vinyl</span> <span class="pre">chloride</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">62.500000</span>&#160;&#160; <span class="pre">428.000000</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.52</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">0.734989</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">ClAlk</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">0.0001</span> <span class="pre">437</span>&#160; <span class="pre">13-30-2-07</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Xyleen</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Xylene</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">120.208888</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">3.74</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">MAK</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">1.0</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">NaN</span>&#160; <span class="pre">[438</span> <span class="pre">rows</span> <span class="pre">x</span> <span class="pre">11</span> <span class="pre">columns]</span></em><a class="headerlink" href="#pipepermcalc.pipe.Pipe.ppc_database" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.set_conditions">
+<span class="sig-name descname"><span class="pre">set_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concentration_groundwater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concentration_soil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concentration_drinking_water</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_groundwater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stagnation_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">28800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress_print</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NL'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.set_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Specifies the chemical of interest, concentration and temperature in the
+groundwater and returns the parameters as attributes of the class.
+If the concentration of groundwater is given, or the soil concentration
+and Kd are known, the diffusion and permeation parameters are calculated
+for the pipe segment(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chemical_name</strong> (<em>string</em>) – Name of the chemical for which to calculate the permeation</p></li>
+<li><p><strong>concentration_groundwater</strong> (<em>float</em>) – Concentration of the given chemical in groundwater, g/m3</p></li>
+<li><p><strong>concentration_soil</strong> (<em>float</em>) – Concentration of the given chemical in soil, mg/kg.</p></li>
+<li><p><strong>flow_rate</strong> (<em>float</em>) – Flow rate through pipe, m3/day.</p></li>
+<li><p><strong>concentration_drinking_water</strong> (<em>float</em>) – Concentration of given chemical in drinking water pipe, g/m3. If no
+value given, concentration is assigned the drinking water norm value.</p></li>
+<li><p><strong>temperature_groundwater</strong> (<em>float</em>) – Temperature of the groundwater, degrees Celcius</p></li>
+<li><p><strong>stagnation_time</strong> (<em>float</em>) – Time in seconds which water in pipe is stagnant, unit of seconds. The
+stagnation factor is only valid for a stagnation time of 8 hours
+(28800 seconds), therefore using another other stagnation time is not advised.</p></li>
+<li><p><strong>suppress_print</strong> (<em>Boolean</em>) – Suppress printing the chemical name and matching name, e.g. in loop calculations</p></li>
+<li><p><strong>language</strong> (<em>str</em>) – Language fo the chemical name to search for, default is Dutch (‘NL’),
+English (‘EN’) also possible</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.validate_input_parameters">
+<span class="sig-name descname"><span class="pre">validate_input_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.validate_input_parameters" title="Permalink to this definition"></a></dt>
+<dd><p>Check that the input parameters are valid values and types for the
+Pipe and Segment objects</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipepermcalc.pipe.Pipe.view_database_chemical_names">
+<span class="sig-name descname"><span class="pre">view_database_chemical_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NL'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipepermcalc.pipe.Pipe.view_database_chemical_names" title="Permalink to this definition"></a></dt>
+<dd><p>Function to view a list of the possible chemical names from the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>language</strong> (<em>str</em>) – Language fo the chemical name to search for, default is Dutch (‘NL’),
+English (‘EN’) also possible</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pipepermcalc.html" class="btn btn-neutral float-left" title="pipepermcalc package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pipepermcalc.project_path.html" class="btn btn-neutral float-right" title="pipepermcalc.project_path module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, KWR Water Research Institute.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -71,8 +71,9 @@ class Pipe:
     concentration_groundwater: float
         Concentration of the given chemical in groundwater, g/m3.
     tolerance: float 
-        The allowable difference between the calculated and actual drinking 
-        water concentration, [-].
+        The degree of acceptable error in the accuracy of the calculation, 
+        calculated as the difference between the calculated and actual drinking 
+        water concentration, default value of 0.01 (1%), [-].
     max_iterations: int
         Maximum number of iterations allowed in the optimization scheme. 
     temperature_groundwater: float
@@ -105,7 +106,7 @@ class Pipe:
             
     Note
     ----
-    All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds.
+    All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds. @ah_todo ...except for flow rate??
 
     '''
 
@@ -152,9 +153,9 @@ class Pipe:
                                     'value_dtype': [float, int]},  
         'concentration_groundwater': {'min_value': 0, 
                                     'value_dtype': [float, int]},  
-        'temperature_groundwater': {'min_value': 0, 
+        'temperature_groundwater': {'min_value': 0, #ah_todo should you be able to input negative number here? @MartinvdS
                                     'value_dtype': [float, int]},  
-        'concentration_drinking_water': {'min_value': 0, 
+        'concentration_drinking_water': {'min_value': 0, #ah_todo should you be able to input zero for this?
                                         'value_dtype': [float, int]},  
         'chemical_name': {'value_dtype': [str]},  
         'language': {'str_options': ['NL', 'EN'],
@@ -224,7 +225,7 @@ class Pipe:
                     if type(getattr(check_object, k)) not in v['value_dtype']:
                         raise ValueError(f"Invalid value ~{getattr(check_object, k)}~ for parameter {k}. Input value should be a {v['value_dtype']}.")
                     if 'min_value' in v.keys():
-                        if getattr(check_object, k) < v['min_value']:
+                        if getattr(check_object, k) <= v['min_value']:
                             raise ValueError(f"Invalid value {getattr(check_object, k)} for parameter {k}. Input value should be a > {v['min_value']}.")
                     if 'max_value' in v.keys():
                         if getattr(check_object, k) > v['max_value']:
@@ -496,8 +497,9 @@ class Pipe:
         Parameters
         ----------
         tolerance: float 
-            The allowable difference between the calculated and actual drinking 
-            water concentration, [-]
+            The degree of acceptable error in the accuracy of the calculation, 
+            calculated as the difference between the calculated and actual drinking 
+            water concentration, default value of 0.01 (1%), [-].
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
 
@@ -599,7 +601,9 @@ class Pipe:
         Parameters
         ----------
         tolerance: float 
-            The allowable difference between the calculated and actual drinking water concentration, [-]
+            The degree of acceptable error in the accuracy of the calculation, 
+            calculated as the difference between the calculated and actual drinking 
+            water concentration, default value of 0.01 (1%), [-].
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
 
@@ -703,7 +707,9 @@ class Pipe:
         Parameters
         ----------
         tolerance: float 
-            The allowable difference between the calculated and actual drinking water concentration, [-]
+            The degree of acceptable error in the accuracy of the calculation, 
+            calculated as the difference between the calculated and actual drinking 
+            water concentration, default value of 0.01 (1%), [-].
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
         debug: Boolean
@@ -761,7 +767,7 @@ class Pipe:
                 # initial guess concentration in groundwater
                 concentration_groundwater_n_plus_1 = (self.concentration_drinking_water * (1
                                          + self.flow_rate * self.ASSESSMENT_FACTOR_GROUNDWATER ) 
-                                            / sum_KDA_d ) * 24 * 60 * 60 #ah_todo is this correct??
+                                            / sum_KDA_d ) * 24 * 60 * 60 
             
             counter = 0
             lower_limit = self.concentration_drinking_water # initial value for the lower limit
@@ -862,8 +868,9 @@ class Pipe:
         Parameters
         ----------
         tolerance: float 
-            The allowable difference between the calculated and actual drinking 
-            water concentration, [-]
+            The degree of acceptable error in the accuracy of the calculation, 
+            calculated as the difference between the calculated and actual drinking 
+            water concentration, default value of 0.01 (1%), [-].
         max_iterations: int
             Maximum number of iterations allowed in the optimization scheme
         debug: Boolean

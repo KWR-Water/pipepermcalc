@@ -51,7 +51,7 @@ We create a pipe from the segment using the Pipe() class by inputing the list of
 Step 3: Set the groundwater conditions and flow rate
 ====================================================
 Next we define the groundwater and pipe conditions. These are necessary if we want to calculate the concentration in drinking water for a given groundwater concentration.
-We define the chemical of interest, the concentration in groundwater (g/m3), groundwater temperature (degrees Celsius) and the flow rate (m3/day).
+We define the chemical of interest, the concentration in groundwater (g/m3), groundwater temperature (degrees Celcius) and the flow rate (m3/day).
 The name of the chemical is checked against the chemical database and the closest matching chemical is printed.
 
 .. ipython:: python
@@ -85,7 +85,7 @@ The peak concentration is calculated as the concentration after a stagnation per
 Step 6: Calculate the allowable groundwater concentration
 =========================================================
 It is also possible to calculate the allowable groundwater concentration which would result in a concentration in drinking water not exceeding a given value for the chemical. Often this value will be the drinking water norm.
-The drinking water concentration is given in the set_conditions() function (keyword: concentration_drinking_water), or if no concentration is specified, the default is set as the drinking water norm.
+The drinking water concentration is given in the set_conditions() function, or if no concentration is specified, the default is set as the drinking water norm.
 Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.
 
 .. ipython:: python
@@ -101,7 +101,7 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 
 Miscellaneous
 =============
-The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themselves:
+The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themseles:
 
 .. ipython:: python
 
@@ -138,11 +138,11 @@ Depending on the types of pipe segment, the permeation direction can either be p
   :width: 600
   :alt: pipe_schematic.png
 
-In scenarios 1 and 3 above, the permeation is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the wall_thickness of the pipe length.
+In scenarios 1 and 3 above, the permeaiton is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the wall_thickness of the pipe length.
 
 In the example shown above, permeation is *parallel* to the flow direction through a connecting rubber in scenario 2. For this scenario, the volume is assumed to be zero and the permeation surface area is the annular area of the rubber. The diffusion path length in this case is equal to the length of the segment.
 
-In the following example we create a pipe made from two 5m PE40 pipe segments, joined by a EPDM ring with permeation parallel to the flow direction:
+In the following example we create a pipe made from two 5m PE40 pipe segments, joined by a EPDM ring with permeation parallel to the flow direciton:
 
 .. ipython:: python
 
@@ -196,7 +196,7 @@ Example 3 - Advanced settings
 Change the partitioning and diffusion coefficient
 =================================================
 
-The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possible to input a specific a partitioning and diffusion coefficient for a pipe segment. This must be done *after* setting the conditions of the pipe using .set_conditions().
+The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possibe to input a specific a partitioning and diffusion coefficient for a pipe segment.
 
 .. ipython:: python
 
@@ -227,7 +227,7 @@ When calculating the concentration in drinking water or the allowable concentrat
 * The *tolerance* is the degree of acceptable error in the accuracy of the calculation, default value of 0.01 (1%). 
 * The *maximum number of iterations* is the maximum number of calculations allowed before the calculation stops. A default value of 1000 is used.
 
-These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iterations:
+These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iteratoins:
 
 .. ipython:: python
 
@@ -259,7 +259,7 @@ These values can be manually changed in the four concentration calculations by s
 Model Testing
 ============= 
 
-The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.
+The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular wieght, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.
 
 
 
@@ -297,7 +297,7 @@ The model has been tested by calculating the concentration in drinking water giv
 
     print("The peak allowable groundwater concentration is:", round(output_gw,3), "g/m3")
 
-    print("The output groundwater concentration is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
+    print("The output groundwater concentraion is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
 
     # Mean concentration testing
     mean_conc=pipe1.calculate_mean_dw_concentration()
@@ -313,4 +313,4 @@ The model has been tested by calculating the concentration in drinking water giv
 
     print("The mean allowable groundwater concentration is:", round(output_gw,3), "g/m3")
 
-    print("The output groundwater concentration is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
+    print("The output groundwater concentraion is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
