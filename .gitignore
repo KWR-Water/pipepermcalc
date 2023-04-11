@@ -15,3 +15,13 @@ documentation/*
 research/ *.csv
 research/did_not_pass_chems_peak_allowable.csv
 research/did_not_pass_chems_mean_allowable.csv
+
+research\Monte_carlo\Aansluitleidingen_inBedrijf_16012023 PWN.xlsx
+research\Monte_carlo\Aansluitleidingen_inBedrijf_16012023_PWN_PE40.pickle
+research\Monte_carlo\Aansluitleidingen_inBedrijf_16012023_PWN.pickle
+research\Monte_carlo\20190702 kans normoverschrijding - Copy.xlsx
+research\Monte_carlo\20190702 kans normoverschrijding.xlsx
+research\Monte_carlo\20160703 Database labmetingen.xlsx
+research\Monte_carlo\KWR 2016_056 opbouw permeatiemodel en risicogrenswaarden.pdf
+research\Monte_carlo\monte-carlo_output
+research\Monte_carlo\figures
