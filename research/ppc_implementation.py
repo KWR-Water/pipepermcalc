@@ -24,6 +24,107 @@ from pipepermcalc.segment import *
 
 #%%
 
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=2500,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1])
+input_gw = 1
+
+pipe1.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_groundwater =input_gw,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+pipe1.validate_input_parameters()
+
+# Peak concentration testing
+peak_conc=pipe1.calculate_peak_dw_concentration(tolerance = -0.1)
+peak_conc
+# mean_conc=pipe1.calculate_mean_dw_concentration()
+
+# peak_conc, mean_conc
+#%%
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1])
+input_gw = 1
+
+pipe1.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_groundwater =input_gw,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+pipe1.validate_input_parameters()
+
+# Peak concentration testing
+peak_conc=pipe1.calculate_peak_dw_concentration()
+
+print("The peak drinking water concentration is:", round(peak_conc,3), "g/m3")
+
+pipe1.set_conditions(chemical_name='Benzeen', 
+                    temperature_groundwater=12, 
+                    concentration_drinking_water = peak_conc,
+                    flow_rate=0.5)
+
+output_gw = pipe1.calculate_peak_allowable_gw_concentration()
+
+print("The peak allowable groundwater concentration is:", round(output_gw,3), "g/m3")
+
+print("The output groundwater concentraion is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
+
+# print(abs(1-input_gw/output_gw)*100)
+#%%
+# Mean concentration testing
+
+
+seg2 = Segment(name='seg2',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg2])
+input_gw = 1
+
+pipe1.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_groundwater =input_gw,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+pipe1.validate_input_parameters()
+
+mean_conc=pipe1.calculate_mean_dw_concentration()
+
+print("The mean drinking water concentration is:", round(mean_conc,5), "g/m3")
+
+pipe1.set_conditions(chemical_name='Benzeen', 
+                    temperature_groundwater=12, 
+                    concentration_drinking_water = mean_conc,
+                    flow_rate=0.5)
+
+output_gw = pipe1.calculate_mean_allowable_gw_concentration()
+
+print("The mean allowable groundwater concentration is:", round(output_gw,3), "g/m3")
+
+print("The output groundwater concentraion is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
+print(abs(1-input_gw/output_gw)*100)
+
+
+#%%
+
 mat = 'SBR'
 
 seg1 = Segment(name='seg1',
@@ -176,7 +277,6 @@ for L, C_gw in zip (Ls, C_gws):
 # If we calculate the mean allowable gw conc for the different lengths and 
 # compare to the excel, we see the excel values are larger than the code values 
 # for the very small lengths, therefore the excel over estimates the mean allowable gw concentrations
-
 
 allowable_gw = []
 for L in Ls:
