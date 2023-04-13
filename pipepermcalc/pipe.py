@@ -500,7 +500,7 @@ class Pipe:
                                        max_iterations, 
                                        tolerance):
         ''' 
-        Check the input values for max_iterations and the tolerance
+        Check the input values for max_iterations and the tolerance.
 
         Parameters
         ----------
@@ -630,7 +630,7 @@ class Pipe:
     def calculate_peak_dw_concentration(self, 
                                         tolerance = TOLERANCE_DEFAULT,
                                         max_iterations = MAX_ITERATIONS_DEFAULT,
-                                        debug=True):
+                                        debug=False):
 
         '''
         Calculates the peak (maximum) concentration in drinking water for a 

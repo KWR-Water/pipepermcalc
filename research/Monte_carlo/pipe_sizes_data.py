@@ -124,5 +124,24 @@ plt.savefig(save_results_to+'/lengte.png', dpi=300, bbox_inches='tight')
 
 #%%
 # See that for a specific inner diameter there is a specific thickness 
-df_PE40.groupby([ 'Binnendiam',]).agg(['mean', 'std', 'count', 'min', 'max' ])
+df_PE40.groupby([ 'Binnendiam',]).agg(['mean', 'median', 'std', 'count', 'min', 'max' ])
 df_PE40.describe()
+
+#%%
+
+# range lenth plume
+# plume_length_range =pd.read_excel('20190702 kans normoverschrijding.xlsx', 
+#                     sheet_name='RGW_AH', header=[0], usecols = "U", nrows=12) 
+# save_df_pickle(filename='monte-carlo_lenths', df= plume_length_range, foldername='monte-carlo_output')
+plume_length_range = load_pickle(filename='monte-carlo_lenths', foldername='monte-carlo_output')
+plume_length_values = list(plume_length_range.contactlengte)
+
+df_plume = pd.DataFrame (plume_length_values, columns = ['plume_length_values'])
+df_plume_length_values = df_plume.sort_values(by='plume_length_values')
+df_plume_length_values.reset_index(inplace = True, drop=True)
+
+plt.plot(df_plume_length_values.plume_length_values, df_plume_length_values.index/len(df_plume_length_values),)
+plt.xlabel('Plume Lengte (m)')
+plt.ylabel('Cumulatieve dichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/lengte_plume.png', dpi=300, bbox_inches='tight')

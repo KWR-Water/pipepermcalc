@@ -76,22 +76,22 @@ def load_pickle(filename, foldername=None):
 
 #%%
 # import the data on plume concentration
-# df = pd.read_excel(module_path / 'research' / 'Monte_carlo' / '20190702 kans normoverschrijding.xlsx', 
-#                     sheet_name='RGW_AH', header=[175], usecols = "A:E", ) 
+df = pd.read_excel('20190702 kans normoverschrijding - Copy.xlsx', 
+                    sheet_name='`Brondata anoniem', header=[3], usecols = "P", ) 
+save_df_pickle(filename='monte-carlo_plume_concs', df= df, foldername='monte-carlo_output')
 
-# save_df_pickle(filename='monte-carlo_plume_concs', df= df, foldername='monte-carlo_output')
-
-# range lenth pipe - OLD
-# length_range =pd.read_excel(module_path / 'research' / 'Monte_carlo' / '20190702 kans normoverschrijding.xlsx', 
+#%%
+# range lenth plume
+# plume_length_range =pd.read_excel('20190702 kans normoverschrijding.xlsx', 
 #                     sheet_name='RGW_AH', header=[0], usecols = "U", nrows=12) 
-# save_df_pickle(filename='monte-carlo_lenths', df= length_range, foldername='monte-carlo_output')
-# length_range = load_pickle(filename='monte-carlo_lenths', foldername='monte-carlo_output')
-# length_values = list(length_range.contactlengte)
+# save_df_pickle(filename='monte-carlo_lenths', df= plume_length_range, foldername='monte-carlo_output')
+plume_length_range = load_pickle(filename='monte-carlo_lenths', foldername='monte-carlo_output')
+plume_length_values = list(plume_length_range.contactlengte)
 
 #%%
 # import data on pipe dimentsion and concentrations
 df = load_pickle(filename='monte-carlo_plume_concs', foldername='monte-carlo_output')
-plume_concs = list(df.ext_value)
+plume_concs = list(df['Extrapolated values'])
 
 # Import the pipe information - inner diameter, thickness, length
 df_PE40 = load_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN_PE40')
@@ -140,6 +140,8 @@ def run_Monte_Carlo_simulation (plume_concs,
     log_Kpw_refs =[]
     f_Dconcs =[]
     f_Kconcs =[]
+    activattion_energies = []
+    partitioning_enthalpies = []
     f_Dtemps =[]
     f_Ktemps =[]
 
@@ -271,6 +273,8 @@ def run_Monte_Carlo_simulation (plume_concs,
             f_Kconcs.append(f_Kconc)
             f_Dtemps.append(f_Dtemp)
             f_Ktemps.append(f_Ktemp)
+            activattion_energies.append(activattion_energy)
+            partitioning_enthalpies.append(partitioning_enthalpie)
             log_Kpws.append(seg1.log_Kpw)  
             log_Dps.append(seg1.log_Dp)
 
@@ -292,10 +296,14 @@ def run_Monte_Carlo_simulation (plume_concs,
         print('ninety_perc:', ninety_perc, 'tenth_per:c', tenth_perc)
 
     # put the data into a df, sort by the dw_conc and save
-    data = zip(dw_concs, soil_concs, gw_concs, log_Kpws, log_Dps, lengths, inner_diameters, flow_rates, wall_thicknesses, 
-            log_Dp_refs, log_Kpw_refs, f_Dconcs, f_Kconcs, f_Dtemps, f_Ktemps)
-    df = pd.DataFrame(data,  columns = ['dw_concs', 'soil_conc', 'gw_concs', 'Kpw', 'Dp', 'Length', 'inner_diameter', 'flow_rates', 'wall_thicknesses',
-                                        'log_Dp_refs', 'log_Kpw_refs','f_Dconcs', 'f_Kconcs', 'f_Dtemps', 'f_Ktemps'])
+    data = zip(dw_concs, soil_concs, gw_concs, log_Kpws, log_Dps, lengths, 
+               inner_diameters, flow_rates, wall_thicknesses, 
+            log_Dp_refs, log_Kpw_refs, f_Dconcs, f_Kconcs, f_Dtemps, f_Ktemps, 
+            activattion_energies, partitioning_enthalpies)
+    df = pd.DataFrame(data,  columns = ['dw_concs', 'soil_conc', 'gw_concs', 'Kpw', 'Dp', 'Length', 'inner_diameter', 
+                                        'flow_rates', 'wall_thicknesses',
+                                        'log_Dp_refs', 'log_Kpw_refs','f_Dconcs', 'f_Kconcs', 'f_Dtemps', 'f_Ktemps',
+                                          'activattion_energies', 'partitioning_enthalpies'])
     df.sort_values(by=['dw_concs'], inplace=True)
     df.reset_index(inplace=True)
 
@@ -341,10 +349,34 @@ plt.legend()
 plt.savefig(save_results_to +'/example_peak_monte-carlo_simulation.png', dpi=300, bbox_inches='tight')
 
 # %%
+# -------------------------------------------------
+# Plotting of the input parameters
+# -------------------------------------------------
 # Creating a series of data of in range of 1-10000.
+save_results_to = check_create_folders(folder_name='figures')
+
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.1,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_groundwater =1,
+                    concentration_drinking_water=0.1,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+
 lps = np.arange(start=0, stop=10000, step=1)
 cdf_K = []
 cdf_D = []
+cdf_K_age = []
+cdf_D_age = []
 
 # calculate the cdf for the different parameters...
 for lp in lps:
@@ -356,20 +388,140 @@ for lp in lps:
     Sr_D = 0.19572320 #Sr = standard error of regression
     log_Dp_ref = NormalDist(mu=seg1.log_Dp_ref, #-11.54717333172 #
                             sigma=Sr_D).inv_cdf(p=random.random())
-
+    
+    Sr_age_D = 0.17 #Eqn 21, KWR 2016.056
+    f_Dage = NormalDist(mu=0, 
+                        sigma=Sr_age_D).inv_cdf(p=random.random())
+    
+    Sr_age_K = 0.05 #Eqn 22, KWR 2016.056
+    f_Kage = NormalDist(mu=0, 
+                        sigma=Sr_age_K).inv_cdf(p=random.random())
 
     cdf_K.append(log_Kpw_ref )
     cdf_D.append(log_Dp_ref )
+    cdf_K_age.append(f_Kage)
+    cdf_D_age.append(f_Dage )
 
 cdf_K.sort()
 cdf_D.sort()
+cdf_K_age.sort()
+cdf_D_age.sort()
 
 #Plotting the Results
 # plt.plot(cdf_K, lps, color = 'red')
-plt.plot(cdf_D, lps, color = 'blue')
+plt.plot(cdf_D, lps/len(lps), color = 'blue')
+plt.xlabel('log Dp ref.')
+plt.ylabel('Cumulatieve dichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/log_Dp_ref.png', dpi=300, bbox_inches='tight')
 
-plt.xlabel('log Kpw/Dp')
-plt.ylabel('Cumulative Density')
+#%%
+plt.plot(cdf_K, lps/len(lps), color = 'blue')
+plt.xlabel('log Kpw ref.')
+plt.ylabel('Cumulatieve dichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/log_Kpw_ref.png', dpi=300, bbox_inches='tight')
 
-np.mean(cdf_K), np.std(cdf_K), np.mean(cdf_D), np.std(cdf_D)
+#%%
+plt.plot(cdf_K_age, lps/len(lps), color = 'blue')
+plt.xlabel('f_k_age')
+plt.ylabel('Cumulatieve dichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/f_k_age.png', dpi=300, bbox_inches='tight')
+#%%
+plt.plot(cdf_D_age, lps/len(lps), color = 'blue')
+plt.xlabel('f_D_age')
+plt.ylabel('Cumulatieve dichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/f_D_age.png', dpi=300, bbox_inches='tight')
+
 # %%
+save_results_to = check_create_folders(folder_name='figures')
+
+df_mean_f_Dtemps = df_mean.sort_values(by='f_Dtemps')
+df_mean_f_Dtemps.reset_index(inplace = True, drop=True)
+
+plt.plot(df_mean_f_Dtemps.f_Dtemps, df_mean_f_Dtemps.index/len(df_mean), color = 'blue')
+plt.xlabel('f_Dtemp')
+plt.ylabel('Cumulatieve dichtheid')
+plt.savefig(save_results_to+'/f_Dtemp.png', dpi=300, bbox_inches='tight')
+
+#%%
+save_results_to = check_create_folders(folder_name='figures')
+
+dfx = df_mean.sort_values(by='activattion_energies')
+dfx.reset_index(inplace = True, drop=True)
+
+plt.plot(dfx.activattion_energies, dfx.index/len(df_mean), color = 'blue')
+plt.xlabel('Activattion_energy')
+plt.ylabel('Cumulatieve dichtheid')
+plt.savefig(save_results_to+'/activattion_energies.png', dpi=300, bbox_inches='tight')
+
+#%%
+save_results_to = check_create_folders(folder_name='figures')
+
+dfx = df_mean.sort_values(by='partitioning_enthalpies')
+dfx.reset_index(inplace = True, drop=True)
+
+plt.plot(dfx.partitioning_enthalpies, dfx.index/len(df_mean), color = 'blue')
+plt.xlabel('Partitioning Enthalpie')
+plt.ylabel('Cumulatieve dichtheid')
+plt.savefig(save_results_to+'/partitioning_enthalpies.png', dpi=300, bbox_inches='tight')
+
+#%%
+
+save_results_to = check_create_folders(folder_name='figures')
+
+dfx = df_mean.sort_values(by='f_Ktemps')
+dfx.reset_index(inplace = True, drop=True)
+
+plt.plot(dfx.f_Ktemps, dfx.index/len(df_mean), color = 'blue')
+plt.xlabel('f_Ktemp')
+plt.ylabel('Cumulatieve dichtheid')
+plt.savefig(save_results_to+'/f_Ktemp.png', dpi=300, bbox_inches='tight')
+
+#%%
+
+save_results_to = check_create_folders(folder_name='figures')
+
+dfx = df_mean.sort_values(by='gw_concs')
+dfx.reset_index(inplace = True, drop=True)
+
+plt.plot(dfx.gw_concs, dfx.index/len(df_mean), color = 'blue')
+plt.xlabel('gw_concs')
+plt.ylabel('Cumulatieve dichtheid')
+plt.savefig(save_results_to+'/gw_concs.png', dpi=300, bbox_inches='tight')
+
+#%%
+
+save_results_to = check_create_folders(folder_name='figures')
+
+dfx = df_mean.sort_values(by='f_Kconcs')
+dfx.reset_index(inplace = True, drop=True)
+
+plt.plot(dfx.f_Kconcs, dfx.index/len(df_mean), color = 'blue')
+plt.xlabel('f_Kconcs')
+plt.ylabel('Cumulatieve dichtheid')
+plt.savefig(save_results_to+'/f_Kconcs.png', dpi=300, bbox_inches='tight')
+
+#%%
+save_results_to = check_create_folders(folder_name='figures')
+
+dfx = df_mean.sort_values(by='f_Dconcs')
+dfx.reset_index(inplace = True, drop=True)
+
+plt.plot(dfx.f_Dconcs, dfx.index/len(df_mean), color = 'blue')
+plt.xlabel('f_Dconcs')
+plt.ylabel('Cumulatieve dichtheid')
+plt.savefig(save_results_to+'/f_Dconcs.png', dpi=300, bbox_inches='tight')
+
+#%%
+df_plume_concs = load_pickle(filename='monte-carlo_plume_concs', foldername='monte-carlo_output')
+df_plume_concs = df_plume_concs.sort_values(by='Extrapolated values')
+df_plume_concs.reset_index(inplace = True, drop=True)
+
+plt.plot(df_plume_concs['Extrapolated values'], df_plume_concs.index/len(df_plume_concs),)
+plt.xlabel('Plume conc (mg/kg)')
+plt.ylabel('Cumulatieve dichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/plume_conc.png', dpi=300, bbox_inches='tight')

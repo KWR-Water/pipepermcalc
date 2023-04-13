@@ -72,7 +72,7 @@ Before we proceed with any calculations we first validate the input parameters. 
 Step 5: Calculate the drinking water concentration
 ==================================================
 For the given conditions we can calculate the peak and mean daily concentration in drinking water for the pipe. 
-The peak concentration is calculated as the concentration after a stagnation period (e.g. at night when there is little or no flow in the pipe). The default stagnation time of 8 hours is used.
+The peak concentration is calculated as the concentration after a stagnation period (e.g. at night when there is little or no flow in the pipe). The default stagnation time of 8 hours is used. Note: the peak is often, though not necessarily, higher than the mean concentration. Depending on the pipe dimensions and flow rate there can be sitautaions when the mean concentration is lower than the peak. 
 
 .. ipython:: python
     
