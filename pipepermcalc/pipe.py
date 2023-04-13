@@ -106,7 +106,8 @@ class Pipe:
             
     Note
     ----
-    All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds. @ah_todo ...except for flow rate??
+    All parameters are in SI units: m, m2, g/m3 (equivalent to mg/L), seconds. 
+    Except for the flow rate, which is given in m3/day.
 
     '''
 
@@ -143,11 +144,6 @@ class Pipe:
                         'value_dtype': [float, int]},  
         'diffusion_path_length': {'min_value': 0, 
                                 'value_dtype': [float, int]},
-        'max_iterations': {'min_value': 0, 
-                        'value_dtype': [float, int]}, 
-        'tolerance': {'min_value': 0,
-                    'max_value': 1, 
-                    'value_dtype': [float]},  
         'stagnation_time': {'min_value': 0, 
                             'value_dtype': [float, int]},  
         'flow_rate': {'min_value': 0, 
@@ -156,9 +152,9 @@ class Pipe:
                                     'value_dtype': [float, int]},  
         'concentration_groundwater': {'min_value': 0, 
                                     'value_dtype': [float, int]},  
-        'temperature_groundwater': {'min_value': 0, #ah_todo should you be able to input negative number here? @MartinvdS
+        'temperature_groundwater': {'min_value': 0, 
                                     'value_dtype': [float, int]},  
-        'concentration_drinking_water': {'min_value': 0, #ah_todo should you be able to input zero for this?
+        'concentration_drinking_water': {'min_value': 0, 
                                         'value_dtype': [float, int]},  
         'chemical_name': {'value_dtype': [str]},  
         'language': {'str_options': ['NL', 'EN'],
