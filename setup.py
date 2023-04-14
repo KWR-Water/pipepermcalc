@@ -8,7 +8,7 @@ def read(fname):
 package_name = 'pipepermcalc'
 setup(
     name=package_name,
-    version='0.0.5',
+    version='{{VERSION_PLACEHOLDER}}',
     packages=find_packages(exclude=['tests*', 'tests.*', 'research*',]),
     license='All rights reserved',
     description='A python package to ',
