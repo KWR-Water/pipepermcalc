@@ -1,9 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-def read(fname):
-    with open(os.path.join(os.path.dirname(__file__), fname)) as f:
-        return f.read()
+long_description=open('README.md').read()
 
 package_name = 'pipepermcalc'
 setup(
@@ -12,8 +10,7 @@ setup(
     packages=find_packages(exclude=['tests*', 'tests.*', 'research*',]),
     license='All rights reserved',
     description='A python package to ',
-    long_description_content_type="text/markdown",
-    long_description=README,
+    long_description=long_descrition,
     
     classifiers=[
         'Development Status :: 4 - Beta',
