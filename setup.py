@@ -12,8 +12,9 @@ setup(
     packages=find_packages(exclude=['tests*', 'tests.*', 'research*',]),
     license='All rights reserved',
     description='A python package to ',
-    long_description=read('README.rst'),
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
+    long_description=README,
+    
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
