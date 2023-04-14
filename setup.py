@@ -10,7 +10,7 @@ setup(
     packages=find_packages(exclude=['tests*', 'tests.*', 'research*',]),
     license='All rights reserved',
     description='A python package to ',
-    long_description=long_descrition,
+    long_description=long_description,
     
     classifiers=[
         'Development Status :: 4 - Beta',
