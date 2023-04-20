@@ -2,6 +2,8 @@ PIPEPERMCALC
 =============
 .. image:: https://badge.fury.io/py/pipepermcalc.svg
     :target: https://badge.fury.io/py/pipepermcalc
+.. image:: https://readthedocs.org/projects/pipepermcalc/badge/?version=latest&style=flat
+                    :target: https://pipepermcalc.readthedocs.io
 
 PIPEPERMCALC or PipePermeationCalculator is a python package to calculate the permeation through pipes
 
