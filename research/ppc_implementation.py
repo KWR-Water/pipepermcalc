@@ -22,6 +22,27 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
+
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.1,
+            wall_thickness=0.0027)
+
+
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_groundwater =1.8,
+                    concentration_drinking_water=0.1,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+pipe1.validate_input_parameters()
+
+peak_conc=pipe1.calculate_peak_dw_concentration()
+
 #%%
 
 seg1 = Segment(name='seg1',
@@ -33,7 +54,7 @@ seg1 = Segment(name='seg1',
 
 
 pipe1 = Pipe(segment_list=[seg1])
-input_gw = 1
+input_gw = 100
 
 pipe1.set_conditions(
     chemical_name='Benzeen', 
@@ -44,10 +65,11 @@ pipe1.set_conditions(
 
 pipe1.validate_input_parameters()
 
+seg1.partitioning_enthalpie
 #%%
 # Peak concentration testing
 peak_conc=pipe1.calculate_peak_dw_concentration()
-
+peak_conc
 #%%
 pipe1.set_conditions(chemical_name='Benzeen', 
                     temperature_groundwater=12, 

@@ -89,6 +89,9 @@ plume_length_range = load_pickle(filename='monte-carlo_lenths', foldername='mont
 plume_length_values = list(plume_length_range.contactlengte)
 
 #%%
+length_middle_point = list(np.arange(start=0, stop=1, step=0.01))
+
+#%%
 # import data on pipe dimentsion and concentrations
 df = load_pickle(filename='monte-carlo_plume_concs', foldername='monte-carlo_output')
 plume_concs = list(df['Extrapolated values'])
@@ -138,8 +141,12 @@ def run_Monte_Carlo_simulation (plume_concs,
 
     log_Dp_refs =[]
     log_Kpw_refs =[]
+
+    a_c_Ds = []
+    a_c_Ks = []
     f_Dconcs =[]
     f_Kconcs =[]
+
     activattion_energies = []
     partitioning_enthalpies = []
     f_Dtemps =[]
@@ -177,7 +184,7 @@ def run_Monte_Carlo_simulation (plume_concs,
 
             #ah_todo
             # Update with information from Mirjam/DWC ? @MartinvdS
-            flow_rate = NormalDist(mu=0.5, sigma=0.1).inv_cdf(p=random.random())
+            flow_rate =0.28 # NormalDist(mu=0.280, sigma=0).inv_cdf(p=random.random())
             #ah_todo change this to be the 1,2,4 person households at 120 L per person per day?
 
             # Create pipe and set conditions
@@ -211,16 +218,21 @@ def run_Monte_Carlo_simulation (plume_concs,
                                     sigma=Sr_K).inv_cdf(p=random.random())
             
             # concentration corrections
+            # Correction on the a_c factor
             Sr_conc_D = 0.07662645 #excel:'CONC' AE-4
-            f_Dconc = NormalDist(mu=seg1.f_Dconc, 
-                                sigma=Sr_conc_D).inv_cdf(p=random.random())
+            a_c_D =NormalDist(mu=seg1.DIFFUSION_A_C, #DIFFUSION_A_C = 0.784077209735583
+                                sigma=Sr_conc_D).inv_cdf(p=random.random()) 
+            Cg_Sw = min((pipe1.concentration_groundwater/pipe1.solubility), 1)
+            f_Dconc =  a_c_D * (Cg_Sw - seg1.DIFFUSION_CREF_SW) # DIFFUSION_CREF_SW = 0.5
             
             Sr_conc_K = 0.10106212 #excel:'CONC' W-4
-            f_Kconc = NormalDist(mu=seg1.f_Kconc, 
-                                sigma=Sr_conc_K).inv_cdf(p=random.random())
-
+            a_c_K =NormalDist(mu=seg1.PARTITIONING_A_C, #PARTITIONING_A_C = 0.103965019849463
+                                sigma=Sr_conc_K).inv_cdf(p=random.random()) 
+            Cg_Sw = min((pipe1.concentration_groundwater/pipe1.solubility), 1)
+            f_Kconc = a_c_K * (Cg_Sw - seg1.PARTITIONING_CREF_SW) # PARTITIONING_CREF_SW = 1.000
+            
             # temperature corrections
-            #@MartinvdS corrections on the act. engergy/enthalpie itself not the factor
+            #corrections on the act. engergy/enthalpie itself not the factor
             Sr_temp_D = 11.7958431 #Table 5-6, KWR 2016.056, excel:'TEMP' CO-125
             activattion_energy = NormalDist(mu=seg1.activattion_energy, 
                                 sigma=Sr_temp_D).inv_cdf(p=random.random())
@@ -263,18 +275,25 @@ def run_Monte_Carlo_simulation (plume_concs,
             dw_concs.append(dw_conc)
             soil_concs.append(pipe1.concentration_soil)  
             gw_concs.append(pipe1.concentration_groundwater)  
+
             lengths.append(seg1.length)
             flow_rates.append(pipe1.flow_rate)
             inner_diameters.append(inner_diameter)
             wall_thicknesses.append(seg1.wall_thickness)
+
             log_Dp_refs.append(log_Dp_ref)
             log_Kpw_refs.append(log_Kpw_ref)
+
+            a_c_Ds.append(a_c_D)
+            a_c_Ks.append(a_c_K)
             f_Dconcs.append(f_Dconc)
             f_Kconcs.append(f_Kconc)
-            f_Dtemps.append(f_Dtemp)
-            f_Ktemps.append(f_Ktemp)
+
             activattion_energies.append(activattion_energy)
             partitioning_enthalpies.append(partitioning_enthalpie)
+            f_Dtemps.append(f_Dtemp)
+            f_Ktemps.append(f_Ktemp)
+
             log_Kpws.append(seg1.log_Kpw)  
             log_Dps.append(seg1.log_Dp)
 
@@ -297,13 +316,15 @@ def run_Monte_Carlo_simulation (plume_concs,
 
     # put the data into a df, sort by the dw_conc and save
     data = zip(dw_concs, soil_concs, gw_concs, log_Kpws, log_Dps, lengths, 
-               inner_diameters, flow_rates, wall_thicknesses, 
-            log_Dp_refs, log_Kpw_refs, f_Dconcs, f_Kconcs, f_Dtemps, f_Ktemps, 
-            activattion_energies, partitioning_enthalpies)
-    df = pd.DataFrame(data,  columns = ['dw_concs', 'soil_conc', 'gw_concs', 'Kpw', 'Dp', 'Length', 'inner_diameter', 
-                                        'flow_rates', 'wall_thicknesses',
-                                        'log_Dp_refs', 'log_Kpw_refs','f_Dconcs', 'f_Kconcs', 'f_Dtemps', 'f_Ktemps',
-                                          'activattion_energies', 'partitioning_enthalpies'])
+            inner_diameters, flow_rates, wall_thicknesses, 
+            log_Dp_refs, log_Kpw_refs, 
+            f_Dconcs, f_Kconcs, a_c_Ds, a_c_Ks,
+            f_Dtemps, f_Ktemps, activattion_energies, partitioning_enthalpies)
+    df = pd.DataFrame(data,  columns = ['dw_concs', 'soil_conc', 'gw_concs', 'Kpw', 'Dp', 'Length', 
+                                        'inner_diameter', 'flow_rates', 'wall_thicknesses',
+                                        'log_Dp_refs', 'log_Kpw_refs',
+                                        'f_Dconcs', 'f_Kconcs', 'a_c_Ds', 'a_c_Ks',
+                                        'f_Dtemps', 'f_Ktemps', 'activattion_energies', 'partitioning_enthalpies'])
     df.sort_values(by=['dw_concs'], inplace=True)
     df.reset_index(inplace=True)
 
@@ -336,12 +357,27 @@ print('Mean exceedences:', round(len(df_mean.loc[df_mean.dw_concs > dw_norm]) / 
 #%%
 save_results_to = check_create_folders(folder_name='figures')
 
-df = load_pickle(filename='example_monte-carlo_loop_df', foldername='monte-carlo_output')
+df = load_pickle(filename='example_mean_monte-carlo_loop_df', foldername='monte-carlo_output')
 fig = plt.figure(figsize=[10, 5])
 
 plt.plot(df.dw_concs, df.index/len(df), ) 
 plt.vlines(x=dw_norm, ymin=0, ymax =1, colors='r', linestyles='--', label = 'DW Norm')
 plt.xlabel('Mean DW concentration (g/m3)')
+plt.ylabel('Probability')
+plt.title('Exceedences:'+str(round(len(df.loc[df.dw_concs > dw_norm]) / len(df)*100, 3))+ '%, total sims:'+ str(len(df)) )
+plt.xscale('log')
+plt.legend()
+plt.savefig(save_results_to +'/example_mean_monte-carlo_simulation.png', dpi=300, bbox_inches='tight')
+
+#%%
+save_results_to = check_create_folders(folder_name='figures')
+
+df = load_pickle(filename='example_peak_monte-carlo_loop_df', foldername='monte-carlo_output')
+fig = plt.figure(figsize=[10, 5])
+
+plt.plot(df.dw_concs, df.index/len(df), ) 
+plt.vlines(x=dw_norm, ymin=0, ymax =1, colors='r', linestyles='--', label = 'DW Norm')
+plt.xlabel('Peak DW concentration (g/m3)')
 plt.ylabel('Probability')
 plt.title('Exceedences:'+str(round(len(df.loc[df.dw_concs > dw_norm]) / len(df)*100, 3))+ '%, total sims:'+ str(len(df)) )
 plt.xscale('log')
@@ -378,8 +414,25 @@ cdf_D = []
 cdf_K_age = []
 cdf_D_age = []
 
+a_c_Ds = []
+a_c_Ks = []
+f_Kconcs = []
+f_Dconcs = []
+
 # calculate the cdf for the different parameters...
 for lp in lps:
+
+    Sr_conc_D = 0.07662645 #excel:'CONC' AE-4
+    a_c_D =NormalDist(mu=seg1.DIFFUSION_A_C, #DIFFUSION_A_C = 0.784077209735583
+                        sigma=Sr_conc_D).inv_cdf(p=random.random()) 
+    Cg_Sw = min((pipe1.concentration_groundwater/pipe1.solubility), 1)
+    f_Dconc =  a_c_D * (Cg_Sw - seg1.DIFFUSION_CREF_SW) # DIFFUSION_CREF_SW = 0.5
+    
+    Sr_conc_K = 0.10106212 #excel:'CONC' W-4
+    a_c_K =NormalDist(mu=seg1.PARTITIONING_A_C, #PARTITIONING_A_C = 0.103965019849463
+                        sigma=Sr_conc_K).inv_cdf(p=random.random()) 
+    Cg_Sw = min((pipe1.concentration_groundwater/pipe1.solubility), 1)
+    f_Kconc = a_c_K * (Cg_Sw - seg1.PARTITIONING_CREF_SW) # PARTITIONING_CREF_SW = 1.000
 
     Sr_K = 0.31397266
     log_Kpw_ref = NormalDist(mu=seg1.log_Kpw_ref, #1.6476099999999998 #
@@ -401,39 +454,88 @@ for lp in lps:
     cdf_D.append(log_Dp_ref )
     cdf_K_age.append(f_Kage)
     cdf_D_age.append(f_Dage )
+    a_c_Ds.append(a_c_D)
+    a_c_Ks.append(a_c_K)
+    f_Dconcs.append(f_Dconc)
+    f_Kconcs.append(f_Kconc)
+
 
 cdf_K.sort()
 cdf_D.sort()
 cdf_K_age.sort()
 cdf_D_age.sort()
+a_c_Ds.sort()
+a_c_Ks.sort()
+f_Dconcs.sort()
+f_Kconcs.sort()
 
 #Plotting the Results
 # plt.plot(cdf_K, lps, color = 'red')
 plt.plot(cdf_D, lps/len(lps), color = 'blue')
 plt.xlabel('log Dp ref.')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 # plt.xscale('log')
 plt.savefig(save_results_to+'/log_Dp_ref.png', dpi=300, bbox_inches='tight')
 
 #%%
 plt.plot(cdf_K, lps/len(lps), color = 'blue')
 plt.xlabel('log Kpw ref.')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 # plt.xscale('log')
 plt.savefig(save_results_to+'/log_Kpw_ref.png', dpi=300, bbox_inches='tight')
 
 #%%
 plt.plot(cdf_K_age, lps/len(lps), color = 'blue')
 plt.xlabel('f_k_age')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 # plt.xscale('log')
 plt.savefig(save_results_to+'/f_k_age.png', dpi=300, bbox_inches='tight')
 #%%
 plt.plot(cdf_D_age, lps/len(lps), color = 'blue')
 plt.xlabel('f_D_age')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 # plt.xscale('log')
 plt.savefig(save_results_to+'/f_D_age.png', dpi=300, bbox_inches='tight')
+
+#%%
+plt.plot(a_c_Ds, lps/len(lps), color = 'blue')
+plt.xlabel('a_c_Ds')
+plt.ylabel('Cumulative kansdichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/a_c_Ds.png', dpi=300, bbox_inches='tight')
+
+#%%
+plt.plot(a_c_Ks, lps/len(lps), color = 'blue')
+plt.xlabel('a_c_Ks')
+plt.ylabel('Cumulative kansdichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/a_c_Ks.png', dpi=300, bbox_inches='tight')
+
+#%%
+plt.plot(f_Dconcs, lps/len(lps), color = 'blue')
+plt.xlabel('f_Dconcs')
+plt.ylabel('Cumulative kansdichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/f_Dconcs.png', dpi=300, bbox_inches='tight')
+
+#%%
+plt.plot(f_Kconcs, lps/len(lps), color = 'blue')
+plt.xlabel('f_Kconcs')
+
+plt.ylabel('Cumulative kansdichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/f_Kconcs.png', dpi=300, bbox_inches='tight')
+
+# %%
+save_results_to = check_create_folders(folder_name='figures')
+lps = np.arange(start=0, stop=100, step=1)
+
+plt.plot(length_middle_point,lps/len(lps), color = 'blue')
+plt.xlabel('Midden van de pluim op fractie van de lengte van de buis')
+plt.ylabel('Cumulative kansdichtheid')
+# plt.xscale('log')
+plt.savefig(save_results_to+'/length_middle_point.png', dpi=300, bbox_inches='tight')
+
 
 # %%
 save_results_to = check_create_folders(folder_name='figures')
@@ -443,7 +545,7 @@ df_mean_f_Dtemps.reset_index(inplace = True, drop=True)
 
 plt.plot(df_mean_f_Dtemps.f_Dtemps, df_mean_f_Dtemps.index/len(df_mean), color = 'blue')
 plt.xlabel('f_Dtemp')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 plt.savefig(save_results_to+'/f_Dtemp.png', dpi=300, bbox_inches='tight')
 
 #%%
@@ -454,7 +556,7 @@ dfx.reset_index(inplace = True, drop=True)
 
 plt.plot(dfx.activattion_energies, dfx.index/len(df_mean), color = 'blue')
 plt.xlabel('Activattion_energy')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 plt.savefig(save_results_to+'/activattion_energies.png', dpi=300, bbox_inches='tight')
 
 #%%
@@ -465,7 +567,7 @@ dfx.reset_index(inplace = True, drop=True)
 
 plt.plot(dfx.partitioning_enthalpies, dfx.index/len(df_mean), color = 'blue')
 plt.xlabel('Partitioning Enthalpie')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 plt.savefig(save_results_to+'/partitioning_enthalpies.png', dpi=300, bbox_inches='tight')
 
 #%%
@@ -477,7 +579,7 @@ dfx.reset_index(inplace = True, drop=True)
 
 plt.plot(dfx.f_Ktemps, dfx.index/len(df_mean), color = 'blue')
 plt.xlabel('f_Ktemp')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 plt.savefig(save_results_to+'/f_Ktemp.png', dpi=300, bbox_inches='tight')
 
 #%%
@@ -489,7 +591,7 @@ dfx.reset_index(inplace = True, drop=True)
 
 plt.plot(dfx.gw_concs, dfx.index/len(df_mean), color = 'blue')
 plt.xlabel('gw_concs')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 plt.savefig(save_results_to+'/gw_concs.png', dpi=300, bbox_inches='tight')
 
 #%%
@@ -501,7 +603,7 @@ dfx.reset_index(inplace = True, drop=True)
 
 plt.plot(dfx.f_Kconcs, dfx.index/len(df_mean), color = 'blue')
 plt.xlabel('f_Kconcs')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 plt.savefig(save_results_to+'/f_Kconcs.png', dpi=300, bbox_inches='tight')
 
 #%%
@@ -512,7 +614,7 @@ dfx.reset_index(inplace = True, drop=True)
 
 plt.plot(dfx.f_Dconcs, dfx.index/len(df_mean), color = 'blue')
 plt.xlabel('f_Dconcs')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 plt.savefig(save_results_to+'/f_Dconcs.png', dpi=300, bbox_inches='tight')
 
 #%%
@@ -520,8 +622,10 @@ df_plume_concs = load_pickle(filename='monte-carlo_plume_concs', foldername='mon
 df_plume_concs = df_plume_concs.sort_values(by='Extrapolated values')
 df_plume_concs.reset_index(inplace = True, drop=True)
 
-plt.plot(df_plume_concs['Extrapolated values'], df_plume_concs.index/len(df_plume_concs),)
+plt.plot(df_plume_concs['Extrapolated values'], df_plume_concs.index/len(df_plume_concs), color = 'blue')
 plt.xlabel('Plume conc (mg/kg)')
-plt.ylabel('Cumulatieve dichtheid')
+plt.ylabel('Cumulative kansdichtheid')
 # plt.xscale('log')
 plt.savefig(save_results_to+'/plume_conc.png', dpi=300, bbox_inches='tight')
+
+#%%
