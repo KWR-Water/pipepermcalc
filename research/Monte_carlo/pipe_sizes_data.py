@@ -83,6 +83,9 @@ def load_pickle(filename, foldername=None):
 df_PE40 = load_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN_PE40')
 
 #%%
+# -------------------------------------------------
+# Plotting
+# -------------------------------------------------
 
 save_results_to = check_create_folders(folder_name='figures')
 
@@ -145,3 +148,5 @@ plt.xlabel('Plume Lengte (m)')
 plt.ylabel('Cumulatieve dichtheid')
 # plt.xscale('log')
 plt.savefig(save_results_to+'/lengte_plume.png', dpi=300, bbox_inches='tight')
+
+#%%
