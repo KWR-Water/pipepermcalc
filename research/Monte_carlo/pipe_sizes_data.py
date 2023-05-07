@@ -92,7 +92,7 @@ save_results_to = check_create_folders(folder_name='figures')
 # Binnen diameter (mm)
 dfx = df_PE40.sort_values(by='Binnendiam')
 dfx.reset_index(inplace = True, drop=True)
-plt.plot(dfx.Binnendiam, dfx.index/len(dfx),)
+plt.plot(dfx.Binnendiam, dfx.index/len(dfx), color = 'blue')
 plt.xlabel('Binnen diameter (mm)')
 plt.ylabel('Cumulatieve dichtheid')
 plt.savefig(save_results_to+'/Binnen_diameter.png', dpi=300, bbox_inches='tight')
@@ -101,7 +101,7 @@ plt.savefig(save_results_to+'/Binnen_diameter.png', dpi=300, bbox_inches='tight'
 # Buiten diameter (mm)
 dfx = df_PE40.sort_values(by='Buitendiam')
 dfx.reset_index(inplace = True, drop=True)
-plt.plot(dfx.Buitendiam, dfx.index/len(dfx),)
+plt.plot(dfx.Buitendiam, dfx.index/len(dfx), color = 'blue')
 plt.xlabel('Buiten diameter (mm)')
 plt.ylabel('Cumulatieve dichtheid')
 plt.savefig(save_results_to+'/Buiten_diameter.png', dpi=300, bbox_inches='tight')
@@ -110,7 +110,7 @@ plt.savefig(save_results_to+'/Buiten_diameter.png', dpi=300, bbox_inches='tight'
 # Wanddikte (mm)
 df_PE40_Wanddikte = df_PE40.sort_values(by='Wanddikte')
 df_PE40_Wanddikte.reset_index(inplace = True, drop=True)
-plt.plot(df_PE40_Wanddikte.Wanddikte,dfx.index/len(dfx),)
+plt.plot(df_PE40_Wanddikte.Wanddikte,dfx.index/len(dfx), color = 'blue')
 plt.xlabel('Wanddikte (mm)')
 plt.ylabel('Cumulatieve dichtheid')
 plt.savefig(save_results_to+'/wanddikte.png', dpi=300, bbox_inches='tight')
@@ -119,7 +119,7 @@ plt.savefig(save_results_to+'/wanddikte.png', dpi=300, bbox_inches='tight')
 # Lengte_GIS (mm)
 df_PE40_Lengte_GIS = df_PE40.sort_values(by='Lengte_GIS')
 df_PE40_Lengte_GIS.reset_index(inplace = True, drop=True)
-plt.plot(df_PE40_Lengte_GIS.Lengte_GIS, dfx.index/len(dfx),)
+plt.plot(df_PE40_Lengte_GIS.Lengte_GIS, dfx.index/len(dfx), color = 'blue')
 plt.xlabel('Lengte (m)')
 plt.ylabel('Cumulatieve dichtheid')
 plt.xscale('log')
@@ -132,21 +132,6 @@ df_PE40.describe()
 
 #%%
 
-# range lenth plume
-# plume_length_range =pd.read_excel('20190702 kans normoverschrijding.xlsx', 
-#                     sheet_name='RGW_AH', header=[0], usecols = "U", nrows=12) 
-# save_df_pickle(filename='monte-carlo_lenths', df= plume_length_range, foldername='monte-carlo_output')
-plume_length_range = load_pickle(filename='monte-carlo_lenths', foldername='monte-carlo_output')
-plume_length_values = list(plume_length_range.contactlengte)
 
-df_plume = pd.DataFrame (plume_length_values, columns = ['plume_length_values'])
-df_plume_length_values = df_plume.sort_values(by='plume_length_values')
-df_plume_length_values.reset_index(inplace = True, drop=True)
-
-plt.plot(df_plume_length_values.plume_length_values, df_plume_length_values.index/len(df_plume_length_values),)
-plt.xlabel('Plume Lengte (m)')
-plt.ylabel('Cumulatieve dichtheid')
-# plt.xscale('log')
-plt.savefig(save_results_to+'/lengte_plume.png', dpi=300, bbox_inches='tight')
 
 #%%

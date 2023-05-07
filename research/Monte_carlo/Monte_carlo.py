@@ -67,7 +67,10 @@ def run_Monte_Carlo_simulation (plume_concs,
                                 length_fraction_middle_point,
                                 plume_length_values,
                                 calculate_peak=False, 
-                                calculate_mean=False,):
+                                calculate_mean=False,
+                                simulations_per_batch = range(1000),
+                                tolerance = 0.01,
+                                ):
 
     # Loop through the combinations, save the dw concentrations
     dw_concs = []
@@ -105,12 +108,12 @@ def run_Monte_Carlo_simulation (plume_concs,
     random.seed(5) 
 
     # Set number of simulations per round, set tolerance for checking simulation rounds
-    sims = range(1000)
-    tolerance = 0.01
+    # simulations_per_batch = range(1000)
+    # tolerance = 0.01
 
     while True:
 
-        for lp in tqdm(sims):
+        for lp in tqdm(simulations_per_batch):
             # Input variables
             # ---------------
             # Soil Concentration, NBNL data
@@ -132,12 +135,10 @@ def run_Monte_Carlo_simulation (plume_concs,
                 contact_length = length_middle_point + length_plume/2
 
             # Inner diameter, PWN data, given in mm (convert to m)
-            inner_diameter_mm = random.choice(inner_diam_values) 
-            inner_diameter = inner_diameter_mm / 1000
+            inner_diameter= random.choice(inner_diam_values) 
 
             # matching wall thicnkess from inner diameter, PWN data, given in mm (convert to m)
-            wall_thickness_mm = (wall_thickness_dict[inner_diameter_mm])
-            wall_thickness = wall_thickness_mm / 1000
+            wall_thickness = (wall_thickness_dict[inner_diameter])
 
             flow_rate = random.choice(water_use)
 
