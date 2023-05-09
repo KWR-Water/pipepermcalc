@@ -122,17 +122,14 @@ def run_Monte_Carlo_simulation (plume_concs,
             # Length, PWN data given in meters
             length_pipe = random.choice(pipe_length_values)
 
-            # uniform distribution of 
-            length_middle_point = random.choice(length_fraction_middle_point)
+            # uniform distribution of location of middle point plume
+            length_middle_point = random.choice(length_fraction_middle_point) * length_pipe
 
             #NBNL #ah_todo
             length_plume = random.choice(plume_length_values)
 
             #calculate contact length of pipe w/contamination plume
-            if length_middle_point >= length_plume/2:
-                contact_length = length_plume
-            elif length_middle_point < length_plume/2:
-                contact_length = length_middle_point + length_plume/2
+            contact_length = min(length_pipe, length_plume, (length_plume / 2) + min ((length_pipe - length_middle_point), length_middle_point))
 
             # Inner diameter, PWN data, given in mm (convert to m)
             inner_diameter= random.choice(inner_diam_values) 
