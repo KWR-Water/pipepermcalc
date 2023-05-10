@@ -59,26 +59,6 @@ def load_pickle(filename, foldername=None):
     return df
 
 #%%
-# df = pd.read_excel('Aansluitleidingen_inBedrijf_16012023 PWN.xlsx')
-# save_df_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN', df=df)
-
-# df = load_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN')
-
-# df = df[['Materiaal', 'Materiaals', 
-#          'Nominale_D','Buitendiam', 
-#         'Binnendiam', 
-#         'Wanddikte', 
-#         'Lengte_GIS',  'Shape_Leng']]
-
-# df_PE40 = df.loc[df.Materiaals == 'PE 40 (ZPE)']
-
-# # Check that the columns are the same:
-# df_PE40 .loc[df_PE40['Nominale_D'] != df_PE40['Buitendiam']]
-# df_PE40['Lengte_GIS/Shape_Leng'] = df_PE40['Lengte_GIS'] / df_PE40['Shape_Leng']
-
-# df_PE40 = df_PE40[[ 'Materiaal', 'Buitendiam', 'Binnendiam', 'Wanddikte', 'Lengte_GIS']]
-
-# save_df_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN_PE40', df=df_PE40)
 
 df_PE40 = load_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN_PE40')
 

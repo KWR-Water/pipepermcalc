@@ -68,8 +68,9 @@ def run_Monte_Carlo_simulation (plume_concs,
                                 plume_length_values,
                                 calculate_peak=False, 
                                 calculate_mean=False,
-                                simulations_per_batch = range(1000),
+                                simulations_per_batch = 1000,
                                 tolerance = 0.01,
+                                update_partitioning_coefficients = True,
                                 ):
 
     # Loop through the combinations, save the dw concentrations
@@ -113,7 +114,7 @@ def run_Monte_Carlo_simulation (plume_concs,
 
     while True:
 
-        for lp in tqdm(simulations_per_batch):
+        for lp in tqdm(range(simulations_per_batch)):
             # Input variables
             # ---------------
             # Soil Concentration, NBNL data
@@ -149,72 +150,94 @@ def run_Monte_Carlo_simulation (plume_concs,
 
             pipe1 = Pipe(segment_list=[seg1])
 
+            #set assessment_factor
+            if type(assessment_factor) is int:
+                pipe1.ASSESSMENT_FACTOR_GROUNDWATER = assessment_factor
+            elif type(assessment_factor) is list:
+                pipe1.ASSESSMENT_FACTOR_GROUNDWATER = random.choice(assessment_factor)
+
+            pipe1.ASSESSMENT_FACTOR_SOIL = pipe1.ASSESSMENT_FACTOR_GROUNDWATER
+
             pipe1.set_conditions(concentration_soil = soil_conc,
                                 chemical_name="Benzeen", 
                                 temperature_groundwater=12,
                                 flow_rate=flow_rate, 
                                 suppress_print=True)
 
-            # Update the partitioning and diffusion coefficients
-            # --------------------------------------------------
-            # Sr = standard error of regression
-            # Values from 20160703 Database labmetingen excel file
+            if update_partitioning_coefficients:
+                # Update the partitioning and diffusion coefficients
+                # --------------------------------------------------
+                # Sr = standard error of regression
+                # Values from 20160703 Database labmetingen excel file
 
-            #Reference D, K values
-            Sr_D = 0.19572320 #Table 5-5, KWR 2016.056, excel:'PermDbase' DM-25
-            log_Dp_ref = NormalDist(mu=seg1.log_Dp_ref, #-11.54717333172 #
-                                    sigma=Sr_D).inv_cdf(p=random.random())
-            
-            Sr_K = 0.31397266 #Table 5-5, KWR 2016.056, excel:'PermDbase' AL-25
-            log_Kpw_ref = NormalDist(mu=seg1.log_Kpw_ref, #1.6476099999999998 #
-                                    sigma=Sr_K).inv_cdf(p=random.random())
-            
-            # concentration corrections
-            # Correction on the a_c factor
-            Sr_conc_D = 0.07662645 #excel:'CONC' AE-4
-            a_c_D =NormalDist(mu=seg1.DIFFUSION_A_C, #DIFFUSION_A_C = 0.784077209735583
-                                sigma=Sr_conc_D).inv_cdf(p=random.random()) 
-            Cg_Sw = min((pipe1.concentration_groundwater/pipe1.solubility), 1)
-            f_Dconc =  a_c_D * (Cg_Sw - seg1.DIFFUSION_CREF_SW) # DIFFUSION_CREF_SW = 0.5
-            
-            Sr_conc_K = 0.10106212 #excel:'CONC' W-4
-            a_c_K =NormalDist(mu=seg1.PARTITIONING_A_C, #PARTITIONING_A_C = 0.103965019849463
-                                sigma=Sr_conc_K).inv_cdf(p=random.random()) 
-            Cg_Sw = min((pipe1.concentration_groundwater/pipe1.solubility), 1)
-            f_Kconc = a_c_K * (Cg_Sw - seg1.PARTITIONING_CREF_SW) # PARTITIONING_CREF_SW = 1.000
-            
-            # temperature corrections
-            #corrections on the act. engergy/enthalpie itself not the factor
-            Sr_temp_D = 11.7958431 #Table 5-6, KWR 2016.056, excel:'TEMP' CO-125
-            activattion_energy = NormalDist(mu=seg1.activattion_energy, 
-                                sigma=Sr_temp_D).inv_cdf(p=random.random())
-            
-            f_Dtemp = (activattion_energy / (0.008314 * np.log(10)) 
-                    * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+                #Reference D, K values
+                Sr_D = 0.19572320 #Table 5-5, KWR 2016.056, excel:'PermDbase' DM-25
+                log_Dp_ref = NormalDist(mu=seg1.log_Dp_ref, #-11.54717333172 #
+                                        sigma=Sr_D).inv_cdf(p=random.random())
+                
+                Sr_K = 0.31397266 #Table 5-5, KWR 2016.056, excel:'PermDbase' AL-25
+                log_Kpw_ref = NormalDist(mu=seg1.log_Kpw_ref, #1.6476099999999998 #
+                                        sigma=Sr_K).inv_cdf(p=random.random())
+                
+                # concentration corrections
+                # Correction on the a_c factor
+                Sr_conc_D = 0.07662645 #excel:'CONC' AE-4
+                a_c_D =NormalDist(mu=seg1.DIFFUSION_A_C, #DIFFUSION_A_C = 0.784077209735583
+                                    sigma=Sr_conc_D).inv_cdf(p=random.random()) 
+                Cg_Sw = min((pipe1.concentration_groundwater/pipe1.solubility), 1)
+                f_Dconc =  a_c_D * (Cg_Sw - seg1.DIFFUSION_CREF_SW) # DIFFUSION_CREF_SW = 0.5
+                
+                Sr_conc_K = 0.10106212 #excel:'CONC' W-4
+                a_c_K =NormalDist(mu=seg1.PARTITIONING_A_C, #PARTITIONING_A_C = 0.103965019849463
+                                    sigma=Sr_conc_K).inv_cdf(p=random.random()) 
+                Cg_Sw = min((pipe1.concentration_groundwater/pipe1.solubility), 1)
+                f_Kconc = a_c_K * (Cg_Sw - seg1.PARTITIONING_CREF_SW) # PARTITIONING_CREF_SW = 1.000
+                
+                # temperature corrections
+                #corrections on the act. engergy/enthalpie itself not the factor
+                Sr_temp_D = 11.7958431 #Table 5-6, KWR 2016.056, excel:'TEMP' CO-125
+                activattion_energy = NormalDist(mu=seg1.activattion_energy, 
+                                    sigma=Sr_temp_D).inv_cdf(p=random.random())
+                
+                f_Dtemp = (activattion_energy / (0.008314 * np.log(10)) 
+                        * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
 
-            Sr_temp_K = 13.2239059 #Table 5-6, KWR 2016.056, excel:'TEMP' CJ-125
-            partitioning_enthalpie = NormalDist(mu=seg1.partitioning_enthalpie, 
-                                sigma=Sr_temp_K).inv_cdf(p=random.random())
+                Sr_temp_K = 13.2239059 #Table 5-6, KWR 2016.056, excel:'TEMP' CJ-125
+                partitioning_enthalpie = NormalDist(mu=seg1.partitioning_enthalpie, 
+                                    sigma=Sr_temp_K).inv_cdf(p=random.random())
+                
+                f_Ktemp = (partitioning_enthalpie / (0.008314 * np.log(10)) 
+                        * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+
+                # age corrections @MartinvdS include the age corrections?
+                Sr_age_D = 0.17 #Eqn 21, KWR 2016.056
+                f_Dage = NormalDist(mu=0, 
+                                    sigma=Sr_age_D).inv_cdf(p=random.random())
+                
+                Sr_age_K = 0.05 #Eqn 22, KWR 2016.056
+                f_Kage = NormalDist(mu=0, 
+                                    sigma=Sr_age_K).inv_cdf(p=random.random())
+
+                # Set the Kpw and Dp
+                seg1.log_Kpw = log_Kpw_ref + f_Kconc + f_Ktemp + f_Kage
+                seg1.log_Dp = log_Dp_ref + f_Dconc + f_Dtemp + f_Dage
             
-            f_Ktemp = (partitioning_enthalpie / (0.008314 * np.log(10)) 
-                    * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+            else:
+                log_Kpw_ref = seg1.log_Kpw_ref 
+                a_c_K = seg1.PARTITIONING_A_C
+                f_Kconc = seg1.f_Kconc
+                activattion_energy = seg1.activattion_energy
+                f_Ktemp = seg1.f_Ktemp
+                f_Kage = 0
 
-            # age corrections @MartinvdS include the age corrections?
-            Sr_age_D = 0.17 #Eqn 21, KWR 2016.056
-            f_Dage = NormalDist(mu=0, 
-                                sigma=Sr_age_D).inv_cdf(p=random.random())
+
+                log_Dp_ref = seg1.log_Dp_ref
+                a_c_D = seg1.DIFFUSION_A_C
+                f_Dconc = seg1.f_Dconc
+                partitioning_enthalpie = seg1.partitioning_enthalpie
+                f_Dtemp = seg1.f_Dtemp
+                f_Dage = 0
             
-            Sr_age_K = 0.05 #Eqn 22, KWR 2016.056
-            f_Kage = NormalDist(mu=0, 
-                                sigma=Sr_age_K).inv_cdf(p=random.random())
-
-            # Set the Kpw and Dp
-            seg1.log_Kpw = log_Kpw_ref + f_Kconc + f_Ktemp + f_Kage
-            seg1.log_Dp = log_Dp_ref + f_Dconc + f_Dtemp + f_Dage
-
-            #set assessment_factor
-            pipe1.ASSESSMENT_FACTOR_GROUNDWATER = assessment_factor
-
             pipe1.validate_input_parameters()
         
             # Calculate concentrations, can we do in one loop and store seperate peak/mean conc
@@ -289,3 +312,55 @@ def run_Monte_Carlo_simulation (plume_concs,
 
     return df
 #%%
+def plot_cumulative_distribution(df, dw_norm, save_name, save_results_to):
+        fig = plt.figure(figsize=[10, 5])
+
+        plt.plot(df.dw_concs, df.index/len(df), ) 
+        plt.vlines(x=dw_norm, ymin=0, ymax =1, colors='r', linestyles='--', label = 'DW Norm')
+        plt.xlabel('Gemiddelde drinkwaterconcentratie (g/m3)')
+        plt.ylabel('Cumulative kansdichtheid')
+        plt.title('Overschrijdingen per jaar: '+str(round(len(df.loc[df.dw_concs > dw_norm]) / len(df)*100, 1))+ '%, total sims:'+ str(len(df)) )
+        plt.xscale('log')
+        plt.xlim(1e-12, 1)
+        plt.legend()
+        plt.savefig(save_results_to +'/'+save_name + '.png', dpi=300, bbox_inches='tight')
+
+#%%
+def run_simulation_export_save_plot(dw_norm, 
+                                input_parameters,
+                                assessment_factor, 
+                                calculate_mean, 
+                                calculate_peak,
+                                save_name, 
+                                save_results_to, 
+                                update_partitioning_coefficients = True,
+                                simulations_per_batch = 1000 ):
+    ''' 
+    Run the Monte Carlo based on the input parameters dictionary, 
+    export results to pickle and plot the exceedences
+
+    '''
+    
+    df = run_Monte_Carlo_simulation (plume_concs=input_parameters['concentration_soil'], 
+                                    inner_diam_values=input_parameters['inner_diameter'],
+                                    wall_thickness_dict=input_parameters['wall_thickness_dict'],
+                                    water_use=input_parameters['flow_rate'],
+                                    pipe_length_values = input_parameters['length_pipe'],
+                                    length_fraction_middle_point=input_parameters['length_fraction_middle_point'],
+                                    plume_length_values=input_parameters['length_plume'],
+                                    assessment_factor=assessment_factor,
+                                    calculate_mean=calculate_mean,
+                                    calculate_peak=calculate_peak,
+                                    update_partitioning_coefficients=update_partitioning_coefficients,
+                                    simulations_per_batch = simulations_per_batch)
+
+    save_df_pickle(filename=save_name, df= df, foldername=save_results_to)
+    df.to_excel(save_results_to+ "/" +save_name+".xlsx")
+
+    plot_cumulative_distribution(df=df, 
+                                dw_norm =dw_norm, 
+                                save_name = save_name, 
+                                save_results_to='figures')
+
+    print('Mean exceedences:', round(len(df.loc[df.dw_concs > dw_norm]) / len(df)*100, 3), '%, total sims:', len(df) )
+    return df

@@ -365,7 +365,7 @@ class Pipe:
         for k, v in pipe_permeability_dict.items():
             setattr(self, k, v)
 
-    def _soil_to_groundwater(self):
+    def _groundwater_to_soil(self):
         ''' 
         Calculate the concentration in soil given the concentration in 
         groundwater
@@ -451,7 +451,7 @@ class Pipe:
         if (concentration_groundwater is None) and (concentration_soil is None):
             pass #values already assigned, are None
         if (concentration_groundwater is not None) and (concentration_soil is None) and (self._Kd_known): 
-            self.concentration_soil = self._soil_to_groundwater()
+            self.concentration_soil = self._groundwater_to_soil()
         if (concentration_groundwater is None) and (concentration_soil is not None) and (self._Kd_known): 
             self.concentration_groundwater = ((self.concentration_soil * self.ASSESSMENT_FACTOR_GROUNDWATER) 
                                                 / ( 10 ** self.log_distribution_coefficient * self.ASSESSMENT_FACTOR_SOIL ))
@@ -459,7 +459,7 @@ class Pipe:
             # @martin, take the gw concentration over the given soil concentration?
             # or check the Kd? 
             print('Warning, both concentration_groundwater and concentration_soil given. Only using concentration_groundwater')
-            self.concentration_soil = self._soil_to_groundwater()
+            self.concentration_soil = self._groundwater_to_soil()
 
         if self.concentration_groundwater is not None:
             self._concentration_groundwater_set = True
@@ -883,7 +883,7 @@ class Pipe:
             print(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubility}.')
 
         if self._Kd_known: 
-            self.concentration_soil = self._soil_to_groundwater()
+            self.concentration_soil = self._groundwater_to_soil()
         else: 
             self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
 
@@ -1042,7 +1042,7 @@ class Pipe:
             print(f'Warning, the calculated drinking water concentration ({concentration_groundwater_n_min_1}) is above the solubility limit, {self.solubility}.')
 
         if self._Kd_known: 
-            self.concentration_soil = self._soil_to_groundwater()
+            self.concentration_soil = self._groundwater_to_soil()
         else: 
             self.concentration_soil = 'No known distribution coefficient to calculate soil concentration'
 
