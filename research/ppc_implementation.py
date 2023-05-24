@@ -28,9 +28,14 @@ seg1 = Segment(name='seg1',
             length=25,
             inner_diameter=0.1,
             wall_thickness=0.0027)
-
+seg2 = Segment(name='seg1',
+            material= 'PE80',
+            length=25,
+            inner_diameter=0.1,
+            wall_thickness=0.0027)
 
 pipe1 = Pipe(segment_list=[seg1])
+pipe2 = Pipe(segment_list=[seg2])
 
 pipe1.set_conditions(
     chemical_name='Benzeen', 
@@ -38,10 +43,43 @@ pipe1.set_conditions(
                     concentration_drinking_water=0.1,
                     temperature_groundwater=12, 
                     flow_rate=0.5)
+pipe2.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_groundwater =1.8,
+                    concentration_drinking_water=0.1,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+# pipe1.validate_input_parameters()
 
+# peak_conc=pipe1.calculate_peak_dw_concentration()
+
+K_ref_pe40 = (10**seg1.log_Kpw_ref)
+K_ref_pe80 = (10**seg2.log_Kpw_ref)
+
+D_ref_pe40 = (10**seg1.log_Dp_ref)
+D_ref_pe80 = (10**seg2.log_Dp_ref)
+
+K_ref_pe40/K_ref_pe80, D_ref_pe40/ D_ref_pe80
+
+#%%
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.1,
+            wall_thickness=0.0027)
+
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_soil =2.7,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
 pipe1.validate_input_parameters()
 
-peak_conc=pipe1.calculate_peak_dw_concentration()
+pipe1.calculate_mean_dw_concentration()
+
+pipe1.concentration_groundwater
 
 #%%
 

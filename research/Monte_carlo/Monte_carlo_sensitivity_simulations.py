@@ -327,6 +327,10 @@ df_analysis['mean_median + stdev']= df_mean_summary['median + stdev (%)']
 df_analysis['peak_median + 1%'] = df_peak_summary['median + 1% (%)']
 df_analysis['peak_median + stdev']= df_peak_summary['median + stdev (%)']
 
+# override the values for the Kpw and Dp since they don't calculate the same way
+df_analysis['(median+std)/median'].loc['log_Dp_ref'] =  10**(df_inputs['median_+std'].loc['log_Dp_ref']) / 10**(df_inputs['median_values'].loc['log_Dp_ref'])
+df_analysis['(median+std)/median'].loc['log_Kpw_ref'] = 10**(df_inputs['median_+std'].loc['log_Kpw_ref']) / 10**(df_inputs['median_values'].loc['log_Kpw_ref'])
+
 df_analysis['mean_median + 1%_norm'] = np.abs(df_mean_summary['median + 1% (%)'] - 1)
 df_analysis['mean_median + stdev_norm'] = np.abs(df_mean_summary['median + stdev (%)'] - 1)
 df_analysis['peak_median + 1%_norm'] = np.abs(df_peak_summary['median + 1% (%)'] - 1)

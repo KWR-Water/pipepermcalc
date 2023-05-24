@@ -71,6 +71,7 @@ def run_Monte_Carlo_simulation (plume_concs,
                                 simulations_per_batch = 1000,
                                 tolerance = 0.01,
                                 update_partitioning_coefficients = True,
+                                PE_type = 'PE40',
                                 ):
 
     # Loop through the combinations, save the dw concentrations
@@ -143,7 +144,7 @@ def run_Monte_Carlo_simulation (plume_concs,
             # Create pipe and set conditions
             # ------------------------------
             seg1 = Segment(name='seg1',
-                            material='PE40',
+                            material=PE_type,
                             length=contact_length,
                             inner_diameter=inner_diameter,
                             wall_thickness=wall_thickness)
@@ -313,13 +314,13 @@ def run_Monte_Carlo_simulation (plume_concs,
     return df
 #%%
 def plot_cumulative_distribution(df, dw_norm, save_name, save_results_to):
-        fig = plt.figure(figsize=[10, 5])
+        fig = plt.figure(figsize=[8, 5])
 
         plt.plot(df.dw_concs, df.index/len(df), ) 
         plt.vlines(x=dw_norm, ymin=0, ymax =1, colors='r', linestyles='--', label = 'DW Norm')
         plt.xlabel('Gemiddelde drinkwaterconcentratie (g/m3)')
         plt.ylabel('Cumulative kansdichtheid')
-        plt.title('Overschrijdingen per jaar: '+str(round(len(df.loc[df.dw_concs > dw_norm]) / len(df)*100, 1))+ '%, total sims:'+ str(len(df)) )
+        plt.title('Overschrijdingen per jaar: '+str(round(len(df.loc[df.dw_concs > dw_norm]) / len(df)*100, 1))+ '%, n:'+ str(len(df)) )
         plt.xscale('log')
         plt.xlim(1e-12, 1)
         plt.legend()
@@ -334,6 +335,7 @@ def run_simulation_export_save_plot(dw_norm,
                                 save_name, 
                                 save_results_to, 
                                 update_partitioning_coefficients = True,
+                                PE_type = 'PE40',
                                 simulations_per_batch = 1000 ):
     ''' 
     Run the Monte Carlo based on the input parameters dictionary, 
@@ -352,7 +354,8 @@ def run_simulation_export_save_plot(dw_norm,
                                     calculate_mean=calculate_mean,
                                     calculate_peak=calculate_peak,
                                     update_partitioning_coefficients=update_partitioning_coefficients,
-                                    simulations_per_batch = simulations_per_batch)
+                                    simulations_per_batch = simulations_per_batch,
+                                    PE_type =PE_type)
 
     save_df_pickle(filename=save_name, df= df, foldername=save_results_to)
     df.to_excel(save_results_to+ "/" +save_name+".xlsx")

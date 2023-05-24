@@ -47,9 +47,10 @@ plume_length_values = load_pickle(filename='monte_carlo_plume_lengths', folderna
 length_fraction_middle_point = list(np.arange(start=0, stop=1.01, step=0.01))
 
 # Import the pipe information - inner diameter, thickness, length
+# NOTE: FULL EXCEL/PICKLE file not stored on github because of size restrictions!
 # df = pd.read_excel('Aansluitleidingen_inBedrijf_16012023 PWN.xlsx')
 # save_df_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN', df=df)
-# df = load_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN')
+# df = load_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN') #not stored on github because of size restrictions!
 
 # df = df[['Materiaal', 'Materiaals', 
 #          'Nominale_D','Buitendiam', 
