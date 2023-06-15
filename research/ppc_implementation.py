@@ -22,6 +22,57 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
+#%%
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,)
+
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_soil=2.7,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+
+pipe1.validate_input_parameters()
+# pipe1.log_distribution_coefficient = 0.5
+
+# pipe1.concentration_groundwater = ((pipe1.concentration_soil * pipe1.ASSESSMENT_FACTOR_GROUNDWATER) 
+#                                                 / ( 10 ** pipe1.log_distribution_coefficient * pipe1.ASSESSMENT_FACTOR_SOIL ))
+
+seg1.stagnation_factor
+
+pipe1.calculate_peak_dw_concentration()
+pipe1.concentration_groundwater, seg1.stagnation_factor
+
+# pipe1.calculate_mean_dw_concentration(), 
+
+#%%
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,)
+
+pipe1 = Pipe(segment_list=[seg1])
+
+pipe1.set_conditions(
+    chemical_name='Benzeen', 
+                    concentration_soil=0.17,
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
+
+pipe1.validate_input_parameters()
+
+pipe1.concentration_groundwater
+pipe1.calculate_peak_dw_concentration()
+
+
+#%%
 
 seg1 = Segment(name='seg1',
             material= 'PE40',

@@ -80,6 +80,10 @@ def calculate_dw_concentration( wall_thickness_dict,
     seg1.log_Kpw_ref = parameter_dict['log_Kpw_ref']
 
     seg1.log_Dp_ref = parameter_dict['log_Dp_ref']
+    
+    pipe1.log_distribution_coefficient = parameter_dict['log_distribution_coefficient']
+    pipe1.concentration_groundwater = ((pipe1.concentration_soil * pipe1.ASSESSMENT_FACTOR_GROUNDWATER) 
+                                                / ( 10 ** pipe1.log_distribution_coefficient * pipe1.ASSESSMENT_FACTOR_SOIL ))
 
     seg1.DIFFUSION_A_C = parameter_dict['DIFFUSION_A_C']
     Cg_Sw = min((pipe1.concentration_groundwater / pipe1.solubility), 1)
@@ -111,6 +115,7 @@ def calculate_dw_concentration( wall_thickness_dict,
         dw_conc = pipe1.calculate_peak_dw_concentration()
     elif calculate_mean:
         dw_conc = pipe1.calculate_mean_dw_concentration()
+        seg1.stagnation_factor = 0
 
     # Save data as df
     # ------------------------------
@@ -135,7 +140,9 @@ def calculate_dw_concentration( wall_thickness_dict,
             'f_Dtemp': seg1.f_Dtemp, 
             'f_Ktemp': seg1.f_Ktemp, 
             'activattion_energy': seg1.activattion_energy, 
-            'partitioning_enthalpie': seg1.partitioning_enthalpie}
+            'partitioning_enthalpie': seg1.partitioning_enthalpie, 
+            'log_distribution_coefficient': pipe1.log_distribution_coefficient, 
+            'stagnation_factor': seg1.stagnation_factor}
 
     df = pd.DataFrame(data, index=[column_name])
 
@@ -175,7 +182,7 @@ def calculate_dw_varying_one_parameter (option,
 def create_input_parameters_dict ():
     ''' 
     Create input parameters dictionary with the cumulative distributions, 
-    median, standard deviation and 1% variations
+    median, standard deviation and % variations
     '''
 
     input_parameters = {}
@@ -193,7 +200,9 @@ def create_input_parameters_dict ():
                         'DIFFUSION_A_C': 0.784077209735583, 
                         'PARTITIONING_A_C':  0.103965019849463,
                         'activattion_energy': 38.156061538172395, # for T = 12 deg. C
-                        'partitioning_enthalpie': 8.943052711652054}# for T = 12 deg. C
+                        'partitioning_enthalpie': 8.943052711652054, # for T = 12 deg. C
+                        'log_distribution_coefficient': 0.659555885,
+                        'stagnation_factor':1.3878894906500487}
                         
     st_dev = {'concentration_soil': float(np.std(input_parameters['cumulative_distributions'] ['concentration_soil'])), 
                         'length_pipe': float(np.std(input_parameters['cumulative_distributions'] ['length_pipe'])),
@@ -206,17 +215,21 @@ def create_input_parameters_dict ():
                         'DIFFUSION_A_C': 0.07662645, 
                         'PARTITIONING_A_C': 0.10106212,
                         'activattion_energy': 11.7958431, 
-                        'partitioning_enthalpie':  13.2239059}
+                        'partitioning_enthalpie':  13.2239059,
+                        'log_distribution_coefficient': 0,
+                        'stagnation_factor': 0}
 
     input_parameters['median_values'] = median_values
     input_parameters['st_dev'] = st_dev
 
-    # add dictionary with median + 1%
-    input_parameters['median_+1%'] = {}
-    for k,v in input_parameters['median_values'].items(): 
-        input_parameters['median_+1%'][k] = float(v + np.abs(v *0.01))
+    percent_change = 0.1
 
-        #@MartinvdS, check about 1% of LogDp_ref or 1% Dp_ref?? 
+    # add dictionary with median + %
+    input_parameters['median_+%'] = {}
+    for k,v in input_parameters['median_values'].items(): 
+        input_parameters['median_+%'][k] = float(v + np.abs(v * percent_change))
+
+        #@MartinvdS, check about % of LogDp_ref or % Dp_ref?? 
         # Makes problems for the st. dev calculations when changing so be careful
 
     # add dictionary with median + 1 st. dev
@@ -224,9 +237,10 @@ def create_input_parameters_dict ():
     for k,v in input_parameters['median_values'].items(): 
         input_parameters['median_+std'][k] = v  + input_parameters['st_dev'][k]
 
-    # override the values for the kow values
-    input_parameters['median_+1%'][ 'log_Dp_ref'] = np.log10(10**(input_parameters['median_values'][ 'log_Dp_ref']) + 10**(input_parameters['median_values'][ 'log_Dp_ref'])*0.01)
-    input_parameters['median_+1%'][ 'log_Kpw_ref'] = np.log10(10**(input_parameters['median_values'][ 'log_Kpw_ref']) + 10**(input_parameters['median_values'][ 'log_Kpw_ref'])*0.01)
+    # override the values for the kpw, Dp, and Kbw values
+    input_parameters['median_+%'][ 'log_Dp_ref'] = np.log10(10**(input_parameters['median_values'][ 'log_Dp_ref']) + 10**(input_parameters['median_values'][ 'log_Dp_ref']) * percent_change)
+    input_parameters['median_+%'][ 'log_Kpw_ref'] = np.log10(10**(input_parameters['median_values'][ 'log_Kpw_ref']) + 10**(input_parameters['median_values'][ 'log_Kpw_ref']) * percent_change)
+    input_parameters['median_+%'][ 'log_Kpw_ref'] = np.log10(10**(input_parameters['median_values'][ 'log_distribution_coefficient']) + 10**(input_parameters['median_values'][ 'log_distribution_coefficient']) * percent_change)
 
     return input_parameters
 
@@ -263,19 +277,19 @@ df_mean_f1 = calculate_dw_concentration(wall_thickness_dict = input_parameters['
 
 df_peak_f1['concentration_drinking_water'] *1000*1000, df_mean_f1['concentration_drinking_water'] *1000*1000
 #%%
-# Median +1%
+# Median +%
 # ----------
-df_peak_1 = calculate_dw_varying_one_parameter (option = 'median_+1%',
+df_peak_1 = calculate_dw_varying_one_parameter (option = 'median_+%',
                                         input_parameters=input_parameters,
                                         calculate_peak=True,)
-# df_peak_1.to_excel(save_results_to+"/peak_1%.xlsx")
+# df_peak_1.to_excel(save_results_to+"/peak_%.xlsx")
 df_peak_1=df_peak_1.append(df_peak)
 df_peak_1.insert(loc=0, column='C/Cm', value = df_peak_1['concentration_drinking_water'] / float(df_peak['concentration_drinking_water']))
 
-df_mean_1 = calculate_dw_varying_one_parameter (option = 'median_+1%',
+df_mean_1 = calculate_dw_varying_one_parameter (option = 'median_+%',
                                         input_parameters=input_parameters,
                                         calculate_mean=True, )
-# df_mean_1.to_excel(save_results_to+"/mean_1%.xlsx")
+# df_mean_1.to_excel(save_results_to+"/mean_%.xlsx")
 df_mean_1=df_mean_1.append(df_mean)
 df_mean_1.insert(loc=0, column='C/Cm', value = df_mean_1['concentration_drinking_water'] / float(df_mean['concentration_drinking_water']))
 #%%
@@ -308,32 +322,32 @@ df_mean_summary = pd.DataFrame()
 
 df_mean_summary['median + stdev']=df_mean_std['concentration_drinking_water']
 df_mean_summary['median + stdev (%)']=df_mean_std['C/Cm']
-df_mean_summary['median + 1%']=df_mean_1['concentration_drinking_water']
-df_mean_summary['median + 1% (%)']=df_mean_1['C/Cm']
+df_mean_summary['median + %']=df_mean_1['concentration_drinking_water']
+df_mean_summary['median + % (%)']=df_mean_1['C/Cm']
 
 # Peak
 df_peak_summary = pd.DataFrame()
 
 df_peak_summary['median + stdev']=df_peak_std['concentration_drinking_water']
 df_peak_summary['median + stdev (%)']=df_peak_std['C/Cm']
-df_peak_summary['median + 1%']=df_peak_1['concentration_drinking_water']
-df_peak_summary['median + 1% (%)']=df_peak_1['C/Cm']
+df_peak_summary['median + %']=df_peak_1['concentration_drinking_water']
+df_peak_summary['median + % (%)']=df_peak_1['C/Cm']
 df_peak_summary
 
 df_analysis = pd.DataFrame()
 df_analysis['(median+std)/median'] = df_inputs['median_+std'] / df_inputs['median_values']
-df_analysis['mean_median + 1%'] = df_mean_summary['median + 1% (%)']
+df_analysis['mean_median + %'] = df_mean_summary['median + % (%)']
 df_analysis['mean_median + stdev']= df_mean_summary['median + stdev (%)']
-df_analysis['peak_median + 1%'] = df_peak_summary['median + 1% (%)']
+df_analysis['peak_median + %'] = df_peak_summary['median + % (%)']
 df_analysis['peak_median + stdev']= df_peak_summary['median + stdev (%)']
 
 # override the values for the Kpw and Dp since they don't calculate the same way
 df_analysis['(median+std)/median'].loc['log_Dp_ref'] =  10**(df_inputs['median_+std'].loc['log_Dp_ref']) / 10**(df_inputs['median_values'].loc['log_Dp_ref'])
 df_analysis['(median+std)/median'].loc['log_Kpw_ref'] = 10**(df_inputs['median_+std'].loc['log_Kpw_ref']) / 10**(df_inputs['median_values'].loc['log_Kpw_ref'])
 
-df_analysis['mean_median + 1%_norm'] = np.abs(df_mean_summary['median + 1% (%)'] - 1)
+df_analysis['mean_median + %_norm'] = np.abs(df_mean_summary['median + % (%)'] - 1)
 df_analysis['mean_median + stdev_norm'] = np.abs(df_mean_summary['median + stdev (%)'] - 1)
-df_analysis['peak_median + 1%_norm'] = np.abs(df_peak_summary['median + 1% (%)'] - 1)
+df_analysis['peak_median + %_norm'] = np.abs(df_peak_summary['median + % (%)'] - 1)
 df_analysis['peak_median + stdev_norm'] = np.abs(df_peak_summary['median + stdev (%)'] - 1)
 
 #%%
@@ -348,8 +362,8 @@ with pd.ExcelWriter('output/sensitivity_results.xlsx') as writer:
     df_inputs.to_excel(writer, sheet_name='Input_values')
     df_mean_summary.to_excel(writer, sheet_name='Mean_summary')
     df_peak_summary.to_excel(writer, sheet_name='Peak_summary')
-    df_peak_1.to_excel(writer, sheet_name='peak_1%')
-    df_mean_1.to_excel(writer, sheet_name='mean_1%')
+    df_peak_1.to_excel(writer, sheet_name='peak_%')
+    df_mean_1.to_excel(writer, sheet_name='mean_%')
     df_peak_std.to_excel(writer, sheet_name='peak_std')
     df_mean_std.to_excel(writer, sheet_name='mean_std')    
 

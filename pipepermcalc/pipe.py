@@ -367,8 +367,8 @@ class Pipe:
 
     def _groundwater_to_soil(self):
         ''' 
-        Calculate the concentration in soil given the concentration in 
-        groundwater
+        Calculate the concentration in soil (mg/kg) given the concentration in 
+        groundwater (g/m3 == mg/L)
         '''
         concentration_soil = (10 ** self.log_distribution_coefficient * self.concentration_groundwater 
                               * self.ASSESSMENT_FACTOR_SOIL / self.ASSESSMENT_FACTOR_GROUNDWATER)
