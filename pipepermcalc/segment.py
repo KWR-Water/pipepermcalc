@@ -691,7 +691,7 @@ class Segment:
 
         '''
 
-        # self.stagnation_factor = self._calculate_stagnation_factor()
+        self.stagnation_factor = self._calculate_stagnation_factor()
         delta_c = concentration_groundwater - 0 # stagnation factor assumes that Cdw is zero
 
         # From equation 4-10 KWR 2016.056, but not simplifying the mass flux 
