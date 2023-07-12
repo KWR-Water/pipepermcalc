@@ -32,27 +32,10 @@ from Monte_carlo import *
 input_parameters = load_pickle(filename='monte_carlo_input_parameters', foldername='inputs')
 
 #%%
-save_results_to = check_create_folders(folder_name='monte_carlo_output')
+save_results_to = check_create_folders(folder_name='monte_carlo_output_n')
 
 run_sim = False
 if run_sim:
-    # Assessment factor = 3
-    df = run_simulation_export_save_plot(dw_norm = 0.001, 
-                        input_parameters = input_parameters,
-                        assessment_factor = 3, 
-                        calculate_mean = True, 
-                        calculate_peak=False,
-                        save_name = 'mean_monte_carlo_F_as=3', 
-                        save_results_to=save_results_to)
-
-    df = run_simulation_export_save_plot(dw_norm = 0.001, 
-                        input_parameters = input_parameters,
-                        assessment_factor = 3, 
-                        calculate_mean = False, 
-                        calculate_peak=True,
-                        save_name = 'peak_monte_carlo_F_as=3', 
-                        save_results_to=save_results_to)
-
 
     # Assessment factor = 1
     df = run_simulation_export_save_plot(dw_norm = 0.001, 
@@ -70,6 +53,24 @@ if run_sim:
                         calculate_peak=True,
                         save_name = 'peak_monte_carlo_F_as=1', 
                         save_results_to=save_results_to)
+    
+    # Assessment factor = 3
+    df = run_simulation_export_save_plot(dw_norm = 0.001, 
+                        input_parameters = input_parameters,
+                        assessment_factor = 3, 
+                        calculate_mean = True, 
+                        calculate_peak=False,
+                        save_name = 'mean_monte_carlo_F_as=3', 
+                        save_results_to=save_results_to)
+
+    df = run_simulation_export_save_plot(dw_norm = 0.001, 
+                        input_parameters = input_parameters,
+                        assessment_factor = 3, 
+                        calculate_mean = False, 
+                        calculate_peak=True,
+                        save_name = 'peak_monte_carlo_F_as=3', 
+                        save_results_to=save_results_to)
+
 
     # Assessment factor = 7
     df = run_simulation_export_save_plot(dw_norm = 0.001, 
@@ -162,37 +163,58 @@ if run_sim:
                         PE_type= 'PE80',
                         save_results_to=save_results_to)
 
-# Fass = cumulative distribution 
-# Csoil & Lplume = cumulative distribution
-# Other parameters = median
-input_parameters = load_pickle(filename='monte_carlo_input_parameters', foldername='inputs')
+    # Fass = cumulative distribution 
+    # Csoil & Lplume = cumulative distribution
+    # Other parameters = median
+    input_parameters = load_pickle(filename='monte_carlo_input_parameters', foldername='inputs')
 
-input_parameters.update({'length_pipe': [float(np.median(input_parameters['length_pipe'])), float(np.median(input_parameters['length_pipe']))],
-                    'length_fraction_middle_point': [float(np.median(input_parameters ['length_fraction_middle_point'])), float(np.median(input_parameters ['length_fraction_middle_point']))],
-                    'inner_diameter': [float(np.median(input_parameters['inner_diameter'])), float(np.median(input_parameters['inner_diameter']))], 
-                    'flow_rate': [float(np.median(input_parameters ['flow_rate'])), float(np.median(input_parameters ['flow_rate']))] })
+    input_parameters.update({'length_pipe': [float(np.median(input_parameters['length_pipe'])), float(np.median(input_parameters['length_pipe']))],
+                        'length_fraction_middle_point': [float(np.median(input_parameters ['length_fraction_middle_point'])), float(np.median(input_parameters ['length_fraction_middle_point']))],
+                        'inner_diameter': [float(np.median(input_parameters['inner_diameter'])), float(np.median(input_parameters['inner_diameter']))], 
+                        'flow_rate': [float(np.median(input_parameters ['flow_rate'])), float(np.median(input_parameters ['flow_rate']))] })
 
-# From '20190621 overschrijdingskans obv evaluatie praktijkmetingen.xlsx'
-assessment_factor = [4.670,7.162,4.071,76.460,409.059,2.293,4.029,61.222,
-                        209.175,3.129, 9.0, 1.1, 22.1, ]
+    # From '20190621 overschrijdingskans obv evaluatie praktijkmetingen.xlsx'
+    assessment_factor = [4.670, 7.162, 4.071, 76.460, 409.059, 2.293, 4.029, 61.222,
+                            209.175, 3.129, 9.0, 1.1, 22.1, ]
 
+    df = run_simulation_export_save_plot(dw_norm = 0.001, 
+                        input_parameters = input_parameters,
+                        assessment_factor = assessment_factor, 
+                        calculate_mean = True, 
+                        calculate_peak=False,
+                        save_name = 'mean_monte_carlo_F_as=cum_dist_median', 
+                        save_results_to=save_results_to, 
+                        update_partitioning_coefficients = False, )
+
+    df = run_simulation_export_save_plot(dw_norm = 0.001, 
+                        input_parameters = input_parameters,
+                        assessment_factor = assessment_factor, 
+                        calculate_mean = False, 
+                        calculate_peak=True,
+                        save_name = 'peak_monte_carlo_F_as=cum_dist_median', 
+                        save_results_to=save_results_to,
+                        update_partitioning_coefficients = False,)    
+    
+#%%
+# 
+# Assessment factor = 3
 df = run_simulation_export_save_plot(dw_norm = 0.001, 
+                                     simulations_per_batch = 12000,
                     input_parameters = input_parameters,
-                    assessment_factor = assessment_factor, 
+                    assessment_factor = 3, 
                     calculate_mean = True, 
                     calculate_peak=False,
-                    save_name = 'mean_monte_carlo_F_as=cum_dist_median', 
-                    save_results_to=save_results_to, 
-                    update_partitioning_coefficients = False, )
+                    save_name = 'mean_monte_carlo_F_as=3', 
+                    save_results_to=save_results_to)
 
 df = run_simulation_export_save_plot(dw_norm = 0.001, 
+                                     simulations_per_batch = 12000,
                     input_parameters = input_parameters,
-                    assessment_factor = assessment_factor, 
+                    assessment_factor = 3, 
                     calculate_mean = False, 
                     calculate_peak=True,
-                    save_name = 'peak_monte_carlo_F_as=cum_dist_median', 
-                    save_results_to=save_results_to,
-                    update_partitioning_coefficients = False,)    
+                    save_name = 'peak_monte_carlo_F_as=3', 
+                    save_results_to=save_results_to)    
 #%%
 # Redo the plots
 name_simulations = ['peak_monte_carlo_F_as=3_PE80','mean_monte_carlo_F_as=3_PE80', 

@@ -340,7 +340,7 @@ def test_calculate_peak_dw_mass():
     pipe1.calculate_peak_dw_concentration()    
 
     raise_exception_two_values(answer=seg1.mass_chemical_drinkwater, 
-                               ref_answer = 7.469113135415852e-06, 
+                               ref_answer = 7.535e-06, 
                                round_values=9)    
 
 def test_calculate_mean_dw_concentration():
@@ -498,7 +498,7 @@ def test_calculate_peak_allowable_gw_concentration():
     peak_conc = pipe1.calculate_peak_allowable_gw_concentration(tolerance = 0.01)
 
     raise_exception_two_values(answer=peak_conc, 
-                               ref_answer = 0.1138, 
+                               ref_answer = 0.1124, 
                                round_values=4)
 
 def test_groundwater_to_soil_conversion():

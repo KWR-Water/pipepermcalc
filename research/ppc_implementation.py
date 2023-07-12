@@ -23,6 +23,103 @@ from pipepermcalc.pipe import *
 from pipepermcalc.segment import * 
 
 #%%
+
+wall_thickness_dict = {0.0124: 0.0018,
+ 0.0156: 0.0022,
+ 0.0196: 0.0027,
+ 0.025: 0.0035,
+ 0.0314: 0.0043,
+ 0.0392: 0.0054,
+ 0.0494: 0.0068}
+
+parameter_dict = {'concentration_soil': 0.006059585534500237,
+ 'length_pipe': 6.90979573,
+ 'length_fraction_middle_point': 0.5,
+ 'length_plume': 3.468721592776412,
+ 'inner_diameter': 0.0196,
+ 'flow_rate': 0.25,
+ 'log_Dp_ref': -11.54717333172,
+ 'log_Kpw_ref': 1.6476099999999998,
+ 'DIFFUSION_A_C': 0.784077209735583,
+ 'PARTITIONING_A_C': 0.103965019849463,
+ 'activattion_energy': 38.156061538172395,
+ 'partitioning_enthalpie': 8.943052711652054,
+ 'log_distribution_coefficient': 0.659555885,
+ 'stagnation_factor': 1.3868499849384468 }
+
+concentration_soil = parameter_dict['concentration_soil']
+length_pipe = parameter_dict['length_pipe']
+length_fraction_middle_point = parameter_dict['length_fraction_middle_point']
+length_plume = parameter_dict['length_plume']
+inner_diameter = parameter_dict['inner_diameter']
+flow_rate = parameter_dict['flow_rate']
+
+length_middle_point = length_fraction_middle_point * length_pipe
+
+#calculate contact length of pipe w/contamination plume
+contact_length = min(length_pipe, length_plume, (length_plume / 2) + min ((length_pipe - length_middle_point), length_middle_point))
+
+wall_thickness= 0.0027#(wall_thickness_dict[input_parameters['median_values']['inner_diameter']])
+
+# Create pipe and set conditions
+# ------------------------------
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=contact_length,
+                inner_diameter=inner_diameter,
+                wall_thickness=wall_thickness)
+
+pipe1 = Pipe(segment_list=[seg1])
+
+#set assessment_factor
+pipe1.ASSESSMENT_FACTOR_GROUNDWATER = 3# assessment_factor
+
+pipe1.ASSESSMENT_FACTOR_SOIL = pipe1.ASSESSMENT_FACTOR_GROUNDWATER
+
+pipe1.set_conditions(concentration_soil = concentration_soil,
+                    chemical_name="Benzeen", 
+                    temperature_groundwater=12,
+                    flow_rate=flow_rate, 
+                    suppress_print=True)
+
+seg1.log_Kpw_ref = parameter_dict['log_Kpw_ref']
+
+seg1.log_Dp_ref = parameter_dict['log_Dp_ref']
+
+pipe1.log_distribution_coefficient = parameter_dict['log_distribution_coefficient']
+pipe1.concentration_groundwater = ((pipe1.concentration_soil * pipe1.ASSESSMENT_FACTOR_GROUNDWATER) 
+                                            / ( 10 ** pipe1.log_distribution_coefficient * pipe1.ASSESSMENT_FACTOR_SOIL ))
+
+seg1.DIFFUSION_A_C = parameter_dict['DIFFUSION_A_C']
+Cg_Sw = min((pipe1.concentration_groundwater / pipe1.solubility), 1)
+seg1.f_Dconc = seg1.DIFFUSION_A_C * (Cg_Sw - seg1.DIFFUSION_CREF_SW) # DIFFUSION_CREF_SW = 0.5
+
+seg1.PARTITIONING_A_C = parameter_dict['PARTITIONING_A_C']
+Cg_Sw = min((pipe1.concentration_groundwater / pipe1.solubility), 1)
+seg1.f_Kconc = seg1.PARTITIONING_A_C  * (Cg_Sw - seg1.PARTITIONING_CREF_SW) # PARTITIONING_CREF_SW = 1.000
+
+seg1.activattion_energy = parameter_dict['activattion_energy'] 
+seg1.f_Dtemp = (seg1.activattion_energy / (0.008314 * np.log(10)) 
+        * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+
+seg1.partitioning_enthalpie = parameter_dict['partitioning_enthalpie']
+seg1.f_Ktemp = ( seg1.partitioning_enthalpie / (0.008314 * np.log(10)) 
+        * (1 / (25 + 273) - 1 / (pipe1.temperature_groundwater + 273)))
+
+f_Kage = 0
+f_Dage = 0
+
+# Set the Kpw and Dp
+seg1.log_Kpw = seg1.log_Kpw_ref + seg1.f_Kconc + seg1.f_Ktemp + f_Kage
+seg1.log_Dp = seg1.log_Dp_ref + seg1.f_Dconc + seg1.f_Dtemp + f_Dage
+
+pipe1.validate_input_parameters()
+seg1.stagnation_factor = parameter_dict['stagnation_factor']
+pipe1.calculate_peak_dw_concentration(tolerance = 0.000001)
+
+# seg1.stagnation_factor
+#%%
+
 seg1 = Segment(name='seg1',
                 material='PE40',
                 length=25,
@@ -33,21 +130,19 @@ pipe1 = Pipe(segment_list=[seg1])
 
 pipe1.set_conditions(
     chemical_name='Benzeen', 
-                    concentration_soil=2.7,
+                    concentration_soil=0.006,
                     temperature_groundwater=12, 
                     flow_rate=0.5)
 
-
-pipe1.validate_input_parameters()
-# pipe1.log_distribution_coefficient = 0.5
+# pipe1.log_distribution_coefficient = 0.659555885*1.1
 
 # pipe1.concentration_groundwater = ((pipe1.concentration_soil * pipe1.ASSESSMENT_FACTOR_GROUNDWATER) 
 #                                                 / ( 10 ** pipe1.log_distribution_coefficient * pipe1.ASSESSMENT_FACTOR_SOIL ))
+pipe1.validate_input_parameters()
+# seg1.stagnation_factor = 0# parameter_dict['stagnation_factor']
 
-seg1.stagnation_factor
-
-pipe1.calculate_peak_dw_concentration()
-pipe1.concentration_groundwater, seg1.stagnation_factor
+pipe1.calculate_mean_dw_concentration()
+pipe1.concentration_groundwater #, seg1.stagnation_factor
 
 # pipe1.calculate_mean_dw_concentration(), 
 

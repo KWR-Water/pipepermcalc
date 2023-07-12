@@ -27,201 +27,215 @@ from pipepermcalc.segment import *
 
 from Monte_carlo import *
 
-def plot_distribution_input_parameter (df, 
-                                       parameter, 
-                                       folder_name, 
-                                       xlabel=None,
-                                       ylabel = 'Cumulative kansdichtheid',
-                                       plot_xlog=False, 
-                                       show_plot=True):
-    save_results_to = check_create_folders(folder_name=folder_name)
+import seaborn as sns
 
-    dfx = df.sort_values(by=parameter)
-    dfx.reset_index(inplace = True, drop=True)
-    fig = plt.figure(figsize=[8, 5])
-    plt.plot(dfx[parameter], dfx.index/len(df), color = 'blue')
-    if xlabel is None:
-        plt.xlabel(parameter)
-    else:
-        plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    if plot_xlog:
+def plot_cumulative_distribution(df, dw_norm, save_name, save_results_to):
+        fig = plt.figure(figsize=[8, 5])
+
+        plt.plot(df.dw_concs, df.index/len(df), ) 
+        plt.vlines(x=dw_norm, ymin=0, ymax =1, colors='r', linestyles='--', label = 'DW Norm')
+        plt.xlabel('Gemiddelde drinkwaterconcentratie (g/m3)')
+        plt.ylabel('Cumulative kansdichtheid')
+        plt.title('Overschrijdingen per jaar: '+str(round(len(df.loc[df.dw_concs > dw_norm]) / len(df)*100, 1))+ '%, n:'+ str(len(df)) )
         plt.xscale('log')
-    plt.savefig(save_results_to+'/' + parameter +'.png', dpi=300, bbox_inches='tight')
-    if show_plot:
-        plt.show()
+        plt.xlim(1e-12, 1)
+        plt.legend()
+        plt.savefig(save_results_to +'/'+save_name + '.png', dpi=300, bbox_inches='tight')
+
+#%%#%%
+# Redo the plots
+
+
+
 #%%
+save_results_to = check_create_folders(folder_name='monte_carlo_output')
+
 dw_norm = 0.001
 
+
+def plot_cum_dist_together(simulation_name, dw_norm = 0.001):
+    df_peak =load_pickle(filename='peak_monte_carlo_'+simulation_name, foldername=save_results_to)
+    df_mean =load_pickle(filename='mean_monte_carlo_'+simulation_name, foldername=save_results_to)
+
+    fig = plt.figure(figsize=[8, 5])
+    plt.plot(df_mean.dw_concs, df_mean.index/len(df_mean),color = 'green', label = 'gemiddelde') 
+    plt.plot(df_peak.dw_concs, df_peak.index/len(df_peak), color = 'blue', label = 'stagnatie' ) 
+
+    plt.vlines(x=dw_norm, ymin=0, ymax =1, colors='r', linestyles='--', label = 'DW Norm')
+    plt.xlabel('Gemiddelde drinkwaterconcentratie (g/m3)')
+    plt.ylabel('Cumulative kansdichtheid')
+    plt.title('Overschrijdingen per jaar: gemiddelde: '+str(round(len(df_mean.loc[df_mean.dw_concs > dw_norm]) / len(df_mean)*100, 1))+ 
+            '%, stagnatie:'+str(round(len(df_peak.loc[df_peak.dw_concs > dw_norm]) / len(df_peak)*100, 1)) + '%')
+    plt.xscale('log')
+    plt.xlim(1e-12, 1)
+    # plt.xlim([0, 0.01])
+    plt.legend()
+    plt.grid()
+    plt.savefig(save_results_to +'/'+simulation_name + '.png', dpi=300, bbox_inches='tight')
+
+
+def calculate_quantiles(simulation_name):
+    df_peak =load_pickle(filename='peak_monte_carlo_'+simulation_name, foldername=save_results_to)
+    df_mean =load_pickle(filename='mean_monte_carlo_'+simulation_name, foldername=save_results_to)
+
+    peak_vals= []
+    mean_vals = []
+
+    quantile_vals = [0.01, 0.05,0.1,0.5,0.95, 0.99 ]
+
+    for quant in quantile_vals:
+        peak_vals.append(df_peak.dw_concs.quantile(quant))
+        mean_vals.append(df_mean.dw_concs.quantile(quant))
+
+        # put the data into a df, sort by the dw_conc and save
+        data = zip(quantile_vals,  mean_vals, peak_vals, )
+        df = pd.DataFrame(data,  
+                        columns = ['quantile', 'mean', 'peak'] )
+        
+        df['mean/peak'] = df['mean']/df['peak']
+
+    df.to_excel(save_results_to+ "/" +simulation_name+".xlsx")
+
+    return df
+
+# simulation_name = 'F_as=7'
+# plot_cum_dist_together(simulation_name=simulation_name, dw_norm = 0.001)
+
+#%%    
+
+name_simulations = ['F_as=1', 
+                     'F_as=3',
+                      'F_as=7', 
+                    'F_as=cum_dist_median', 
+                    'F_as=3_PE80',
+                     'F_as=1_median',                                          
+                      ]
+
+for simulation_name in name_simulations:
+
+    # plot_cum_dist_together(simulation_name=simulation_name, dw_norm = 0.001)
+    # calculate_quantiles(simulation_name=simulation_name,)
 # %%
-# -------------------------------------------------
-# Plotting of the input parameters
-# -------------------------------------------------
-df = load_pickle(filename='mean_monte_carlo_F_as=3', foldername='monte_carlo_output')
-save_results_to = check_create_folders(folder_name='parameter_figures')
 
-make_plots =False
-
-if make_plots:
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='flow_rates', 
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative frequenteverdeling', 
-                                    xlabel = '$Dagelijks huishoudelijk waterverbruik (m^{3}/dag)$',
-                                    show_plot=True)
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='activattion_energies', 
-                                    xlabel= 'Activation engergie',
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='partitioning_enthalpies', 
-                                    xlabel ='Partitioning enthalpie',
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='f_Ktemps', 
-                                    xlabel ="$f_{K}^{temp}$",
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='f_Dtemps', 
-                                    xlabel ="$f_{D}^{temp}$",
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)                                   
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='gw_concs', 
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='f_Kconcs', 
-                                    xlabel ="$f_{K}^{conc}$",
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='f_Dconcs', 
-                                    xlabel ="$f_{D}^{conc}$",
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
+simulation_name = 'F_as=1'
+simulation_label = 'Scenario A'
 
 
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='a_c_Ks', 
-                                    xlabel ="$a_{KC}$",
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
+df_peak =load_pickle(filename='peak_monte_carlo_'+simulation_name, foldername=save_results_to)
+df_mean =load_pickle(filename='mean_monte_carlo_'+simulation_name, foldername=save_results_to)
 
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='a_c_Ds', 
-                                    xlabel ="$a_{DC}$",
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
+len_df = min(len(df_peak), len(df_mean))
+df_peak = df_peak.sort_values('index')
+df_peak = df_peak[1:len_df]
+df_mean = df_mean.sort_values('index')
+df_mean = df_mean[1:len_df]
 
+df_mean['peak_dw'] = df_peak.dw_concs.values
+df_mean['peak_gw'] = df_peak.gw_concs.values
 
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='log_Kpw_refs', 
-                                    xlabel ="$logK_{pw}^{ref}$",
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
+df_mean['stagnation_factor_f'] = (((df_mean['Dp'] + 12.5) / 2 + 
+                               df_mean['Kpw']) * 0.73611 + 
+                                -1.03574 )
 
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='log_Dp_refs', 
-                                    xlabel ="$logD_{p}^{ref}$",
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
-
-    plot_distribution_input_parameter (df=df, 
-                                    parameter='length_middle_points', 
-                                    folder_name = save_results_to,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
-
-    plot_distribution_input_parameter (df=df, 
-                                        parameter='length_plumes', 
-                                        folder_name = save_results_to,
-                                        ylabel = 'Cumulative frequenteverdeling van gemeten waardes', 
-                                        show_plot=True)
-
-
-    # Pipe plottling
-    df_PE40 = load_pickle(filename='Aansluitleidingen_inBedrijf_16012023_PWN_PE40')
-
-    plot_distribution_input_parameter (df=df_PE40, 
-                                        parameter='Binnendiam', 
-                                        xlabel='Binnen diameter (mm)',
-                                        folder_name = save_results_to,
-                                        ylabel = 'Cumulative kansdichtheid', 
-                                        show_plot=True)
-
-    plot_distribution_input_parameter (df=df_PE40, 
-                                        parameter='Buitendiam', 
-                                        xlabel='Buiten diameter (mm)',
-                                        folder_name = save_results_to,
-                                        ylabel = 'Cumulative kansdichtheid', 
-                                        show_plot=True)
-
-    plot_distribution_input_parameter (df=df_PE40, 
-                                        parameter='Wanddikte', 
-                                        xlabel='Wanddikte (mm)',
-                                        folder_name = save_results_to,
-                                        ylabel = 'Cumulative kansdichtheid', 
-                                        show_plot=True)
-#%%
-
-plot_distribution_input_parameter (df=df_PE40, 
-                                    parameter='Lengte_GIS', 
-                                    xlabel='Lengte (m)',
-                                    folder_name = save_results_to,
-                                    plot_xlog=True,
-                                    ylabel = 'Cumulative kansdichtheid', 
-                                    show_plot=True)
+df_mean ['zero'] = 0
+df_mean ["C"] = df_mean[["stagnation_factor_f", "zero"]].max(axis=1)
+df_mean['stagnation_factor'] = 10 ** df_mean['C']
+df_mean = df_mean.sort_values('stagnation_factor')
 
 #%%
-# See that for a specific inner diameter there is a specific thickness 
-df_PE40.groupby([ 'Binnendiam',]).agg(['mean', 'median', 'std', 'count', 'min', 'max' ])
-df_PE40.describe()
+fig = plt.figure(figsize=[8, 5])
+sns.scatterplot(data = df_mean, x='dw_concs', y = 'peak_dw',alpha = 0.5,label = simulation_label,)
+# plt.scatter(df_mean.dw_concs, df_mean.peak_dw, label = simulation_label, alpha = 0.5) 
+# plt.scatter(df_mean.gw_concs, df_mean.peak_gw, label = simulation_label, alpha = 0.5) 
 
-#%% 
+# plt.scatter(df_mean.dw_concs, df_peak.dw_concs, label = simulation_label, alpha = 0.5, color = 'r') 
+# plt.scatter(df_mean.gw_concs, df_peak.gw_concs, label = simulation_label, alpha = 0.5, color = 'r') 
 
-df_plume_concs = load_pickle(filename='monte_carlo_plume_concs', foldername='inputs')
+plt.xlabel('Gemiddelde drinkwaterconcentratie (g/m3)')
+plt.ylabel('Stagnatie drinkwaterconcentratie (g/m3)')
+# plt.xscale('log')
+# plt.yscale('log')
+# plt.xlim(1e-13, 1)
+# plt.ylim(1e-13, 1)
+plt.legend()
+plt.grid()
 
-plt.plot(df_plume_concs, np.arange(start=0, stop=len(df_plume_concs)), color = 'blue')
-plt.xlabel('Plume conc (mg/kg)')
+
+#%%
+def scatter_plot_mean_vs_peak(simulation_name, simulation_label):
+
+    df_peak =load_pickle(filename='peak_monte_carlo_'+simulation_name, foldername=save_results_to)
+    df_mean =load_pickle(filename='mean_monte_carlo_'+simulation_name, foldername=save_results_to)
+
+    len_df = min(len(df_peak), len(df_mean))
+    df_peak = df_peak.sort_values('index')
+    df_peak = df_peak[1:len_df]
+    df_mean = df_mean.sort_values('index')
+    df_mean = df_mean[1:len_df]
+
+
+    fig = plt.figure(figsize=[8, 5])
+    plt.scatter(df_mean.dw_concs, df_peak.dw_concs, label = simulation_label, alpha = 0.5) 
+    plt.xlabel('Gemiddelde drinkwaterconcentratie (g/m3)')
+    plt.ylabel('Stagnatie drinkwaterconcentratie (g/m3)')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlim(1e-13, 1)
+    plt.ylim(1e-13, 1)
+    plt.legend()
+    plt.grid()
+    plt.savefig(save_results_to +'/'+simulation_label + '.png', dpi=300, bbox_inches='tight')
+
+scatter_plot_mean_vs_peak(simulation_name = 'F_as=1', simulation_label = 'Scenario A')
+scatter_plot_mean_vs_peak(simulation_name = 'F_as=cum_dist_median', simulation_label = 'Scenario B')
+scatter_plot_mean_vs_peak(simulation_name = 'F_as=3', simulation_label = 'Scenario C')
+scatter_plot_mean_vs_peak(simulation_name = 'F_as=7', simulation_label = 'Scenario D')
+scatter_plot_mean_vs_peak(simulation_name = 'F_as=3_PE80',simulation_label = 'Scenario E')
+scatter_plot_mean_vs_peak(simulation_name = 'F_as=1_median',   simulation_label = 'Scenario F')
+
+
+#%%
+# def plot_cum_dist_together(simulation_name, dw_norm = 0.001):
+
+fig = plt.figure(figsize=[8, 5])
+
+for simulation_name in name_simulations:
+    # df_peak =load_pickle(filename='peak_monte_carlo_'+simulation_name, foldername=save_results_to)
+    df_mean =load_pickle(filename='mean_monte_carlo_'+simulation_name, foldername=save_results_to)
+
+    plt.plot(df_mean.dw_concs, df_mean.index/len(df_mean), label = simulation_name) 
+    # plt.plot(df_peak.dw_concs, df_peak.index/len(df_peak), color = 'blue', label = 'Peak' ) 
+
+plt.vlines(x=dw_norm, ymin=0, ymax =1, colors='r', linestyles='--', label = 'DW Norm')
+plt.xlabel('Gemiddelde drinkwaterconcentratie (g/m3)')
 plt.ylabel('Cumulative kansdichtheid')
-# plt.xscale('log')
-plt.savefig(save_results_to+'/plume_conc.png', dpi=300, bbox_inches='tight')
+plt.title('All mean')
 
-#%%
-# # range lenth plume
-plume_length_values = load_pickle(filename='monte_carlo_plume_lengths', foldername='inputs')
+# plt.title('Overschrijdingen per jaar: mean: '+str(round(len(df_mean.loc[df_mean.dw_concs > dw_norm]) / len(df_mean)*100, 1))+ '%')
+        # '%, peak:'+str(round(len(df_peak.loc[df_peak.dw_concs > dw_norm]) / len(df_peak)*100, 1)) + '%')
+plt.xscale('log')
+plt.xlim(1e-12, 1)
+plt.legend()
+plt.grid()
+plt.savefig(save_results_to +'/all_mean.png', dpi=300, bbox_inches='tight')
 
-df_plume = pd.DataFrame (plume_length_values, columns = ['plume_length_values'])
-df_plume_length_values = df_plume.sort_values(by='plume_length_values')
-df_plume_length_values.reset_index(inplace = True, drop=True)
+fig = plt.figure(figsize=[8, 5])
 
-plt.plot(df_plume_length_values.plume_length_values, 
-         df_plume_length_values.index/len(df_plume_length_values), color = 'blue')
-plt.xlabel('Plume Lengte (m)')
-plt.ylabel('Cumulative verdeling van gemeten waardes')
-# plt.xscale('log')
-plt.savefig(save_results_to+'/lengte_plume.png', dpi=300, bbox_inches='tight')
-#%%
+for simulation_name in name_simulations:
+    df_peak =load_pickle(filename='peak_monte_carlo_'+simulation_name, foldername=save_results_to)
+    # df_mean =load_pickle(filename='mean_monte_carlo_'+simulation_name, foldername=save_results_to)
+
+    # plt.plot(df_mean.dw_concs, df_mean.index/len(df_mean), label = simulation_name) 
+    plt.plot(df_peak.dw_concs, df_peak.index/len(df_peak), label = simulation_name) 
+
+plt.vlines(x=dw_norm, ymin=0, ymax =1, colors='r', linestyles='--', label = 'DW Norm')
+plt.xlabel('Gemiddelde drinkwaterconcentratie (g/m3)')
+plt.ylabel('Cumulative kansdichtheid')
+plt.title('All peak')
+# plt.title('Overschrijdingen per jaar: mean: '+str(round(len(df_mean.loc[df_mean.dw_concs > dw_norm]) / len(df_mean)*100, 1))+ '%')
+        # '%, peak:'+str(round(len(df_peak.loc[df_peak.dw_concs > dw_norm]) / len(df_peak)*100, 1)) + '%')
+plt.xscale('log')
+plt.xlim(1e-12, 1)
+plt.legend()
+plt.grid()
+plt.savefig(save_results_to +'/all_peak.png', dpi=300, bbox_inches='tight')

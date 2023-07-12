@@ -112,10 +112,12 @@ def calculate_dw_concentration( wall_thickness_dict,
 
     # Calculate concentrations, can we do in one loop and store seperate peak/mean conc
     if calculate_peak:
+        seg1.stagnation_factor = parameter_dict['stagnation_factor']
         dw_conc = pipe1.calculate_peak_dw_concentration()
     elif calculate_mean:
-        dw_conc = pipe1.calculate_mean_dw_concentration()
         seg1.stagnation_factor = 0
+        dw_conc = pipe1.calculate_mean_dw_concentration()
+     
 
     # Save data as df
     # ------------------------------
@@ -142,7 +144,8 @@ def calculate_dw_concentration( wall_thickness_dict,
             'activattion_energy': seg1.activattion_energy, 
             'partitioning_enthalpie': seg1.partitioning_enthalpie, 
             'log_distribution_coefficient': pipe1.log_distribution_coefficient, 
-            'stagnation_factor': seg1.stagnation_factor}
+            'stagnation_factor': seg1.stagnation_factor
+            }
 
     df = pd.DataFrame(data, index=[column_name])
 
@@ -202,7 +205,8 @@ def create_input_parameters_dict ():
                         'activattion_energy': 38.156061538172395, # for T = 12 deg. C
                         'partitioning_enthalpie': 8.943052711652054, # for T = 12 deg. C
                         'log_distribution_coefficient': 0.659555885,
-                        'stagnation_factor':1.3878894906500487}
+                        'stagnation_factor': 1.3868499849384468
+                        }
                         
     st_dev = {'concentration_soil': float(np.std(input_parameters['cumulative_distributions'] ['concentration_soil'])), 
                         'length_pipe': float(np.std(input_parameters['cumulative_distributions'] ['length_pipe'])),
@@ -217,7 +221,8 @@ def create_input_parameters_dict ():
                         'activattion_energy': 11.7958431, 
                         'partitioning_enthalpie':  13.2239059,
                         'log_distribution_coefficient': 0,
-                        'stagnation_factor': 0}
+                        'stagnation_factor': 0
+                        }
 
     input_parameters['median_values'] = median_values
     input_parameters['st_dev'] = st_dev
@@ -240,7 +245,7 @@ def create_input_parameters_dict ():
     # override the values for the kpw, Dp, and Kbw values
     input_parameters['median_+%'][ 'log_Dp_ref'] = np.log10(10**(input_parameters['median_values'][ 'log_Dp_ref']) + 10**(input_parameters['median_values'][ 'log_Dp_ref']) * percent_change)
     input_parameters['median_+%'][ 'log_Kpw_ref'] = np.log10(10**(input_parameters['median_values'][ 'log_Kpw_ref']) + 10**(input_parameters['median_values'][ 'log_Kpw_ref']) * percent_change)
-    input_parameters['median_+%'][ 'log_Kpw_ref'] = np.log10(10**(input_parameters['median_values'][ 'log_distribution_coefficient']) + 10**(input_parameters['median_values'][ 'log_distribution_coefficient']) * percent_change)
+    input_parameters['median_+%'][ 'log_distribution_coefficient'] = 0.700948570158225 #np.log10(10**(input_parameters['median_values'][ 'log_distribution_coefficient']) + 10**(input_parameters['median_values'][ 'log_distribution_coefficient']) * percent_change)
 
     return input_parameters
 
@@ -344,6 +349,7 @@ df_analysis['peak_median + stdev']= df_peak_summary['median + stdev (%)']
 # override the values for the Kpw and Dp since they don't calculate the same way
 df_analysis['(median+std)/median'].loc['log_Dp_ref'] =  10**(df_inputs['median_+std'].loc['log_Dp_ref']) / 10**(df_inputs['median_values'].loc['log_Dp_ref'])
 df_analysis['(median+std)/median'].loc['log_Kpw_ref'] = 10**(df_inputs['median_+std'].loc['log_Kpw_ref']) / 10**(df_inputs['median_values'].loc['log_Kpw_ref'])
+# df_analysis['(median+std)/median'].loc['log_distribution_coefficient'] = 10**(df_inputs['median_+std'].loc['log_distribution_coefficient']) / 10**(df_inputs['median_values'].loc['log_distribution_coefficient'])
 
 df_analysis['mean_median + %_norm'] = np.abs(df_mean_summary['median + % (%)'] - 1)
 df_analysis['mean_median + stdev_norm'] = np.abs(df_mean_summary['median + stdev (%)'] - 1)
