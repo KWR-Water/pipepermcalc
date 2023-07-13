@@ -8,6 +8,7 @@ pipepermcalc - A python package for ... ah_todo
 
     getting-started.rst
     tutorial.rst
+    equations.rst
     faq.rst
     glossary.rst
     API reference <api/modules.rst>

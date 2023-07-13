@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -21,7 +22,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="About" href="../about.html" />
-    <link rel="prev" title="pipepermcalc.project_path module" href="pipepermcalc.project_path.html" /> 
+    <link rel="prev" title="pipepermcalc.pipe module" href="pipepermcalc.pipe.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,6 +47,7 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../equations.html">Mathematical Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">API reference</a></li>
@@ -203,7 +205,7 @@ KWR 2016.056. For partitioning, Cref_SW = 0.5.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pipepermcalc.segment.Segment.material">
 <span class="sig-name descname"><span class="pre">material</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.material" title="Permalink to this definition"></a></dt>
-<dd><p>e.g. PE40, PE80, PVC, EPDM, rubber etc.</p>
+<dd><p>Choice of pipe material: PE40, PE80, PVC, EPDM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
@@ -214,7 +216,7 @@ KWR 2016.056. For partitioning, Cref_SW = 0.5.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pipepermcalc.segment.Segment.length">
 <span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.length" title="Permalink to this definition"></a></dt>
-<dd><p>Length of the pipe segment, meters</p>
+<dd><p>Length of the pipe segment in contact with the contaminated groundwater, meters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
@@ -290,7 +292,7 @@ segment. Unit meters.</p>
 <dd><p>Surface area through which permeation takes place. If permeation is
 perpendicular to the flow, the permeation surface area is the inner
 surface area of the pipe. If diffusion is parallel to the flow, the
-permeation surface area is the annular area of the rubber.</p>
+permeation surface area is the annular area of the pipe segment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
@@ -400,7 +402,7 @@ permeation surface area is the annular area of the rubber.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pipepermcalc.segment.Segment.stagnation_factor">
 <span class="sig-name descname"><span class="pre">stagnation_factor</span></span><a class="headerlink" href="#pipepermcalc.segment.Segment.stagnation_factor" title="Permalink to this definition"></a></dt>
-<dd><p>Correction for the decrease in the concentratino gradient near the
+<dd><p>Correction for the decrease in the concentration gradient near the
 inner wall of the pipe during stagnation (e.g. no flow at at night)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -437,7 +439,7 @@ inner wall of the pipe during stagnation (e.g. no flow at at night)</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="pipepermcalc.project_path.html" class="btn btn-neutral float-left" title="pipepermcalc.project_path module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pipepermcalc.pipe.html" class="btn btn-neutral float-left" title="pipepermcalc.pipe module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../about.html" class="btn btn-neutral float-right" title="About" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

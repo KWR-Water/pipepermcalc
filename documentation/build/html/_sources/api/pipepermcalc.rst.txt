@@ -1,6 +1,14 @@
 pipepermcalc package
 ====================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   pipepermcalc.database
+
 Submodules
 ----------
 
@@ -8,7 +16,6 @@ Submodules
    :maxdepth: 2
 
    pipepermcalc.pipe
-   pipepermcalc.project_path
    pipepermcalc.segment
 
 Module contents

@@ -72,7 +72,8 @@ Before we proceed with any calculations we first validate the input parameters. 
 Step 5: Calculate the drinking water concentration
 ==================================================
 For the given conditions we can calculate the peak and mean daily concentration in drinking water for the pipe. 
-The peak concentration is calculated as the concentration after a stagnation period (e.g. at night when there is little or no flow in the pipe). The default stagnation time of 8 hours is used. Note: the peak is often, though not necessarily, higher than the mean concentration. Depending on the pipe dimensions and flow rate there can be sitautaions when the mean concentration is lower than the peak. 
+The peak concentration is calculated as the concentration after a stagnation period (e.g. at night when there is little or no flow in the pipe). The default stagnation time of 8 hours is used. 
+Note: the peak is often, though not necessarily, higher than the mean concentration. Depending on the pipe dimensions and flow rate there can be situataions when the mean concentration is lower than the peak. 
 
 .. ipython:: python
     
@@ -80,8 +81,8 @@ The peak concentration is calculated as the concentration after a stagnation per
     print("The peak concentration is:", round(peak_conc,4), "g/m3")
 
     mean_conc = pipe1.calculate_mean_dw_concentration()
-    print("The mean daily concentration is:", round(mean_conc,4), "g/m3")
-
+    print("The mean daily concentration is:", round(mean_conc,4), "g/m3")  
+    
 Step 6: Calculate the allowable groundwater concentration
 =========================================================
 It is also possible to calculate the allowable groundwater concentration which would result in a concentration in drinking water not exceeding a given value for the chemical. Often this value will be the drinking water norm.
@@ -89,6 +90,7 @@ The drinking water concentration is given in the set_conditions() function (keyw
 Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.
 
 .. ipython:: python
+    :okwarning:
 
     peak_conc = pipe1.calculate_peak_allowable_gw_concentration()    
    
@@ -98,10 +100,10 @@ Both the groundwater concentration which would not exceed the peak and the mean 
    
     print("The mean groundwater concentration, not exceeding the norm:", round(mean_conc,4), "g/m3")
 
-
 Miscellaneous
 =============
-The choice of pipe materials are: 'PE40', 'PE80', 'SBR', 'EPDM', 'PVC'. Note: The model assumes no permeation in PVC pipes.
+The choice of pipe materials are: 'PE40', 'PE80', 'SBR', 'EPDM', 'PVC'. 
+Note: The model assumes no permeation in PVC pipes.
 
 The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themselves:
 
@@ -232,6 +234,7 @@ When calculating the concentration in drinking water or the allowable concentrat
 These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iterations:
 
 .. ipython:: python
+    :okwarning:
 
     seg1 = Segment(name='seg1',
                     material='PE40',
@@ -263,9 +266,8 @@ Model Testing
 
 The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.
 
-
-
 .. ipython:: python
+    :okwarning:
 
     seg1 = Segment(name='seg1',
                 material= 'PE40',
@@ -316,3 +318,5 @@ The model has been tested by calculating the concentration in drinking water giv
     print("The mean allowable groundwater concentration is:", round(output_gw,3), "g/m3")
 
     print("The output groundwater concentration is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
+
+                            

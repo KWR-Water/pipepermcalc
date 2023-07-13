@@ -22,6 +22,63 @@ from project_path import file_path
 from pipepermcalc.pipe import * 
 from pipepermcalc.segment import * 
 
+seg1 = Segment(name='seg1',
+                material='PE40',
+                length=25,
+                inner_diameter=0.0196,
+                wall_thickness=0.0027,)
+#%%
+pipe1 = Pipe(segment_list=[seg1])
+#%%
+pipe1.set_conditions(chemical_name="Benzeen", 
+                                temperature_groundwater=12, 
+                                concentration_groundwater=1.8, 
+                                flow_rate=0.5)
+#%%
+pipe1.validate_input_parameters()
+#%%
+peak_conc = pipe1.calculate_peak_dw_concentration()
+#%%
+print("The peak concentration is:", round(peak_conc,4), "g/m3")
+#%%
+seg1 = Segment(name='seg1',
+            material= 'PE40',
+            length=25,
+            inner_diameter=0.0196,
+            wall_thickness=0.0027,
+            )
+
+pipe1 = Pipe(segment_list=[seg1])
+input_gw = 1
+
+# pipe1.set_conditions(
+#     chemical_name='Benzeen', 
+#                     concentration_groundwater =input_gw,
+#                     temperature_groundwater=12, 
+#                     flow_rate=0.5)
+
+# pipe1.validate_input_parameters()
+
+# # Peak concentration testing
+# peak_conc=pipe1.calculate_peak_dw_concentration()
+
+# print(peak_conc)
+# print("The peak drinking water concentration is:", round(peak_conc,3), "g/m3")
+
+pipe1.set_conditions(chemical_name='Benzeen', 
+                    temperature_groundwater=12, 
+                    concentration_drinking_water = 0.0008, #peak_conc,
+                    flow_rate=0.5)
+pipe1.validate_input_parameters()
+
+
+output_gw = pipe1.calculate_peak_allowable_gw_concentration()
+
+print("The peak allowable groundwater concentration is:", round(output_gw,3), "g/m3")
+
+# print("The output groundwater concentraion is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
+
+
 #%%
 
 wall_thickness_dict = {0.0124: 0.0018,
@@ -294,40 +351,6 @@ mean_conc=pipe2.calculate_mean_dw_concentration(debug=True)
 # peak_conc, mean_conc
 #%%
 
-#%%
-seg1 = Segment(name='seg1',
-            material= 'PE40',
-            length=25,
-            inner_diameter=0.0196,
-            wall_thickness=0.0027,
-            )
-
-pipe1 = Pipe(segment_list=[seg1])
-input_gw = 1
-
-pipe1.set_conditions(
-    chemical_name='Benzeen', 
-                    concentration_groundwater =input_gw,
-                    temperature_groundwater=12, 
-                    flow_rate=0.5)
-
-pipe1.validate_input_parameters()
-
-# Peak concentration testing
-peak_conc=pipe1.calculate_peak_dw_concentration()
-
-print("The peak drinking water concentration is:", round(peak_conc,3), "g/m3")
-
-pipe1.set_conditions(chemical_name='Benzeen', 
-                    temperature_groundwater=12, 
-                    concentration_drinking_water = peak_conc,
-                    flow_rate=0.5)
-
-output_gw = pipe1.calculate_peak_allowable_gw_concentration()
-
-print("The peak allowable groundwater concentration is:", round(output_gw,3), "g/m3")
-
-print("The output groundwater concentraion is within ", round(abs(1-input_gw/output_gw)*100,3), "% of input groundwater concentration.")
 
 # print(abs(1-input_gw/output_gw)*100)
 #%%

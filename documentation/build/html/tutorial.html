@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -20,7 +21,7 @@
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="FAQ" href="faq.html" />
+    <link rel="next" title="Mathematical Model" href="equations.html" />
     <link rel="prev" title="Getting Started" href="getting-started.html" /> 
 </head>
 
@@ -66,6 +67,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="equations.html">Mathematical Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API reference</a></li>
@@ -124,7 +126,7 @@
 </div>
 <section id="step-1-define-the-pipe-segment-s">
 <h3>Step 1: Define the pipe segment(s)<a class="headerlink" href="#step-1-define-the-pipe-segment-s" title="Permalink to this heading"></a></h3>
-<p>For this example there is only one pipe segment made of PE40. We define the length, inner diameter and wall_thickness of the pipe in meters.</p>
+<p>For this example there is only one pipe segment made of PE40. We define the length of the pipe in contact with the contamination plume, the inner diameter and wall_thickness of the pipe in meters.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [3]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
 <span class="gp">   ...: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
 <span class="gp">   ...: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
@@ -144,7 +146,7 @@
 <section id="step-3-set-the-groundwater-conditions-and-flow-rate">
 <h3>Step 3: Set the groundwater conditions and flow rate<a class="headerlink" href="#step-3-set-the-groundwater-conditions-and-flow-rate" title="Permalink to this heading"></a></h3>
 <p>Next we define the groundwater and pipe conditions. These are necessary if we want to calculate the concentration in drinking water for a given groundwater concentration.
-We define the chemical of interest, the concentration in groundwater (g/m3), groundwater temperature (degrees Celcius) and the flow rate (m3/day).
+We define the chemical of interest, the concentration in groundwater (g/m3), groundwater temperature (degrees Celsius) and the flow rate (m3/day).
 The name of the chemical is checked against the chemical database and the closest matching chemical is printed.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [5]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
 <span class="gp">   ...: </span>                            <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
@@ -165,11 +167,12 @@ The name of the chemical is checked against the chemical database and the closes
 <section id="step-5-calculate-the-drinking-water-concentration">
 <h3>Step 5: Calculate the drinking water concentration<a class="headerlink" href="#step-5-calculate-the-drinking-water-concentration" title="Permalink to this heading"></a></h3>
 <p>For the given conditions we can calculate the peak and mean daily concentration in drinking water for the pipe.
-The peak concentration is calculated as the concentration after a stagnation period (e.g. at night when there is little or no flow in the pipe). The default stagnation time of 8 hours is used.</p>
+The peak concentration is calculated as the concentration after a stagnation period (e.g. at night when there is little or no flow in the pipe). The default stagnation time of 8 hours is used.
+Note: the peak is often, though not necessarily, higher than the mean concentration. Depending on the pipe dimensions and flow rate there can be situataions when the mean concentration is lower than the peak.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [7]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
 
 <span class="gp">In [8]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
-<span class="go">The peak concentration is: 0.0158 g/m3</span>
+<span class="go">The peak concentration is: 0.0159 g/m3</span>
 
 <span class="gp">In [9]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
 
@@ -181,12 +184,12 @@ The peak concentration is calculated as the concentration after a stagnation per
 <section id="step-6-calculate-the-allowable-groundwater-concentration">
 <h3>Step 6: Calculate the allowable groundwater concentration<a class="headerlink" href="#step-6-calculate-the-allowable-groundwater-concentration" title="Permalink to this heading"></a></h3>
 <p>It is also possible to calculate the allowable groundwater concentration which would result in a concentration in drinking water not exceeding a given value for the chemical. Often this value will be the drinking water norm.
-The drinking water concentration is given in the set_conditions() function, or if no concentration is specified, the default is set as the drinking water norm.
+The drinking water concentration is given in the set_conditions() function (keyword: concentration_drinking_water), or if no concentration is specified, the default is set as the drinking water norm.
 Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [11]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_allowable_gw_concentration</span><span class="p">()</span>
 
 <span class="gp">In [12]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak groundwater concentration, not exceeding the norm:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
-<span class="go">The peak groundwater concentration, not exceeding the norm: 0.1138 g/m3</span>
+<span class="go">The peak groundwater concentration, not exceeding the norm: 0.1124 g/m3</span>
 
 <span class="gp">In [13]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">()</span>
 
@@ -197,7 +200,9 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 </section>
 <section id="miscellaneous">
 <h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this heading"></a></h3>
-<p>The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themseles:</p>
+<p>The choice of pipe materials are: ‘PE40’, ‘PE80’, ‘SBR’, ‘EPDM’, ‘PVC’.
+Note: The model assumes no permeation in PVC pipes.</p>
+<p>The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themselves:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [15]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">volume</span>
 <span class="gh">Out[15]: </span><span class="go">0.007542963961269094</span>
 
@@ -235,9 +240,9 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 <p>In this example we create a pipe made from multiple segments with different permeation directions.</p>
 <p>Depending on the types of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The diffusion path length is the length of permeation through the pipe segment.</p>
 <a class="reference internal image-reference" href="_images/pipe_schematic.png"><img alt="pipe_schematic.png" src="_images/pipe_schematic.png" style="width: 600px;" /></a>
-<p>In scenarios 1 and 3 above, the permeaiton is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the wall_thickness of the pipe length.</p>
+<p>In scenarios 1 and 3 above, the permeation is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the wall_thickness of the pipe length.</p>
 <p>In the example shown above, permeation is <em>parallel</em> to the flow direction through a connecting rubber in scenario 2. For this scenario, the volume is assumed to be zero and the permeation surface area is the annular area of the rubber. The diffusion path length in this case is equal to the length of the segment.</p>
-<p>In the following example we create a pipe made from two 5m PE40 pipe segments, joined by a EPDM ring with permeation parallel to the flow direciton:</p>
+<p>In the following example we create a pipe made from two 5m PE40 pipe segments, joined by a EPDM ring with permeation parallel to the flow direction:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [24]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -279,7 +284,7 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 <span class="gp">In [30]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
 
 <span class="gp">In [31]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
-<span class="go">The peak concentration is: 0.0158 g/m3</span>
+<span class="go">The peak concentration is: 0.0159 g/m3</span>
 
 <span class="gp">In [32]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
 
@@ -292,7 +297,7 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 <h2>Example 3 - Advanced settings<a class="headerlink" href="#example-3-advanced-settings" title="Permalink to this heading"></a></h2>
 <section id="change-the-partitioning-and-diffusion-coefficient">
 <h3>Change the partitioning and diffusion coefficient<a class="headerlink" href="#change-the-partitioning-and-diffusion-coefficient" title="Permalink to this heading"></a></h3>
-<p>The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possibe to input a specific a partitioning and diffusion coefficient for a pipe segment.</p>
+<p>The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possible to input a specific a partitioning and diffusion coefficient for a pipe segment. This must be done <em>after</em> setting the conditions of the pipe using .set_conditions().</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
@@ -328,7 +333,7 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 <li><p>The <em>tolerance</em> is the degree of acceptable error in the accuracy of the calculation, default value of 0.01 (1%).</p></li>
 <li><p>The <em>maximum number of iterations</em> is the maximum number of calculations allowed before the calculation stops. A default value of 1000 is used.</p></li>
 </ul>
-<p>These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iteratoins:</p>
+<p>These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iterations:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [41]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
@@ -365,7 +370,7 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 </section>
 <section id="model-testing">
 <h3>Model Testing<a class="headerlink" href="#model-testing" title="Permalink to this heading"></a></h3>
-<p>The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular wieght, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.</p>
+<p>The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [49]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span> <span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
@@ -406,8 +411,8 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 <span class="gp">In [58]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak allowable groundwater concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">output_gw</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
 <span class="go">The peak allowable groundwater concentration is: 0.998 g/m3</span>
 
-<span class="gp">In [59]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentraion is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
-<span class="go">The output groundwater concentraion is within  0.218 % of input groundwater concentration.</span>
+<span class="gp">In [59]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentration is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
+<span class="go">The output groundwater concentration is within  0.218 % of input groundwater concentration.</span>
 
 <span class="go"># Mean concentration testing</span>
 <span class="gp">In [60]: </span><span class="n">mean_conc</span><span class="o">=</span><span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
@@ -427,8 +432,8 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 <span class="gp">In [64]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean allowable groundwater concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">output_gw</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
 <span class="go">The mean allowable groundwater concentration is: 0.998 g/m3</span>
 
-<span class="gp">In [65]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentraion is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
-<span class="go">The output groundwater concentraion is within  0.218 % of input groundwater concentration.</span>
+<span class="gp">In [65]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentration is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
+<span class="go">The output groundwater concentration is within  0.218 % of input groundwater concentration.</span>
 </pre></div>
 </div>
 </section>
@@ -440,7 +445,7 @@ Both the groundwater concentration which would not exceed the peak and the mean 
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="getting-started.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="faq.html" class="btn btn-neutral float-right" title="FAQ" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="equations.html" class="btn btn-neutral float-right" title="Mathematical Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
