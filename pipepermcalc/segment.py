@@ -355,7 +355,7 @@ class Segment:
             coefficient.
         '''
 
-        R = 0.008314 #universal gas constant [J/k/mol]
+        R = 0.008314 #universal gas constant [J/k/mol] #ah_check
         reference_temperature = 25 # deg. C
         dh = a_dh * np.log10(coefficient_name) + b_dh
         f_temp = dh / (R * np.log(10)) * (1 / (reference_temperature + 273) - 1 / (temperature_groundwater + 273))
@@ -628,6 +628,8 @@ class Segment:
         stagnation_factor: float
             Correction for the decrease in the concentration gradient near the 
             inner wall of the pipe during stagnation (e.g. no flow at at night).
+            See equation 6-10 in KWR 2016.056. Note equation description in 
+            report is given in different format than here so difference. 
 
         '''
 
