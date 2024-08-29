@@ -33,7 +33,7 @@ setup(
         'openpyxl',
         'pytest',
         'fuzzywuzzy',
-        ],
+        'python-levenshtein'],
     url=f'https://github.com/KWR-Water/{package_name}',
     author='KWR Water Research Institute',
     author_email='alex.hockin@kwrwater.nl, bram.hillebrand@kwrwater.nl',
