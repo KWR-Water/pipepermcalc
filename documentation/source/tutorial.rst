@@ -23,7 +23,7 @@ For the mathematical equations behind the calcualtions, see the :doc:`Mathematic
 
 Example 1 - Simple forward example
 ----------------------------------
-Example forward calculation for a single pipe segment.
+In a forward calculation the groundwater concentration known and we want to calculate the resulting drinking water concentration for our conditions.
 
 We always start by importing pipepermcalc Pipe and Segment classes:
 
@@ -66,7 +66,7 @@ The name of the chemical is checked against the chemical database and the closes
                                 flow_rate=0.5)
 
 
-The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions.
+The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions. This warning can be suppressed by setting *suppress_warning* = True. 
 
 Step 4: Validate the input parameters
 =====================================
@@ -94,7 +94,7 @@ Note: the peak is often, though not necessarily, higher than the mean concentrat
 
 Example 2 - Simple reverse example
 ----------------------------------
-Example reverse calculation for a single pipe segment. In a reverse calculation the groundwater concentration is unknown and the drinking water concentration is set to a given value, often this value will be the drinking water limit.
+In a reverse calculation the groundwater concentration is unknown and the drinking water concentration is set to a given value, often this value will be the drinking water limit. This calculations gives us the maximum concentration in groundwater which is possible without exceeding the set drinking water concentration.
 
 The initial two steps are the same, defining the pipe segments and creating a pipe:
 
@@ -133,54 +133,6 @@ Both the groundwater concentration which would not exceed the peak and the mean 
    
     print("The mean groundwater concentration, not exceeding the norm:", round(mean_conc,4), "g/m3")
 
-Miscellaneous
-=============
-The choice of pipe materials are: 'PE40', 'PE80', 'SBR', 'EPDM', 'PVC'. 
-Note: The model assumes no permeation in PVC pipes.
-
-The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themselves:
-
-.. ipython:: python
-
-    seg1.volume
-
-    seg1.permeation_surface_area
-
-    seg1.log_Dp
-
-    seg1.log_Kpw
-
-The flow rate, chemical information and the concentrations in drinking water, groundwater and/or soil are attributes of the pipe:
-
-.. ipython:: python
-
-    pipe1.flow_rate
-
-    pipe1.solubility
-
-    pipe1.concentration_drinking_water
-
-    pipe1.concentration_groundwater
-
-    pipe1.concentration_soil
-
-It is possible to view the norm values and other chemical information from the database for the specific chemical defined in *set_conditions*:
-
-.. ipython:: python
-    
-    pipe1.chemical_information
-
-To view the whole chemical database:
-
-.. ipython:: python
-    
-    print(pipe1.ppc_database)
-
-To view a list of chemicals in the database:
-
-.. ipython:: python
-    
-    sorted(list(pipe1.ppc_database.chemical_name_NL))
 
 Example 2 - Multiple segments
 --------------------------------
@@ -245,8 +197,36 @@ The remaining calculations are done the same as for the simple example:
     print("The mean daily concentration is:", round(mean_conc,4), "g/m3")
 
 
-Example 3 - Advanced settings
-------------------------------------
+Example 4 - Calculating in loops
+--------------------------------
+Calculate the concentration of multiple chemicals for a pipe
+============================================================
+
+The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possible to input a specific a partitioning and diffusion coefficient for a pipe segment. This must be done *after* setting the conditions of the pipe using .set_conditions().
+
+.. ipython:: python
+
+    seg1 = Segment(name='seg1', material='PE40', length=25, inner_diameter=0.0196, wall_thickness=0.0027)
+
+    pipe3 = Pipe(segment_list=[seg1])
+    chemicals = ['benzene','ethylbenzene', 'toluene']
+
+    for chemical in chemicals:
+        pipe3.set_conditions(
+                concentration_groundwater=0.1, #g/m3
+                chemical_name=chemical, 
+                temperature_groundwater=12, 
+                flow_rate=0.5, 
+                suppress_print=True, 
+                suppress_warning = True)
+
+        pipe3.validate_input_parameters()
+        mean_conc = pipe3.calculate_mean_dw_concentration()
+        print("The mean drinking water concentration for", chemical, "is:", round(mean_conc,8), "g/m3")
+
+
+Example 5 - Advanced settings
+-----------------------------
 Change the partitioning and diffusion coefficient
 =================================================
 
@@ -274,7 +254,7 @@ The model contains a chemical database from which the partitioning (Kpw) and dif
 
 
 Change the tolerance and max_iterations
-==========================================================
+=======================================
 
 When calculating the concentration in drinking water or the allowable concentration in groundwater, the calculations are iterative and it is possible to specify the tolerance and maximum number of iterations. 
 
@@ -310,9 +290,60 @@ These values can be manually changed in the four concentration calculations by s
 
     print("The peak concentration is:", round(peak_conc,3), "g/m3")
 
-Model Testing
-============= 
 
+Miscellaneous Functions
+-----------------------
+The choice of pipe materials are: 'PE40', 'PE80', 'SBR', 'EPDM', 'PVC'. 
+Note: The model assumes no permeation in PVC pipes.
+
+The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themselves:
+
+.. ipython:: python
+
+    seg1.volume
+
+    seg1.permeation_surface_area
+
+    seg1.log_Dp
+
+    seg1.log_Kpw
+
+The flow rate, chemical information and the concentrations in drinking water, groundwater and/or soil are attributes of the pipe:
+
+.. ipython:: python
+
+    pipe1.flow_rate
+
+    pipe1.solubility
+
+    pipe1.concentration_drinking_water
+
+    pipe1.concentration_groundwater
+
+    pipe1.concentration_soil
+
+It is possible to view the norm values and other chemical information from the database for the specific chemical defined in *set_conditions*:
+
+.. ipython:: python
+    
+    pipe1.chemical_information
+
+To view the whole chemical database:
+
+.. ipython:: python
+    
+    print(pipe1.ppc_database)
+
+To view a list of chemicals in the database:
+
+.. ipython:: python
+    
+    chemical_options = list(pipe1.ppc_database.chemical_name_NL)
+    print(sorted(chemical_options))
+
+
+Model Testing
+-------------
 The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.
 
 .. ipython:: python

@@ -22,7 +22,7 @@
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="_static/copybutton.js?v=f281be69"></script>
+        <script src="_static/copybutton.js?v=354dafce"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -65,16 +65,20 @@
 <li class="toctree-l2"><a class="reference internal" href="#example-2-simple-reverse-example">Example 2 - Simple reverse example</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#step-1-create-pipe-segments-and-define-pipe">Step 1: Create pipe segments and define pipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-2-calculate-the-allowable-groundwater-concentration">Step 2: Calculate the allowable groundwater concentration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#example-2-multiple-segments">Example 2 - Multiple segments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#example-3-advanced-settings">Example 3 - Advanced settings</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#change-the-partitioning-and-diffusion-coefficient">Change the partitioning and diffusion coefficient</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#change-the-tolerance-and-max-iterations">Change the tolerance and max_iterations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#model-testing">Model Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-4-calculating-in-loops">Example 4 - Calculating in loops</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calculate-the-concentration-of-multiple-chemicals-for-a-pipe">Calculate the concentration of multiple chemicals for a pipe</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#example-5-advanced-settings">Example 5 - Advanced settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#change-the-partitioning-and-diffusion-coefficient">Change the partitioning and diffusion coefficient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#change-the-tolerance-and-max-iterations">Change the tolerance and max_iterations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#miscellaneous-functions">Miscellaneous Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-testing">Model Testing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="equations.html">Mathematical Model</a></li>
@@ -128,7 +132,7 @@
 </section>
 <section id="example-1-simple-forward-example">
 <span id="forward-example"></span><h2>Example 1 - Simple forward example<a class="headerlink" href="#example-1-simple-forward-example" title="Link to this heading"></a></h2>
-<p>Example forward calculation for a single pipe segment.</p>
+<p>In a forward calculation the groundwater concentration known and we want to calculate the resulting drinking water concentration for our conditions.</p>
 <p>We always start by importing pipepermcalc Pipe and Segment classes:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">pipepermcalc.pipe</span> <span class="kn">import</span> <span class="o">*</span>
 
@@ -168,7 +172,7 @@ The name of the chemical is checked against the chemical database and the closes
 <span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
 </pre></div>
 </div>
-<p>The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions.</p>
+<p>The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions. This warning can be suppressed by suing <em>suppress_warning</em> = True.</p>
 </section>
 <section id="step-4-validate-the-input-parameters">
 <h3>Step 4: Validate the input parameters<a class="headerlink" href="#step-4-validate-the-input-parameters" title="Link to this heading"></a></h3>
@@ -197,7 +201,7 @@ Note: the peak is often, though not necessarily, higher than the mean concentrat
 </section>
 <section id="example-2-simple-reverse-example">
 <span id="reverse-example"></span><h2>Example 2 - Simple reverse example<a class="headerlink" href="#example-2-simple-reverse-example" title="Link to this heading"></a></h2>
-<p>Example reverse calculation for a single pipe segment. In a reverse calculation the groundwater concentration is unknown and the drinking water concentration is set to a given value, often this value will be the drinking water limit.</p>
+<p>In a reverse calculation the groundwater concentration is unknown and the drinking water concentration is set to a given value, often this value will be the drinking water limit. This calculations gives us the maximum concentration in groundwater which is possible without exceeding the set drinking water concentration.</p>
 <p>The initial two steps are the same, defining the pipe segments and creating a pipe:</p>
 <section id="step-1-create-pipe-segments-and-define-pipe">
 <h3>Step 1: Create pipe segments and define pipe<a class="headerlink" href="#step-1-create-pipe-segments-and-define-pipe" title="Link to this heading"></a></h3>
@@ -237,44 +241,212 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 </pre></div>
 </div>
 </section>
-<section id="miscellaneous">
-<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Link to this heading"></a></h3>
+</section>
+<section id="example-2-multiple-segments">
+<h2>Example 2 - Multiple segments<a class="headerlink" href="#example-2-multiple-segments" title="Link to this heading"></a></h2>
+<p>In this example we create a pipe made from multiple segments with different permeation directions.</p>
+<p>Depending on the types of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The diffusion path length is the length of permeation through the pipe segment.</p>
+<a class="reference internal image-reference" href="_images/pipe_schematic.png"><img alt="pipe_schematic.png" src="_images/pipe_schematic.png" style="width: 600px;" /></a>
+<p>In scenarios 1 and 3 above, the permeation is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the wall_thickness of the pipe length.</p>
+<p>In the example shown above, permeation is <em>parallel</em> to the flow direction through a connecting rubber in scenario 2. For this scenario, the volume is assumed to be zero and the permeation surface area is the annular area of the rubber. The diffusion path length in this case is equal to the length of the segment.</p>
+<p>In the following example we create a pipe made from two 5m PE40 pipe segments, joined by a EPDM ring with permeation parallel to the flow direction:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [19]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [20]: </span><span class="n">seg2</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg2&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;EPDM&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">diffusion_path_length</span> <span class="o">=</span> <span class="mf">0.06</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">permeation_direction</span> <span class="o">=</span> <span class="s1">&#39;parallel&#39;</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [21]: </span><span class="n">seg3</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg3&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [22]: </span><span class="n">pipe2</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">,</span> <span class="n">seg2</span><span class="p">,</span> <span class="n">seg3</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>As seen in the example above, only the segment with the parallel flow requires a specified permeation direction (default is perpendicular) and the diffusion path length (default is the wall_thickness).</p>
+<p>Note: it is <em>not</em> possible to have a pipe made exclusively of segments with parallel permeation, at lease one segment must have permeation perpendicular to the flow.</p>
+<p>The remaining calculations are done the same as for the simple example:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [23]: </span><span class="n">pipe2</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
+
+<span class="gp">In [24]: </span><span class="n">pipe2</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
+
+<span class="gp">In [25]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [26]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The peak concentration is: 0.0159 g/m3</span>
+
+<span class="gp">In [27]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [28]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean daily concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean daily concentration is: 0.0004 g/m3</span>
+</pre></div>
+</div>
+</section>
+<section id="example-4-calculating-in-loops">
+<h2>Example 4 - Calculating in loops<a class="headerlink" href="#example-4-calculating-in-loops" title="Link to this heading"></a></h2>
+<section id="calculate-the-concentration-of-multiple-chemicals-for-a-pipe">
+<h3>Calculate the concentration of multiple chemicals for a pipe<a class="headerlink" href="#calculate-the-concentration-of-multiple-chemicals-for-a-pipe" title="Link to this heading"></a></h3>
+<p>The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possible to input a specific a partitioning and diffusion coefficient for a pipe segment. This must be done <em>after</em> setting the conditions of the pipe using .set_conditions().</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [29]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span> <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
+
+<span class="gp">In [30]: </span><span class="n">pipe3</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
+
+<span class="gp">In [31]: </span><span class="n">chemicals</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;benzene&#39;</span><span class="p">,</span><span class="s1">&#39;ethylbenzene&#39;</span><span class="p">,</span> <span class="s1">&#39;toluene&#39;</span><span class="p">]</span>
+
+<span class="gp">In [32]: </span><span class="k">for</span> <span class="n">chemical</span> <span class="ow">in</span> <span class="n">chemicals</span><span class="p">:</span>
+<span class="gp">   ....: </span>    <span class="n">pipe3</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span>
+<span class="gp">   ....: </span>            <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="c1">#g/m3</span>
+<span class="gp">   ....: </span>            <span class="n">chemical_name</span><span class="o">=</span><span class="n">chemical</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">suppress_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">   ....: </span>            <span class="n">suppress_warning</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [33]: </span><span class="n">pipe3</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
+
+<span class="gp">In [34]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe3</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
+
+<span class="gp">In [35]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean drinking water concentration for&quot;</span><span class="p">,</span> <span class="n">chemical</span><span class="p">,</span> <span class="s2">&quot;is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean drinking water concentration for toluene is: 0.00017556 g/m3</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-5-advanced-settings">
+<h2>Example 5 - Advanced settings<a class="headerlink" href="#example-5-advanced-settings" title="Link to this heading"></a></h2>
+<section id="change-the-partitioning-and-diffusion-coefficient">
+<h3>Change the partitioning and diffusion coefficient<a class="headerlink" href="#change-the-partitioning-and-diffusion-coefficient" title="Link to this heading"></a></h3>
+<p>The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possible to input a specific a partitioning and diffusion coefficient for a pipe segment. This must be done <em>after</em> setting the conditions of the pipe using .set_conditions().</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [36]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [37]: </span><span class="n">pipe3</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
+
+<span class="gp">In [38]: </span><span class="n">pipe3</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                                <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                                <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
+
+<span class="gp">In [39]: </span><span class="nb">print</span><span class="p">(</span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span><span class="p">,</span> <span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="p">)</span>
+<span class="go">1.47223309968451 -12.243586769549616</span>
+
+<span class="gp">In [40]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span> <span class="o">=</span> <span class="mf">0.912</span>
+
+<span class="gp">In [41]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="o">=</span> <span class="o">-</span><span class="mf">10.63</span>
+
+<span class="gp">In [42]: </span><span class="nb">print</span><span class="p">(</span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span><span class="p">,</span> <span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="p">)</span>
+<span class="go">0.912 -10.63</span>
+</pre></div>
+</div>
+</section>
+<section id="change-the-tolerance-and-max-iterations">
+<h3>Change the tolerance and max_iterations<a class="headerlink" href="#change-the-tolerance-and-max-iterations" title="Link to this heading"></a></h3>
+<p>When calculating the concentration in drinking water or the allowable concentration in groundwater, the calculations are iterative and it is possible to specify the tolerance and maximum number of iterations.</p>
+<ul class="simple">
+<li><p>The <em>tolerance</em> is the degree of acceptable error in the accuracy of the calculation, default value of 0.01 (1%).</p></li>
+<li><p>The <em>maximum number of iterations</em> is the maximum number of calculations allowed before the calculation stops. A default value of 1000 is used.</p></li>
+</ul>
+<p>These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iterations:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [43]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
+<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [44]: </span><span class="n">pipe4</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
+
+<span class="gp">In [45]: </span><span class="n">pipe4</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">concentration_drinking_water</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+
+<span class="gp">In [46]: </span><span class="n">pipe4</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
+
+<span class="gp">In [47]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe4</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">(</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">max_iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [48]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The mean concentration is: 1.774 g/m3</span>
+
+<span class="gp">In [49]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe4</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">(</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+<span class="gp">   ....: </span>                            <span class="n">max_iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [50]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="go">The peak concentration is: 1.801 g/m3</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="miscellaneous-functions">
+<h2>Miscellaneous Functions<a class="headerlink" href="#miscellaneous-functions" title="Link to this heading"></a></h2>
 <p>The choice of pipe materials are: ‘PE40’, ‘PE80’, ‘SBR’, ‘EPDM’, ‘PVC’.
 Note: The model assumes no permeation in PVC pipes.</p>
 <p>The individual segment information, e.g. volume, permeation surface area, logK, LogD etc., are attributes of the segments themselves:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [19]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">volume</span>
-<span class="gh">Out[19]: </span><span class="go">0.007542963961269094</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [51]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">volume</span>
+<span class="gh">Out[51]: </span><span class="go">0.007542963961269094</span>
 
-<span class="gp">In [20]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">permeation_surface_area</span>
-<span class="gh">Out[20]: </span><span class="go">1.5393804002589986</span>
+<span class="gp">In [52]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">permeation_surface_area</span>
+<span class="gh">Out[52]: </span><span class="go">1.5393804002589986</span>
 
-<span class="gp">In [21]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span>
-<span class="gh">Out[21]: </span><span class="go">-12.243586769549616</span>
+<span class="gp">In [53]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span>
+<span class="gh">Out[53]: </span><span class="go">-12.24358635121127</span>
 
-<span class="gp">In [22]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span>
-<span class="gh">Out[22]: </span><span class="go">1.47223309968451</span>
+<span class="gp">In [54]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span>
+<span class="gh">Out[54]: </span><span class="go">1.4722331551542442</span>
 </pre></div>
 </div>
 <p>The flow rate, chemical information and the concentrations in drinking water, groundwater and/or soil are attributes of the pipe:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [23]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">flow_rate</span>
-<span class="gh">Out[23]: </span><span class="go">0.5</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [55]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">flow_rate</span>
+<span class="gh">Out[55]: </span><span class="go">0.5</span>
 
-<span class="gp">In [24]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">solubility</span>
-<span class="gh">Out[24]: </span><span class="go">1988.898826</span>
+<span class="gp">In [56]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">solubility</span>
+<span class="gh">Out[56]: </span><span class="go">1988.898826</span>
 
-<span class="gp">In [25]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_drinking_water</span>
-<span class="gh">Out[25]: </span><span class="go">0.0010001918150199251</span>
+<span class="gp">In [57]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_drinking_water</span>
+<span class="gh">Out[57]: </span><span class="go">0.0010001918150199251</span>
 
-<span class="gp">In [26]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_groundwater</span>
-<span class="gh">Out[26]: </span><span class="go">1.8</span>
+<span class="gp">In [58]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_groundwater</span>
+<span class="gh">Out[58]: </span><span class="go">1.8</span>
 
-<span class="gp">In [27]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_soil</span>
-<span class="gh">Out[27]: </span><span class="go">2.7397260263886545</span>
+<span class="gp">In [59]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">concentration_soil</span>
+<span class="gh">Out[59]: </span><span class="go">2.7397260263886545</span>
 </pre></div>
 </div>
 <p>It is possible to view the norm values and other chemical information from the database for the specific chemical defined in <em>set_conditions</em>:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [28]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">chemical_information</span>
-<span class="gh">Out[28]: </span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [60]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">chemical_information</span>
+<span class="gh">Out[60]: </span>
 <span class="go">{&#39;CAS_number&#39;: &#39;71-43-2&#39;,</span>
 <span class="go"> &#39;chemical_name_NL&#39;: &#39;Benzeen&#39;,</span>
 <span class="go"> &#39;chemical_name_EN&#39;: &#39;Benzene&#39;,</span>
@@ -289,468 +461,35 @@ Note: The model assumes no permeation in PVC pipes.</p>
 </pre></div>
 </div>
 <p>To view the whole chemical database:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [29]: </span><span class="nb">print</span><span class="p">(</span><span class="n">pipe1</span><span class="o">.</span><span class="n">ppc_database</span><span class="p">)</span>
-<span class="go">    CAS_number           chemical_name_NL  ... molecular_volume  Drinking_water_norm</span>
-<span class="go">0      66-25-1                Hexaldehyde  ...              NaN                  NaN</span>
-<span class="go">1      71-55-6      1,1,1-Trichloorethaan  ...              NaN               0.0010</span>
-<span class="go">2      79-34-5  1,1,2,2-Tetrachloorethaan  ...              NaN                  NaN</span>
-<span class="go">3      79-00-5      1,1,2-Trichloorethaan  ...              NaN               0.0010</span>
-<span class="go">4        75342         1,1-Dichloorethaan  ...              NaN               0.0010</span>
-<span class="go">..         ...                        ...  ...              ...                  ...</span>
-<span class="go">422   108-88-3                    Tolueen  ...            106.9               0.0010</span>
-<span class="go">423        NaN            Tribroommethaan  ...              NaN               0.0001</span>
-<span class="go">424    79-01-6            Trichlooretheen  ...              NaN               0.0100</span>
-<span class="go">425        NaN                  triclosan  ...            192.1                  NaN</span>
-<span class="go">436    75-01-4              Vinylchloride  ...              NaN               0.0001</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [61]: </span><span class="nb">print</span><span class="p">(</span><span class="n">pipe1</span><span class="o">.</span><span class="n">ppc_database</span><span class="p">)</span>
+<span class="go">     CAS_number           chemical_name_NL  ... molecular_volume  Drinking_water_norm</span>
+<span class="go">0       66-25-1                Hexaldehyde  ...              NaN                  NaN</span>
+<span class="go">1       71-55-6      1,1,1-Trichloorethaan  ...              NaN               0.0010</span>
+<span class="go">2       79-34-5  1,1,2,2-Tetrachloorethaan  ...              NaN                  NaN</span>
+<span class="go">3       79-00-5      1,1,2-Trichloorethaan  ...              NaN               0.0010</span>
+<span class="go">4         75342         1,1-Dichloorethaan  ...              NaN               0.0010</span>
+<span class="go">..          ...                        ...  ...              ...                  ...</span>
+<span class="go">422    108-88-3                    Tolueen  ...            106.9               0.0010</span>
+<span class="go">423         NaN            Tribroommethaan  ...              NaN               0.0001</span>
+<span class="go">424  1979-01-06            Trichlooretheen  ...              NaN               0.0100</span>
+<span class="go">425         NaN                  triclosan  ...            192.1                  NaN</span>
+<span class="go">436  1975-01-04              Vinylchloride  ...              NaN               0.0001</span>
 
 <span class="go">[299 rows x 11 columns]</span>
 </pre></div>
 </div>
 <p>To view a list of chemicals in the database:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [30]: </span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">pipe1</span><span class="o">.</span><span class="n">ppc_database</span><span class="o">.</span><span class="n">chemical_name_NL</span><span class="p">))</span>
-<span class="gh">Out[30]: </span>
-<span class="go">[&#39; Hexaldehyde&#39;,</span>
-<span class="go"> &#39;1,1,1-Trichloorethaan&#39;,</span>
-<span class="go"> &#39;1,1,2,2-Tetrachloorethaan&#39;,</span>
-<span class="go"> &#39;1,1,2-Trichloorethaan&#39;,</span>
-<span class="go"> &#39;1,1-Dichloorethaan&#39;,</span>
-<span class="go"> &#39;1,1-dichlooretheen&#39;,</span>
-<span class="go"> &#39;1,2,3,4-tetrachlorobenzene&#39;,</span>
-<span class="go"> &#39;1,2,3,5-tetrachlorobenzene&#39;,</span>
-<span class="go"> &#39;1,2,3-Trichloorbenzeen&#39;,</span>
-<span class="go"> &#39;1,2,3-Trimethylbenzene&#39;,</span>
-<span class="go"> &#39;1,2,3-trichloorpropaan&#39;,</span>
-<span class="go"> &#39;1,2,3-trimethylbenzeen&#39;,</span>
-<span class="go"> &#39;1,2,4,5-tetrachlorobenzene&#39;,</span>
-<span class="go"> &#39;1,2,4-Trichloorbenzeen&#39;,</span>
-<span class="go"> &#39;1,2,4-trimethylbenzeen&#39;,</span>
-<span class="go"> &#39;1,2-Dichloorbenzeen&#39;,</span>
-<span class="go"> &#39;1,2-Dichloorethaan&#39;,</span>
-<span class="go"> &#39;1,2-Dichlooretheen(cis)&#39;,</span>
-<span class="go"> &#39;1,2-Dichloorfenol&#39;,</span>
-<span class="go"> &#39;1,2-dichlooretheen(cisentrans)&#39;,</span>
-<span class="go"> &#39;1,2-dichlooretheen(trans)&#39;,</span>
-<span class="go"> &#39;1,2-dichloorpropaan&#39;,</span>
-<span class="go"> &#39;1,3,5-Trichloorbenzeen&#39;,</span>
-<span class="go"> &#39;1,3,5-Trimethylbenzeen&#39;,</span>
-<span class="go"> &#39;1,3-Dichloorbenzeen&#39;,</span>
-<span class="go"> &#39;1,3-dichloorpropaan&#39;,</span>
-<span class="go"> &#39;1,4-Dichloorbenzeen&#39;,</span>
-<span class="go"> &#39;1,4-Dioxane {p-dioxane} &#39;,</span>
-<span class="go"> &#39;1-Butanol&#39;,</span>
-<span class="go"> &#39;1-Chloronaphthalene&#39;,</span>
-<span class="go"> &#39;1-Hexanol {Hexylalcohol}&#39;,</span>
-<span class="go"> &#39;1-Pentanol&#39;,</span>
-<span class="go"> &#39;1-chloorbutaan&#39;,</span>
-<span class="go"> &#39;1-chloornaftaleen&#39;,</span>
-<span class="go"> &#39;2,2,4-Trimethylpentaan&#39;,</span>
-<span class="go"> &#39;2,3,4-Trichloorfenol&#39;,</span>
-<span class="go"> &#39;2,3,5,6-Tetrachloorfenol&#39;,</span>
-<span class="go"> &#39;2,3,7-TriCDD&#39;,</span>
-<span class="go"> &#39;2,4,6-Trichloorfenol&#39;,</span>
-<span class="go"> &#39;2,4-dichloorfenol&#39;,</span>
-<span class="go"> &#39;2,5-dichloorfenol&#39;,</span>
-<span class="go"> &#39;2,6-dichloorfenol&#39;,</span>
-<span class="go"> &#39;2,7/8-DiCDD&#39;,</span>
-<span class="go"> &#39;2-CDD&#39;,</span>
-<span class="go"> &#39;2-Chlooraniline&#39;,</span>
-<span class="go"> &#39;2-Hexanol&#39;,</span>
-<span class="go"> &#39;2-Pentanol&#39;,</span>
-<span class="go"> &#39;2-Propanol {isopropyl alcohol}&#39;,</span>
-<span class="go"> &#39;2-chloorfenol&#39;,</span>
-<span class="go"> &#39;2-chloornaftaleen&#39;,</span>
-<span class="go"> &#39;2-methylanthracene&#39;,</span>
-<span class="go"> &#39;2-methylnaphthalene&#39;,</span>
-<span class="go"> &#39;3,4,5-Trichloorfenol&#39;,</span>
-<span class="go"> &#39;3,6-dimethylphenanthrene&#39;,</span>
-<span class="go"> &#39;3-Chlooraniline&#39;,</span>
-<span class="go"> &#39;3-Methylpentane&#39;,</span>
-<span class="go"> &#39;3-chloorfenol&#39;,</span>
-<span class="go"> &#39;4-Chlooraniline&#39;,</span>
-<span class="go"> &#39;4-chloorfenol&#39;,</span>
-<span class="go"> &#39;9,10-dimethylanthracene&#39;,</span>
-<span class="go"> &#39;Acetone&#39;,</span>
-<span class="go"> &#39;Acetonitrile&#39;,</span>
-<span class="go"> &#39;Aniline&#39;,</span>
-<span class="go"> &#39;Antraceen&#39;,</span>
-<span class="go"> &#39;BDE-1&#39;,</span>
-<span class="go"> &#39;BDE-100&#39;,</span>
-<span class="go"> &#39;BDE-126&#39;,</span>
-<span class="go"> &#39;BDE-15&#39;,</span>
-<span class="go"> &#39;BDE-153&#39;,</span>
-<span class="go"> &#39;BDE-154&#39;,</span>
-<span class="go"> &#39;BDE-17&#39;,</span>
-<span class="go"> &#39;BDE-2&#39;,</span>
-<span class="go"> &#39;BDE-28&#39;,</span>
-<span class="go"> &#39;BDE-47&#39;,</span>
-<span class="go"> &#39;BDE-66&#39;,</span>
-<span class="go"> &#39;BDE-71&#39;,</span>
-<span class="go"> &#39;BDE-85&#39;,</span>
-<span class="go"> &#39;BDE-99&#39;,</span>
-<span class="go"> &#39;Benzaldehyde&#39;,</span>
-<span class="go"> &#39;Benzeen&#39;,</span>
-<span class="go"> &#39;Benzyl alcohol&#39;,</span>
-<span class="go"> &#39;Benzylchloride&#39;,</span>
-<span class="go"> &#39;Bifenyl&#39;,</span>
-<span class="go"> &#39;Butylalcohol {Butanol]&#39;,</span>
-<span class="go"> &#39;Butyraldehyde&#39;,</span>
-<span class="go"> &#39;Butyraldehyde (butanal)&#39;,</span>
-<span class="go"> &#39;Chloordaan&#39;,</span>
-<span class="go"> &#39;Chlorobenzene&#39;,</span>
-<span class="go"> &#39;Chloroform&#39;,</span>
-<span class="go"> &#39;Cyclohexaan&#39;,</span>
-<span class="go"> &#39;Cyclopopane&#39;,</span>
-<span class="go"> &#39;Di-isopropylether&#39;,</span>
-<span class="go"> &#39;Di-isopropylketon&#39;,</span>
-<span class="go"> &#39;Dichloormethaan / Methyleenchloride&#39;,</span>
-<span class="go"> &#39;Dimethyl sulfoxide&#39;,</span>
-<span class="go"> &#39;Dimethylftalaat&#39;,</span>
-<span class="go"> &#39;ETBE (Ethyl tert-butyl ether) &#39;,</span>
-<span class="go"> &#39;Ethane&#39;,</span>
-<span class="go"> &#39;Ethanol&#39;,</span>
-<span class="go"> &#39;Ethylacetaat&#39;,</span>
-<span class="go"> &#39;Ethylbenzeen&#39;,</span>
-<span class="go"> &#39;Ethylene&#39;,</span>
-<span class="go"> &#39;Ethylpropionate&#39;,</span>
-<span class="go"> &#39;Fenanthreen&#39;,</span>
-<span class="go"> &#39;Fenol&#39;,</span>
-<span class="go"> &#39;HCB&#39;,</span>
-<span class="go"> &#39;Heptaan (n-heptaan)&#39;,</span>
-<span class="go"> &#39;Heptanol&#39;,</span>
-<span class="go"> &#39;Hexaan&#39;,</span>
-<span class="go"> &#39;Hexachloorbenzeen&#39;,</span>
-<span class="go"> &#39;Hexaldehyde&#39;,</span>
-<span class="go"> &#39;Hexene&#39;,</span>
-<span class="go"> &#39;Isobutyleen&#39;,</span>
-<span class="go"> &#39;MCPA&#39;,</span>
-<span class="go"> &#39;Methaan&#39;,</span>
-<span class="go"> &#39;Methanol&#39;,</span>
-<span class="go"> &#39;Methoxybenzeen&#39;,</span>
-<span class="go"> &#39;Methoxybenzene&#39;,</span>
-<span class="go"> &#39;Methyl iso-Buthyl Ketone&#39;,</span>
-<span class="go"> &#39;Methyl tert-butyl ether {MTBE}&#39;,</span>
-<span class="go"> &#39;Methylethylketon {Butanone}&#39;,</span>
-<span class="go"> &#39;Minerale olie (C10)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C10-C12)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C11)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C12)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C12-C16)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C13)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C14)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C15)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C16)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C16-C21)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C17)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C18)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C19)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C20)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C21)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C21-C30)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C22)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C23)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C24)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C25)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C26)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C27)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C28)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C29)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C30)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C31)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C32)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C33)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C34)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C35)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C36)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C37)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C38)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C39)&#39;,</span>
-<span class="go"> &#39;Minerale olie (C40)&#39;,</span>
-<span class="go"> &#39;Monochlooranilinen&#39;,</span>
-<span class="go"> &#39;Monochloorbenzeen&#39;,</span>
-<span class="go"> &#39;Naftaleen&#39;,</span>
-<span class="go"> &#39;Neopentaan&#39;,</span>
-<span class="go"> &#39;Nitrobenzeen&#39;,</span>
-<span class="go"> &#39;Octaan&#39;,</span>
-<span class="go"> &#39;PCB 10&#39;,</span>
-<span class="go"> &#39;PCB 101&#39;,</span>
-<span class="go"> &#39;PCB 104&#39;,</span>
-<span class="go"> &#39;PCB 105&#39;,</span>
-<span class="go"> &#39;PCB 110&#39;,</span>
-<span class="go"> &#39;PCB 118&#39;,</span>
-<span class="go"> &#39;PCB 128&#39;,</span>
-<span class="go"> &#39;PCB 129&#39;,</span>
-<span class="go"> &#39;PCB 137&#39;,</span>
-<span class="go"> &#39;PCB 138&#39;,</span>
-<span class="go"> &#39;PCB 14&#39;,</span>
-<span class="go"> &#39;PCB 141&#39;,</span>
-<span class="go"> &#39;PCB 143&#39;,</span>
-<span class="go"> &#39;PCB 145&#39;,</span>
-<span class="go"> &#39;PCB 149&#39;,</span>
-<span class="go"> &#39;PCB 151&#39;,</span>
-<span class="go"> &#39;PCB 153&#39;,</span>
-<span class="go"> &#39;PCB 155&#39;,</span>
-<span class="go"> &#39;PCB 156&#39;,</span>
-<span class="go"> &#39;PCB 170&#39;,</span>
-<span class="go"> &#39;PCB 18&#39;,</span>
-<span class="go"> &#39;PCB 180&#39;,</span>
-<span class="go"> &#39;PCB 187&#39;,</span>
-<span class="go"> &#39;PCB 204&#39;,</span>
-<span class="go"> &#39;PCB 21&#39;,</span>
-<span class="go"> &#39;PCB 28&#39;,</span>
-<span class="go"> &#39;PCB 29&#39;,</span>
-<span class="go"> &#39;PCB 30&#39;,</span>
-<span class="go"> &#39;PCB 31&#39;,</span>
-<span class="go"> &#39;PCB 4&#39;,</span>
-<span class="go"> &#39;PCB 44&#39;,</span>
-<span class="go"> &#39;PCB 47&#39;,</span>
-<span class="go"> &#39;PCB 49&#39;,</span>
-<span class="go"> &#39;PCB 50&#39;,</span>
-<span class="go"> &#39;PCB 52&#39;,</span>
-<span class="go"> &#39;PCB 55&#39;,</span>
-<span class="go"> &#39;PCB 56&#39;,</span>
-<span class="go"> &#39;PCB 66&#39;,</span>
-<span class="go"> &#39;PCB 69&#39;,</span>
-<span class="go"> &#39;PCB 78&#39;,</span>
-<span class="go"> &#39;PCB 8&#39;,</span>
-<span class="go"> &#39;PCB 85&#39;,</span>
-<span class="go"> &#39;PCB 87&#39;,</span>
-<span class="go"> &#39;PCB 97&#39;,</span>
-<span class="go"> &#39;PCB 99&#39;,</span>
-<span class="go"> &#39;Pentachloorbenzeen&#39;,</span>
-<span class="go"> &#39;Pentachloorfenol&#39;,</span>
-<span class="go"> &#39;Pentanal&#39;,</span>
-<span class="go"> &#39;Pentylbenzeen&#39;,</span>
-<span class="go"> &#39;Propaan&#39;,</span>
-<span class="go"> &#39;Propionitrile&#39;,</span>
-<span class="go"> &#39;Propylbenzeen&#39;,</span>
-<span class="go"> &#39;Propylene (Propeen??)&#39;,</span>
-<span class="go"> &#39;Styrene&#39;,</span>
-<span class="go"> &#39;Tetrachloorbenzeen&#39;,</span>
-<span class="go"> &#39;Tetrachlooretheen&#39;,</span>
-<span class="go"> &#39;Tetrachloormethaan&#39;,</span>
-<span class="go"> &#39;Tetrafluoromethane&#39;,</span>
-<span class="go"> &#39;Tolueen&#39;,</span>
-<span class="go"> &#39;Tribroommethaan&#39;,</span>
-<span class="go"> &#39;Trichlooretheen&#39;,</span>
-<span class="go"> &#39;Vinylchloride&#39;,</span>
-<span class="go"> &#39;acenaphthene&#39;,</span>
-<span class="go"> &#39;aldrin&#39;,</span>
-<span class="go"> &#39;atrazine&#39;,</span>
-<span class="go"> &#39;benz[a]anthracene&#39;,</span>
-<span class="go"> &#39;benzo(g,h,i)perylene&#39;,</span>
-<span class="go"> &#39;benzo[a]pyrene&#39;,</span>
-<span class="go"> &#39;benzo[b]fluoranthene&#39;,</span>
-<span class="go"> &#39;benzo[e]pyrene&#39;,</span>
-<span class="go"> &#39;benzo[k]fluoranthene&#39;,</span>
-<span class="go"> &#39;bifenly ether&#39;,</span>
-<span class="go"> &#39;butylbenzeen&#39;,</span>
-<span class="go"> &#39;butylbenzylftalaat(BBP)&#39;,</span>
-<span class="go"> &#39;carbaryl&#39;,</span>
-<span class="go"> &#39;carbofuran&#39;,</span>
-<span class="go"> &#39;chloorethaan&#39;,</span>
-<span class="go"> &#39;chloorpentaan&#39;,</span>
-<span class="go"> &#39;chrysene&#39;,</span>
-<span class="go"> &#39;cis-Hex-3-en-1-ol&#39;,</span>
-<span class="go"> &#39;cyclohexanon&#39;,</span>
-<span class="go"> &#39;d12-benz[a]anthracene&#39;,</span>
-<span class="go"> &#39;di(2-ethylhexyl)ftalaat&#39;,</span>
-<span class="go"> &#39;di-ethylether&#39;,</span>
-<span class="go"> &#39;di-isobutylftalaat(DIBP)&#39;,</span>
-<span class="go"> &#39;dibuthylftalaat(DBP)&#39;,</span>
-<span class="go"> &#39;dieldrin&#39;,</span>
-<span class="go"> &#39;diethylftalaat(DEP)&#39;,</span>
-<span class="go"> &#39;dihexylftalaat(DHP)&#39;,</span>
-<span class="go"> &#39;dimethylftalaat(DMP)&#39;,</span>
-<span class="go"> &#39;endrin&#39;,</span>
-<span class="go"> &#39;fluoranthene&#39;,</span>
-<span class="go"> &#39;fluorene&#39;,</span>
-<span class="go"> &#39;heptachlor&#39;,</span>
-<span class="go"> &#39;heptachlor epoxide&#39;,</span>
-<span class="go"> &#39;i-propylbenzeen&#39;,</span>
-<span class="go"> &#39;indeno[1,2,3-cd]pyrene&#39;,</span>
-<span class="go"> &#39;m-Chloortolueen&#39;,</span>
-<span class="go"> &#39;m-Cresol&#39;,</span>
-<span class="go"> &#39;m-Nitroaniline&#39;,</span>
-<span class="go"> &#39;m-Xyleen&#39;,</span>
-<span class="go"> &#39;me-triclosan&#39;,</span>
-<span class="go"> &#39;methoxychlor&#39;,</span>
-<span class="go"> &#39;n-Butaan {Butaan}&#39;,</span>
-<span class="go"> &#39;n-Methylaniline&#39;,</span>
-<span class="go"> &#39;n-Pentaan&#39;,</span>
-<span class="go"> &#39;n-Pentane&#39;,</span>
-<span class="go"> &#39;n-nonylphenol&#39;,</span>
-<span class="go"> &#39;n-octylphenol&#39;,</span>
-<span class="go"> &#39;nonaan&#39;,</span>
-<span class="go"> &#39;o,p’-DDD&#39;,</span>
-<span class="go"> &#39;o,p’-DDE&#39;,</span>
-<span class="go"> &#39;o,p’-DDT&#39;,</span>
-<span class="go"> &#39;o-Chloortolueen&#39;,</span>
-<span class="go"> &#39;o-Cresol&#39;,</span>
-<span class="go"> &#39;o-Xyleen&#39;,</span>
-<span class="go"> &#39;p,p’-DDD&#39;,</span>
-<span class="go"> &#39;p,p’-DDE&#39;,</span>
-<span class="go"> &#39;p,p’-DDT&#39;,</span>
-<span class="go"> &#39;p-Chloorfenol&#39;,</span>
-<span class="go"> &#39;p-Chloortolueen&#39;,</span>
-<span class="go"> &#39;p-Cresol&#39;,</span>
-<span class="go"> &#39;p-Xyleen&#39;,</span>
-<span class="go"> &#39;perylene&#39;,</span>
-<span class="go"> &#39;phenanthrene&#39;,</span>
-<span class="go"> &#39;pyrene&#39;,</span>
-<span class="go"> &#39;pyridine&#39;,</span>
-<span class="go"> &#39;t-octylphenol&#39;,</span>
-<span class="go"> &#39;tetrahydrofuran&#39;,</span>
-<span class="go"> &#39;tetrahydrothiophene&#39;,</span>
-<span class="go"> &#39;triclosan&#39;,</span>
-<span class="go"> &#39;α,α,α-Trichloortolueen&#39;,</span>
-<span class="go"> &#39;α-HCH&#39;,</span>
-<span class="go"> &#39;α-endosulfan&#39;,</span>
-<span class="go"> &#39;β-HCH&#39;,</span>
-<span class="go"> &#39;γ-HCH&#39;,</span>
-<span class="go"> &#39;δ-HCH&#39;]</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="example-2-multiple-segments">
-<h2>Example 2 - Multiple segments<a class="headerlink" href="#example-2-multiple-segments" title="Link to this heading"></a></h2>
-<p>In this example we create a pipe made from multiple segments with different permeation directions.</p>
-<p>Depending on the types of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The diffusion path length is the length of permeation through the pipe segment.</p>
-<a class="reference internal image-reference" href="_images/pipe_schematic.png"><img alt="pipe_schematic.png" src="_images/pipe_schematic.png" style="width: 600px;" /></a>
-<p>In scenarios 1 and 3 above, the permeation is perpendicular to the flow direction and the volume is calculated from the segment dimensions. The surface area is given as the inner surface area of the segment. In pipepermcalc the default permeation direction is perpendicular and the diffusion path length equal to the wall_thickness of the pipe length.</p>
-<p>In the example shown above, permeation is <em>parallel</em> to the flow direction through a connecting rubber in scenario 2. For this scenario, the volume is assumed to be zero and the permeation surface area is the annular area of the rubber. The diffusion path length in this case is equal to the length of the segment.</p>
-<p>In the following example we create a pipe made from two 5m PE40 pipe segments, joined by a EPDM ring with permeation parallel to the flow direction:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [31]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-<span class="gp">   ....: </span>            <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
-<span class="gp">   ....: </span>            <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
-<span class="gp">   ....: </span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [62]: </span><span class="n">chemical_options</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pipe1</span><span class="o">.</span><span class="n">ppc_database</span><span class="o">.</span><span class="n">chemical_name_NL</span><span class="p">)</span>
 
-<span class="gp">In [32]: </span><span class="n">seg2</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg2&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">material</span> <span class="o">=</span> <span class="s1">&#39;EPDM&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">diffusion_path_length</span> <span class="o">=</span> <span class="mf">0.06</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">permeation_direction</span> <span class="o">=</span> <span class="s1">&#39;parallel&#39;</span><span class="p">)</span>
-<span class="gp">   ....: </span>
-
-<span class="gp">In [33]: </span><span class="n">seg3</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg3&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-<span class="gp">   ....: </span>            <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
-<span class="gp">   ....: </span>            <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
-<span class="gp">   ....: </span>
-
-<span class="gp">In [34]: </span><span class="n">pipe2</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">,</span> <span class="n">seg2</span><span class="p">,</span> <span class="n">seg3</span><span class="p">])</span>
-</pre></div>
-</div>
-<p>As seen in the example above, only the segment with the parallel flow requires a specified permeation direction (default is perpendicular) and the diffusion path length (default is the wall_thickness).</p>
-<p>Note: it is <em>not</em> possible to have a pipe made exclusively of segments with parallel permeation, at lease one segment must have permeation perpendicular to the flow.</p>
-<p>The remaining calculations are done the same as for the simple example:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [35]: </span><span class="n">pipe2</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                            <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
-<span class="gp">   ....: </span>                            <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
-<span class="gp">   ....: </span>                            <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="gp">   ....: </span>
-<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
-<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
-
-<span class="gp">In [36]: </span><span class="n">pipe2</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
-
-<span class="gp">In [37]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
-
-<span class="gp">In [38]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
-<span class="go">The peak concentration is: 0.0159 g/m3</span>
-
-<span class="gp">In [39]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
-
-<span class="gp">In [40]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean daily concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
-<span class="go">The mean daily concentration is: 0.0004 g/m3</span>
-</pre></div>
-</div>
-</section>
-<section id="example-3-advanced-settings">
-<h2>Example 3 - Advanced settings<a class="headerlink" href="#example-3-advanced-settings" title="Link to this heading"></a></h2>
-<section id="change-the-partitioning-and-diffusion-coefficient">
-<h3>Change the partitioning and diffusion coefficient<a class="headerlink" href="#change-the-partitioning-and-diffusion-coefficient" title="Link to this heading"></a></h3>
-<p>The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possible to input a specific a partitioning and diffusion coefficient for a pipe segment. This must be done <em>after</em> setting the conditions of the pipe using .set_conditions().</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [41]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="p">)</span>
-<span class="gp">   ....: </span>
-
-<span class="gp">In [42]: </span><span class="n">pipe3</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
-
-<span class="gp">In [43]: </span><span class="n">pipe3</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                                <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
-<span class="gp">   ....: </span>                                <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,)</span>
-<span class="gp">   ....: </span>
-<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
-<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
-
-<span class="gp">In [44]: </span><span class="nb">print</span><span class="p">(</span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span><span class="p">,</span> <span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="p">)</span>
-<span class="go">1.47223309968451 -12.243586769549616</span>
-
-<span class="gp">In [45]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span> <span class="o">=</span> <span class="mf">0.912</span>
-
-<span class="gp">In [46]: </span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="o">=</span> <span class="o">-</span><span class="mf">10.63</span>
-
-<span class="gp">In [47]: </span><span class="nb">print</span><span class="p">(</span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span><span class="p">,</span> <span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="p">)</span>
-<span class="go">0.912 -10.63</span>
-</pre></div>
-</div>
-</section>
-<section id="change-the-tolerance-and-max-iterations">
-<h3>Change the tolerance and max_iterations<a class="headerlink" href="#change-the-tolerance-and-max-iterations" title="Link to this heading"></a></h3>
-<p>When calculating the concentration in drinking water or the allowable concentration in groundwater, the calculations are iterative and it is possible to specify the tolerance and maximum number of iterations.</p>
-<ul class="simple">
-<li><p>The <em>tolerance</em> is the degree of acceptable error in the accuracy of the calculation, default value of 0.01 (1%).</p></li>
-<li><p>The <em>maximum number of iterations</em> is the maximum number of calculations allowed before the calculation stops. A default value of 1000 is used.</p></li>
-</ul>
-<p>These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iterations:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [48]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">material</span><span class="o">=</span><span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
-<span class="gp">   ....: </span>                <span class="n">wall_thickness</span><span class="o">=</span><span class="mf">0.0027</span><span class="p">)</span>
-<span class="gp">   ....: </span>
-
-<span class="gp">In [49]: </span><span class="n">pipe4</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
-
-<span class="gp">In [50]: </span><span class="n">pipe4</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">concentration_drinking_water</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
-<span class="gp">   ....: </span>                    <span class="n">chemical_name</span><span class="o">=</span><span class="s2">&quot;Benzeen&quot;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
-<span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="gp">   ....: </span>
-<span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
-
-<span class="gp">In [51]: </span><span class="n">pipe4</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
-
-<span class="gp">In [52]: </span><span class="n">mean_conc</span> <span class="o">=</span> <span class="n">pipe4</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">(</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
-<span class="gp">   ....: </span>                            <span class="n">max_iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-<span class="gp">   ....: </span>
-
-<span class="gp">In [53]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
-<span class="go">The mean concentration is: 1.774 g/m3</span>
-
-<span class="gp">In [54]: </span><span class="n">peak_conc</span> <span class="o">=</span> <span class="n">pipe4</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">(</span><span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
-<span class="gp">   ....: </span>                            <span class="n">max_iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-<span class="gp">   ....: </span>
-
-<span class="gp">In [55]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
-<span class="go">The peak concentration is: 1.801 g/m3</span>
+<span class="gp">In [63]: </span><span class="nb">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">chemical_options</span><span class="p">))</span>
+<span class="go">[&#39;1,1,1-Trichloorethaan&#39;, &#39;1,1,2,2-Tetrachloorethaan&#39;, &#39;1,1,2-Trichloorethaan&#39;, &#39;1,1-Dichloorethaan&#39;, &#39;1,1-dichlooretheen&#39;, &#39;1,2,3,4-tetrachlorobenzene&#39;, &#39;1,2,3,5-tetrachlorobenzene&#39;, &#39;1,2,3-Trichloorbenzeen&#39;, &#39;1,2,3-Trimethylbenzene&#39;, &#39;1,2,3-trichloorpropaan&#39;, &#39;1,2,3-trimethylbenzeen&#39;, &#39;1,2,4,5-tetrachlorobenzene&#39;, &#39;1,2,4-Trichloorbenzeen&#39;, &#39;1,2,4-trimethylbenzeen&#39;, &#39;1,2-Dichloorbenzeen&#39;, &#39;1,2-Dichloorethaan&#39;, &#39;1,2-Dichlooretheen(cis)&#39;, &#39;1,2-Dichloorfenol&#39;, &#39;1,2-dichlooretheen(cisentrans)&#39;, &#39;1,2-dichlooretheen(trans)&#39;, &#39;1,2-dichloorpropaan&#39;, &#39;1,3,5-Trichloorbenzeen&#39;, &#39;1,3,5-Trimethylbenzeen&#39;, &#39;1,3-Dichloorbenzeen&#39;, &#39;1,3-dichloorpropaan&#39;, &#39;1,4-Dichloorbenzeen&#39;, &#39;1,4-Dioxane {p-dioxane} &#39;, &#39;1-Butanol&#39;, &#39;1-Chloronaphthalene&#39;, &#39;1-Hexanol {Hexylalcohol}&#39;, &#39;1-Pentanol&#39;, &#39;1-chloorbutaan&#39;, &#39;1-chloornaftaleen&#39;, &#39;2,2,4-Trimethylpentaan&#39;, &#39;2,3,4-Trichloorfenol&#39;, &#39;2,3,5,6-Tetrachloorfenol&#39;, &#39;2,3,7-TriCDD&#39;, &#39;2,4,6-Trichloorfenol&#39;, &#39;2,4-dichloorfenol&#39;, &#39;2,5-dichloorfenol&#39;, &#39;2,6-dichloorfenol&#39;, &#39;2,7/8-DiCDD&#39;, &#39;2-CDD&#39;, &#39;2-Chlooraniline&#39;, &#39;2-Hexanol&#39;, &#39;2-Pentanol&#39;, &#39;2-Propanol {isopropyl alcohol}&#39;, &#39;2-chloorfenol&#39;, &#39;2-chloornaftaleen&#39;, &#39;2-methylanthracene&#39;, &#39;2-methylnaphthalene&#39;, &#39;3,4,5-Trichloorfenol&#39;, &#39;3,6-dimethylphenanthrene&#39;, &#39;3-Chlooraniline&#39;, &#39;3-Methylpentane&#39;, &#39;3-chloorfenol&#39;, &#39;4-Chlooraniline&#39;, &#39;4-chloorfenol&#39;, &#39;9,10-dimethylanthracene&#39;, &#39;Acetone&#39;, &#39;Acetonitrile&#39;, &#39;Aniline&#39;, &#39;Antraceen&#39;, &#39;BDE-1&#39;, &#39;BDE-100&#39;, &#39;BDE-126&#39;, &#39;BDE-15&#39;, &#39;BDE-153&#39;, &#39;BDE-154&#39;, &#39;BDE-17&#39;, &#39;BDE-2&#39;, &#39;BDE-28&#39;, &#39;BDE-47&#39;, &#39;BDE-66&#39;, &#39;BDE-71&#39;, &#39;BDE-85&#39;, &#39;BDE-99&#39;, &#39;Benzaldehyde&#39;, &#39;Benzeen&#39;, &#39;Benzyl alcohol&#39;, &#39;Benzylchloride&#39;, &#39;Bifenyl&#39;, &#39;Butylalcohol {Butanol]&#39;, &#39;Butyraldehyde&#39;, &#39;Butyraldehyde (butanal)&#39;, &#39;Chloordaan&#39;, &#39;Chlorobenzene&#39;, &#39;Chloroform&#39;, &#39;Cyclohexaan&#39;, &#39;Cyclopopane&#39;, &#39;Di-isopropylether&#39;, &#39;Di-isopropylketon&#39;, &#39;Dichloormethaan / Methyleenchloride&#39;, &#39;Dimethyl sulfoxide&#39;, &#39;Dimethylftalaat&#39;, &#39;ETBE (Ethyl tert-butyl ether) &#39;, &#39;Ethane&#39;, &#39;Ethanol&#39;, &#39;Ethylacetaat&#39;, &#39;Ethylbenzeen&#39;, &#39;Ethylene&#39;, &#39;Ethylpropionate&#39;, &#39;Fenanthreen&#39;, &#39;Fenol&#39;, &#39;HCB&#39;, &#39;Heptaan (n-heptaan)&#39;, &#39;Heptanol&#39;, &#39;Hexaan&#39;, &#39;Hexachloorbenzeen&#39;, &#39;Hexaldehyde&#39;, &#39;Hexaldehyde&#39;, &#39;Hexene&#39;, &#39;Isobutyleen&#39;, &#39;MCPA&#39;, &#39;Methaan&#39;, &#39;Methanol&#39;, &#39;Methoxybenzeen&#39;, &#39;Methoxybenzene&#39;, &#39;Methyl iso-Buthyl Ketone&#39;, &#39;Methyl tert-butyl ether {MTBE}&#39;, &#39;Methylethylketon {Butanone}&#39;, &#39;Minerale olie (C10)&#39;, &#39;Minerale olie (C10-C12)&#39;, &#39;Minerale olie (C11)&#39;, &#39;Minerale olie (C12)&#39;, &#39;Minerale olie (C12-C16)&#39;, &#39;Minerale olie (C13)&#39;, &#39;Minerale olie (C14)&#39;, &#39;Minerale olie (C15)&#39;, &#39;Minerale olie (C16)&#39;, &#39;Minerale olie (C16-C21)&#39;, &#39;Minerale olie (C17)&#39;, &#39;Minerale olie (C18)&#39;, &#39;Minerale olie (C19)&#39;, &#39;Minerale olie (C20)&#39;, &#39;Minerale olie (C21)&#39;, &#39;Minerale olie (C21-C30)&#39;, &#39;Minerale olie (C22)&#39;, &#39;Minerale olie (C23)&#39;, &#39;Minerale olie (C24)&#39;, &#39;Minerale olie (C25)&#39;, &#39;Minerale olie (C26)&#39;, &#39;Minerale olie (C27)&#39;, &#39;Minerale olie (C28)&#39;, &#39;Minerale olie (C29)&#39;, &#39;Minerale olie (C30)&#39;, &#39;Minerale olie (C31)&#39;, &#39;Minerale olie (C32)&#39;, &#39;Minerale olie (C33)&#39;, &#39;Minerale olie (C34)&#39;, &#39;Minerale olie (C35)&#39;, &#39;Minerale olie (C36)&#39;, &#39;Minerale olie (C37)&#39;, &#39;Minerale olie (C38)&#39;, &#39;Minerale olie (C39)&#39;, &#39;Minerale olie (C40)&#39;, &#39;Monochlooranilinen&#39;, &#39;Monochloorbenzeen&#39;, &#39;Naftaleen&#39;, &#39;Neopentaan&#39;, &#39;Nitrobenzeen&#39;, &#39;Octaan&#39;, &#39;PCB 10&#39;, &#39;PCB 101&#39;, &#39;PCB 104&#39;, &#39;PCB 105&#39;, &#39;PCB 110&#39;, &#39;PCB 118&#39;, &#39;PCB 128&#39;, &#39;PCB 129&#39;, &#39;PCB 137&#39;, &#39;PCB 138&#39;, &#39;PCB 14&#39;, &#39;PCB 141&#39;, &#39;PCB 143&#39;, &#39;PCB 145&#39;, &#39;PCB 149&#39;, &#39;PCB 151&#39;, &#39;PCB 153&#39;, &#39;PCB 155&#39;, &#39;PCB 156&#39;, &#39;PCB 170&#39;, &#39;PCB 18&#39;, &#39;PCB 180&#39;, &#39;PCB 187&#39;, &#39;PCB 204&#39;, &#39;PCB 21&#39;, &#39;PCB 28&#39;, &#39;PCB 29&#39;, &#39;PCB 30&#39;, &#39;PCB 31&#39;, &#39;PCB 4&#39;, &#39;PCB 44&#39;, &#39;PCB 47&#39;, &#39;PCB 49&#39;, &#39;PCB 50&#39;, &#39;PCB 52&#39;, &#39;PCB 55&#39;, &#39;PCB 56&#39;, &#39;PCB 66&#39;, &#39;PCB 69&#39;, &#39;PCB 78&#39;, &#39;PCB 8&#39;, &#39;PCB 85&#39;, &#39;PCB 87&#39;, &#39;PCB 97&#39;, &#39;PCB 99&#39;, &#39;Pentachloorbenzeen&#39;, &#39;Pentachloorfenol&#39;, &#39;Pentanal&#39;, &#39;Pentylbenzeen&#39;, &#39;Propaan&#39;, &#39;Propionitrile&#39;, &#39;Propylbenzeen&#39;, &#39;Propylene (Propeen??)&#39;, &#39;Styrene&#39;, &#39;Tetrachloorbenzeen&#39;, &#39;Tetrachlooretheen&#39;, &#39;Tetrachloormethaan&#39;, &#39;Tetrafluoromethane&#39;, &#39;Tolueen&#39;, &#39;Tribroommethaan&#39;, &#39;Trichlooretheen&#39;, &#39;Vinylchloride&#39;, &#39;acenaphthene&#39;, &#39;aldrin&#39;, &#39;atrazine&#39;, &#39;benz[a]anthracene&#39;, &#39;benzo(g,h,i)perylene&#39;, &#39;benzo[a]pyrene&#39;, &#39;benzo[b]fluoranthene&#39;, &#39;benzo[e]pyrene&#39;, &#39;benzo[k]fluoranthene&#39;, &#39;bifenly ether&#39;, &#39;butylbenzeen&#39;, &#39;butylbenzylftalaat(BBP)&#39;, &#39;carbaryl&#39;, &#39;carbofuran&#39;, &#39;chloorethaan&#39;, &#39;chloorpentaan&#39;, &#39;chrysene&#39;, &#39;cis-Hex-3-en-1-ol&#39;, &#39;cyclohexanon&#39;, &#39;d12-benz[a]anthracene&#39;, &#39;di(2-ethylhexyl)ftalaat&#39;, &#39;di-ethylether&#39;, &#39;di-isobutylftalaat(DIBP)&#39;, &#39;dibuthylftalaat(DBP)&#39;, &#39;dieldrin&#39;, &#39;diethylftalaat(DEP)&#39;, &#39;dihexylftalaat(DHP)&#39;, &#39;dimethylftalaat(DMP)&#39;, &#39;endrin&#39;, &#39;fluoranthene&#39;, &#39;fluorene&#39;, &#39;heptachlor&#39;, &#39;heptachlor epoxide&#39;, &#39;i-propylbenzeen&#39;, &#39;indeno[1,2,3-cd]pyrene&#39;, &#39;m-Chloortolueen&#39;, &#39;m-Cresol&#39;, &#39;m-Nitroaniline&#39;, &#39;m-Xyleen&#39;, &#39;me-triclosan&#39;, &#39;methoxychlor&#39;, &#39;n-Butaan {Butaan}&#39;, &#39;n-Methylaniline&#39;, &#39;n-Pentaan&#39;, &#39;n-Pentane&#39;, &#39;n-nonylphenol&#39;, &#39;n-octylphenol&#39;, &#39;nonaan&#39;, &#39;o,p’-DDD&#39;, &#39;o,p’-DDE&#39;, &#39;o,p’-DDT&#39;, &#39;o-Chloortolueen&#39;, &#39;o-Cresol&#39;, &#39;o-Xyleen&#39;, &#39;p,p’-DDD&#39;, &#39;p,p’-DDE&#39;, &#39;p,p’-DDT&#39;, &#39;p-Chloorfenol&#39;, &#39;p-Chloortolueen&#39;, &#39;p-Cresol&#39;, &#39;p-Xyleen&#39;, &#39;perylene&#39;, &#39;phenanthrene&#39;, &#39;pyrene&#39;, &#39;pyridine&#39;, &#39;t-octylphenol&#39;, &#39;tetrahydrofuran&#39;, &#39;tetrahydrothiophene&#39;, &#39;triclosan&#39;, &#39;α,α,α-Trichloortolueen&#39;, &#39;α-HCH&#39;, &#39;α-endosulfan&#39;, &#39;β-HCH&#39;, &#39;γ-HCH&#39;, &#39;δ-HCH&#39;]</span>
 </pre></div>
 </div>
 </section>
 <section id="model-testing">
-<h3>Model Testing<a class="headerlink" href="#model-testing" title="Link to this heading"></a></h3>
+<h2>Model Testing<a class="headerlink" href="#model-testing" title="Link to this heading"></a></h2>
 <p>The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [56]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [64]: </span><span class="n">seg1</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;seg1&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>            <span class="n">material</span><span class="o">=</span> <span class="s1">&#39;PE40&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>            <span class="n">length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
 <span class="gp">   ....: </span>            <span class="n">inner_diameter</span><span class="o">=</span><span class="mf">0.0196</span><span class="p">,</span>
@@ -758,11 +497,11 @@ Note: The model assumes no permeation in PVC pipes.</p>
 <span class="gp">   ....: </span>            <span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [57]: </span><span class="n">pipe1</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
+<span class="gp">In [65]: </span><span class="n">pipe1</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">segment_list</span><span class="o">=</span><span class="p">[</span><span class="n">seg1</span><span class="p">])</span>
 
-<span class="gp">In [58]: </span><span class="n">input_gw</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">In [66]: </span><span class="n">input_gw</span> <span class="o">=</span> <span class="mi">1</span>
 
-<span class="gp">In [59]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span>
+<span class="gp">In [67]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span>
 <span class="gp">   ....: </span>    <span class="n">chemical_name</span><span class="o">=</span><span class="s1">&#39;Benzeen&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>                    <span class="n">concentration_groundwater</span> <span class="o">=</span><span class="n">input_gw</span><span class="p">,</span>
 <span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
@@ -771,52 +510,51 @@ Note: The model assumes no permeation in PVC pipes.</p>
 <span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
 <span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
 
-<span class="gp">In [60]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
+<span class="gp">In [68]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
 
 <span class="go"># Peak concentration testing</span>
-<span class="gp">In [61]: </span><span class="n">peak_conc</span><span class="o">=</span><span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
+<span class="gp">In [69]: </span><span class="n">peak_conc</span><span class="o">=</span><span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_dw_concentration</span><span class="p">()</span>
 
-<span class="gp">In [62]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak drinking water concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="gp">In [70]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak drinking water concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">peak_conc</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
 <span class="go">The peak drinking water concentration is: 0.009 g/m3</span>
 
-<span class="gp">In [63]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s1">&#39;Benzeen&#39;</span><span class="p">,</span>
+<span class="gp">In [71]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s1">&#39;Benzeen&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
 <span class="gp">   ....: </span>                    <span class="n">concentration_drinking_water</span> <span class="o">=</span> <span class="n">peak_conc</span><span class="p">,</span>
 <span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 <span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
 
-<span class="gp">In [64]: </span><span class="n">output_gw</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_allowable_gw_concentration</span><span class="p">()</span>
+<span class="gp">In [72]: </span><span class="n">output_gw</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_peak_allowable_gw_concentration</span><span class="p">()</span>
 
-<span class="gp">In [65]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak allowable groundwater concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">output_gw</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="gp">In [73]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The peak allowable groundwater concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">output_gw</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
 <span class="go">The peak allowable groundwater concentration is: 0.998 g/m3</span>
 
-<span class="gp">In [66]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentration is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
+<span class="gp">In [74]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentration is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
 <span class="go">The output groundwater concentration is within  0.218 % of input groundwater concentration.</span>
 
 <span class="go"># Mean concentration testing</span>
-<span class="gp">In [67]: </span><span class="n">mean_conc</span><span class="o">=</span><span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
+<span class="gp">In [75]: </span><span class="n">mean_conc</span><span class="o">=</span><span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_dw_concentration</span><span class="p">()</span>
 
-<span class="gp">In [68]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean drinking water concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="gp">In [76]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean drinking water concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_conc</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
 <span class="go">The mean drinking water concentration is: 0.00055 g/m3</span>
 
-<span class="gp">In [69]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s1">&#39;Benzeen&#39;</span><span class="p">,</span>
+<span class="gp">In [77]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">chemical_name</span><span class="o">=</span><span class="s1">&#39;Benzeen&#39;</span><span class="p">,</span>
 <span class="gp">   ....: </span>                    <span class="n">temperature_groundwater</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
 <span class="gp">   ....: </span>                    <span class="n">concentration_drinking_water</span> <span class="o">=</span> <span class="n">mean_conc</span><span class="p">,</span>
 <span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 <span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
 
-<span class="gp">In [70]: </span><span class="n">output_gw</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">()</span>
+<span class="gp">In [78]: </span><span class="n">output_gw</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">calculate_mean_allowable_gw_concentration</span><span class="p">()</span>
 
-<span class="gp">In [71]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean allowable groundwater concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">output_gw</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
+<span class="gp">In [79]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The mean allowable groundwater concentration is:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">output_gw</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;g/m3&quot;</span><span class="p">)</span>
 <span class="go">The mean allowable groundwater concentration is: 0.998 g/m3</span>
 
-<span class="gp">In [72]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentration is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
+<span class="gp">In [80]: </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The output groundwater concentration is within &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">input_gw</span><span class="o">/</span><span class="n">output_gw</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f input groundwater concentration.&quot;</span><span class="p">)</span>
 <span class="go">The output groundwater concentration is within  0.218 % of input groundwater concentration.</span>
 </pre></div>
 </div>
-</section>
 </section>
 </section>
 

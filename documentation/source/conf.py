@@ -51,6 +51,10 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# Don't copy the code prompts:
+#  https://sphinx-copybutton.readthedocs.io/en/latest/use.html#strip-and-configure-input-prompts-for-code-cells
+copybutton_prompt_is_regexp = True
+copybutton_prompt_text =r'In \[\d*\]: | {2,5}\.\.\.: '
 
 # -- Options for HTML output -------------------------------------------------
 

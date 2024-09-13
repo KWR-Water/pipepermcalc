@@ -5,7 +5,7 @@ Mathematical Model
 Conceptual Model
 ----------------
 
-Permeation of an organic chemical from soil or groundwater into a pipe involves a number of steps:
+Permeation of an organic chemical from soil or groundwater into a pipe involves a number of steps, illustrated conceptually in Figure 1 below:
 
 #.	Transport of the chemical from the source through the soil to the pipe in question
 #.	Intrusion from the soil moisture and air into the pipe
@@ -13,6 +13,10 @@ Permeation of an organic chemical from soil or groundwater into a pipe involves 
 #.	Egress from the pipe wall into drinking water
 #.	Diffusion and mixing in the drinking water
 #.	Transport to the tapping point
+
+.. image:: images/conceptual_model_step1-4.png
+  :width: 600
+  :alt: conceptual_model_steps1-4.png
 
 For the transport of the chemical through the soil (step 1), the model assumes direct contact of contaminated soil and/or groundwater with the pipe. 
 The remaining steps are calculated using the permeation model described by van der Schans et al. (2016) that underlies RIVM's risk limit values (Otte et al 2016). This model calculates the entry and exit of organic chemicals (steps 2 and 4) into the pipes based on partition coefficients (K\ :sub:`pw`) describing the concentration ratio between the pipe and groundwater. Diffusion through the pipe wall (step 3) is calculated using Fick's First Law, where the mass flux (M) is proportional to the diffusion coefficient (D\ :sub:`p`) and concentration gradient (:math:`\frac {\Delta C} {\Delta x}`) of the organic chemical in question
@@ -104,14 +108,14 @@ The above calculations are solved iteratively in the model since the concentrati
 
 Permeation direction
 ==================
-Depending on the type of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The diffusion path length is the length of permeation through the pipe segment. Figure 1 below illustrates three permeation options:
+Depending on the type of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The diffusion path length is the length of permeation through the pipe segment. Figure 2 below illustrates three permeation options:
 
 #.	Permeation perpendicular to flow direction through connecting segment (rubber). 
 #.	Permeation parallel to flow direction through connecting segment (rubber). 
 #.	Permeation perpendicular to flow direction through pipe segment. 
 
 In the case of scenarios 1 and 3 permeation is perpendicular through pipe wall and the diffusion path length is equal to the wall thickness of the pipe. The surface area is given as the inner surface area of the segment. In *pipepermcalc* the default permeation direction is perpendicular and the diffusion path length equal to the wall thickness of the pipe length. 
-The area of the pipe wall is the product of the inside diameter (∅), the contact length (Lc) and pi (the subscript refers to the scenario from Figure 1 for the following equations):
+The area of the pipe wall is the product of the inside diameter (∅), the contact length (Lc) and pi (the subscript refers to the scenario from Figure 2 for the following equations):
 
 .. math::
     d_1=t, V_s = π \cdot (\frac{∅_{1}} {2})^2 \cdot L_{c,1}
@@ -135,7 +139,7 @@ In scenario 2 permeation is *parallel* to the flow direction through a connectin
   :width: 600
   :alt: pipe_schematic.png
 
-Figure 1 Depending on the type of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The different scenarios for permeation are indicated on an example pipe made up of multiple segments.
+Figure 2 Depending on the type of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The different scenarios for permeation are indicated on an example pipe made up of multiple segments.
 
 Peak Concentration
 ==================

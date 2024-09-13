@@ -387,6 +387,7 @@ class Pipe:
                     temperature_groundwater= TEMPERATURE_GROUNDWATER_DEFAULT, 
                     stagnation_time = STAGNATION_TIME_DEFAULT,
                     suppress_print = False, 
+                    suppress_warning = False,
                     language = 'NL'
                     ):
         ''' 
@@ -469,7 +470,10 @@ class Pipe:
 
         # The default value for the concentration_drinking_water is the drinking water norm
         if concentration_drinking_water is None:
-            print(f'Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: ({self.Drinking_water_norm}) g/m3.')
+            if suppress_warning:
+                pass
+            else:
+                print(f'Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: ({self.Drinking_water_norm}) g/m3.')
             self.concentration_drinking_water = self.Drinking_water_norm
 
         else: 

@@ -126,15 +126,46 @@ pipe2 = Pipe(segment_list=[seg1, seg2, seg3, seg4])
 chemicals = ['benzene','ethylbenzene', 'toluene']
 
 for chemical in chemicals:
-    pipe2.set_conditions(
-        concentration_groundwater=0.1, #g/m3
-        chemical_name=chemical, 
-        temperature_groundwater=12, 
-        flow_rate=0.5, 
-        suppress_print=True )
+    with np.errstate(divide='ignore'):
+        pipe2.set_conditions(
+            concentration_groundwater=0.1, #g/m3
+            chemical_name=chemical, 
+            temperature_groundwater=12, 
+            flow_rate=0.5, 
+            suppress_print=True, 
+            suppress_warning = True)
 
     pipe2.validate_input_parameters()
 
     mean_conc = pipe2.calculate_mean_dw_concentration()
 
-    print(mean_conc)
+    print("The mean drinking water concentration for", chemical, "is:", round(mean_conc,8), "g/m3")
+
+#%%
+#%%
+
+seg1 = Segment(name='seg',
+            material= 'PE40',
+            length=0.025 , #/1000,
+            inner_diameter=33.3/1000,
+            wall_thickness=2.7/1000,
+            )
+
+pipe3 = Pipe(segment_list=[seg1])
+chemicals = ['benzene','ethylbenzene', 'toluene']
+
+for chemical in chemicals:
+    pipe3.set_conditions(
+            concentration_groundwater=0.1, #g/m3
+            chemical_name=chemical, 
+            temperature_groundwater=12, 
+            flow_rate=0.5, 
+            suppress_print=True, 
+            suppress_warning = True)
+
+    pipe3.validate_input_parameters()
+
+    mean_conc = pipe3.calculate_mean_dw_concentration()
+
+    print("The mean drinking water concentration for", chemical, "is:", round(mean_conc,8), "g/m3")
+#%%
