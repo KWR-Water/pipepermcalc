@@ -1,7 +1,7 @@
 CAS_number,chemical_name_NL,chemical_name_EN,molecular_weight,solubility,log_octanol_water_partitioning_coefficient,log_distribution_coefficient,chemical_group,chemical_group_number,molecular_volume,Drinking_water_norm
 ,,,M,Cwsat,LOG Kow,LOG Kd,group,,Vm,
 ,,,g/mol,g/m3,(-),(-),,,cm3/mol,g/m3
-66-25-1, Hexaldehyde, Hexaldehyde,100.16,6000,1.78,,overige,3,,
+66-25-1,Hexaldehyde,Hexaldehyde,100.16,6000,1.78,,overige,3,,
 71-55-6,"1,1,1-Trichloorethaan","1,1,1-Trichloroethane",133.4,2343.333333,2.8,0.760444292,ClAlk,1,,0.001
 79-34-5,"1,1,2,2-Tetrachloorethaan","1,1,2,2-Tetrachloroethane",167.85,2900,2.39,,ClAlk,1,,
 79-00-5,"1,1,2-Trichloorethaan","1,1,2-Trichloroethane",133.4,3055,1.89,0.753447145,ClAlk,1,,0.001
@@ -54,7 +54,7 @@ CAS_number,chemical_name_NL,chemical_name_EN,molecular_weight,solubility,log_oct
 ,"2,3,7-TriCDD","2,3,7-TriCDD",287.5,0.14409133,6.1,,overige,3,179.9,
 ,"2,3-Benzopyrole (Indole)","2,3-Benzopyrole",117,,,,onbekend,3,,
 ,"2,3-Dichloor-5-nitrotolueen","2,3-Dichloor-5-nitrotolueen",,,,,Cl,3,,
-88-06-2,"2,4,6-Trichloorfenol","2,4,6-Trichlorophenol",197.46,243,3.695,2.234096671,Cl,3,,0.001
+1988-06-02,"2,4,6-Trichloorfenol","2,4,6-Trichlorophenol",197.46,243,3.695,2.234096671,Cl,3,,0.001
 ,"2,4-dichloorfenol","2,4-dichloorphenol",163,1907.107928,3.06,1.308828347,ClAlk,1,,0.001
 ,"2,5-dichloorfenol","2,5-dichloorphenol",163,420.9082483,3.06,1.596225694,ClAlk,1,,0.001
 ,"2,6-dichloorfenol","2,6-dichloorphenol",163,534.106534,2.75,1.397831352,ClAlk,1,,0.001
@@ -98,7 +98,7 @@ CAS_number,chemical_name_NL,chemical_name_EN,molecular_weight,solubility,log_oct
 ,acenaphthene,acenaphthene,154.1,22.06400634,3.96,,PAK,1,141.8,
 ,acenaphthylene,acenaphthylene,152.2,,3.9,,PAK,1,223.1,
 67-64-1,Acetone,Acetone,58.08,790000,-0.24,,O2,3,74,
-75-05-8,Acetonitrile,Acetonitrile,41.05,1000000,-0.34,,overige,3,,
+1975-05-08,Acetonitrile,Acetonitrile,41.05,1000000,-0.34,,overige,3,,
 ,aldrin,aldrin,364.9,0.916587359,6.3,2.7036797,overige,3,240.1,0.00003
 463-49-0,Allene,Allene,40.065,,1.45,,Alk,1,,
 62-53-3,Aniline,Anilin,93.13,35333.33333,0.988,,overige,3,,
@@ -160,7 +160,7 @@ CAS_number,chemical_name_NL,chemical_name_EN,molecular_weight,solubility,log_oct
 ,dibenz[ah]anthracene,dibenz[ah]anthracene,278,,6.8,,PAK,1,243.8,
 ,"dibenzo(a,h)anthracene","dibenzo(a,h)anthracene",278.3,,,,PAK,1,244.2,
 84742,dibuthylftalaat(DBP),dibutyl phthalate,278.35,2.351,4.72,1.745420579,overige,3,,0.0001
-75-09-2,Dichloormethaan / Methyleenchloride,Dichloromethane,84.93,20000,1.25,0.088839633,ClAlk,1,64.5,0.001
+1975-09-02,Dichloormethaan / Methyleenchloride,Dichloromethane,84.93,20000,1.25,0.088839633,ClAlk,1,64.5,0.001
 ,"Didodecyl-3,3-thio-dipropionate","Didodecyl-3,3-thio-dipropionate",514,,,,onbekend,3,,
 ,dieldrin,dieldrin,380.9,4.795246894,5.5,2.753654239,overige,3,253.7,0.00003
 60297,di-ethylether,di-ethylether,74.12,60400,0.89,,,,,
@@ -188,7 +188,7 @@ CAS_number,chemical_name_NL,chemical_name_EN,molecular_weight,solubility,log_oct
 100-41-4,Ethylbenzeen,Ethylbenzene,106.186665,159.4494297,3.15,1.299931656,MAK,1,,0.001
 74-85-1,Ethylene,Ethylene,28.05,130,1.13,,Alk,1,,
  105-37-3 ,Ethylpropionate,Ethylpropionate,102.13,17000,1.21,,O2,3,,
-85-01-8,Fenanthreen,Phenanthrene,178.21,0.85,4.47,2.993573044,PAK,1,,0.0001
+1985-01-08,Fenanthreen,Phenanthrene,178.21,0.85,4.47,2.993573044,PAK,1,,0.0001
 108-95-2,Fenol,Phenol,94.10499987,65559.5567,1.48,0.336603308,O2,3,,0.001
 ,fluoranthene,fluoranthene,202.15,0.836365063,5.08,3.943475119,PAK,1,195.85,0.0001
 ,fluorene,fluorene,166.1,9.822703148,4.14,,PAK,1,154.6,
@@ -203,7 +203,7 @@ CAS_number,chemical_name_NL,chemical_name_EN,molecular_weight,solubility,log_oct
  66-25-1 ,Hexaldehyde,Hexaldehyde,100.16,6000,1.78,,O2,3,,
 25264-93-1,Hexene,Hexene,84.16,50,3.07,,Alk,1,,
 ,δ-HCH,δ-HCH,290.8,115.7695652,3.9,2.134261869,overige,3,178,0.0001
-98-07-7,"α,α,α-Trichloortolueen",Benzotrichloride,195.475,51.5,2.92,,ClArom,1,,
+1998-07-07,"α,α,α-Trichloortolueen",Benzotrichloride,195.475,51.5,2.92,,ClArom,1,,
 ,α-endosulfan,α-endosulfan,406.9,2.567365435,4.9,1.874913747,overige,3,236.3,0.0001
 ,α-HCH,α-HCH,290.8,91.95903436,3.9,2.09433891,overige,3,178,0.0001
 ,β-HCH,β-HCH,290.8,460.8869404,3.9,2.134261869,overige,3,178,0.0001
@@ -425,7 +425,7 @@ CAS_number,chemical_name_NL,chemical_name_EN,molecular_weight,solubility,log_oct
 ,t-octylphenol,t-octylphenol,206.3,25.97163125,4.1,,overige,3,219.5,
 108-88-3,Tolueen,Toluene,92.14249285,610.5910523,2.73,0.870272715,MAK,1,106.9,0.001
 ,Tribroommethaan,Tribromomethane,252.8,1719,2.67,0.946079776,overige,3,,0.0001
-79-01-6,Trichlooretheen,Trichloroethylene,131.4,1164.844161,2.61,0.842372721,ClAlk,1,,0.01
+1979-01-06,Trichlooretheen,Trichloroethylene,131.4,1164.844161,2.61,0.842372721,ClAlk,1,,0.01
 ,triclosan,triclosan,289.5,11.52520259,4.8,,overige,3,192.1,
 ,UV1,UV1,214,,,,overige,3,,
 ,UV10,UV10,585,,,,overige,3,,
@@ -437,5 +437,5 @@ CAS_number,chemical_name_NL,chemical_name_EN,molecular_weight,solubility,log_oct
 ,UV7,UV7,388,,,,overige,3,,
 ,UV8,UV8,445,,,,overige,3,,
 ,UV9,UV9,551,,,,overige,3,,
-75-01-4,Vinylchloride,Vinyl chloride,62.5,428,1.52,0.734988789,ClAlk,1,,0.0001
+1975-01-04,Vinylchloride,Vinyl chloride,62.5,428,1.52,0.734988789,ClAlk,1,,0.0001
 13-30-2-07,Xyleen,Xylene,120.208888,,3.74,,MAK,1,,

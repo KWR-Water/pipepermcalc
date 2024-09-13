@@ -68,14 +68,6 @@ The name of the chemical is checked against the chemical database and the closes
 
 The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions.
 
-It is possible to view the norm values and other chemical information from the database for the specific chemical defined in *set_conditions* or the whole database itself:
-
-.. ipython:: python
-    
-    print(pipe1.chemical_information)
-
-    pipe1.ppc_database
-
 Step 4: Validate the input parameters
 =====================================
 Before we proceed with any calculations we first validate the input parameters. This step ensures we chose a valid pipe material, permeation direction and input positive values for concentrations, pipe dimensions etc.
@@ -172,6 +164,23 @@ The flow rate, chemical information and the concentrations in drinking water, gr
 
     pipe1.concentration_soil
 
+It is possible to view the norm values and other chemical information from the database for the specific chemical defined in *set_conditions*:
+
+.. ipython:: python
+    
+    pipe1.chemical_information
+
+To view the whole chemical database:
+
+.. ipython:: python
+    
+    print(pipe1.ppc_database)
+
+To view a list of chemicals in the database:
+
+.. ipython:: python
+    
+    sorted(list(pipe1.ppc_database.chemical_name_NL))
 
 Example 2 - Multiple segments
 --------------------------------
