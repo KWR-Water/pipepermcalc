@@ -362,6 +362,7 @@ class Pipe:
 
         df = self.ppc_database.loc[self.ppc_database['chemical_name_'+language] == matching_chemical_name]
         pipe_permeability_dict = df.to_dict('records')[0]
+        self.chemical_information = pipe_permeability_dict
 
         #assign dict items as attribute of class
         for k, v in pipe_permeability_dict.items():

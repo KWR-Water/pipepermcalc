@@ -65,7 +65,16 @@ The name of the chemical is checked against the chemical database and the closes
                                 concentration_groundwater=1.8, 
                                 flow_rate=0.5)
 
+
 The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions.
+
+It is possible to view the norm values and other chemical information from the database for the specific chemical defined in *set_conditions* or the whole database itself:
+
+.. ipython:: python
+    
+    print(pipe1.chemical_information)
+
+    pipe1.ppc_database
 
 Step 4: Validate the input parameters
 =====================================

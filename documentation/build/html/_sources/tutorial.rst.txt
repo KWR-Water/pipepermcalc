@@ -65,6 +65,17 @@ The name of the chemical is checked against the chemical database and the closes
                                 concentration_groundwater=1.8, 
                                 flow_rate=0.5)
 
+
+The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions.
+
+It is possible to view the norm values and other chemical information from the database for the specific chemical defined in *set_conditions* or the whole database itself:
+
+.. ipython:: python
+    
+    print(pipe1.chemical_information)
+
+    pipe1.ppc_database
+
 Step 4: Validate the input parameters
 =====================================
 Before we proceed with any calculations we first validate the input parameters. This step ensures we chose a valid pipe material, permeation direction and input positive values for concentrations, pipe dimensions etc.
@@ -111,7 +122,7 @@ Step 1: Create pipe segments and define pipe
 
 Step 2: Calculate the allowable groundwater concentration
 =========================================================
-The drinking water concentration is given in the set_conditions() function (keyword: concentration_drinking_water), or if no concentration is specified, the default is set as the drinking water norm from the internal database.
+The drinking water concentration is given in the set_conditions() function (*concentration_drinking_water*), or if no concentration is specified, the default is set as the drinking water norm from the internal database.
 Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.
 
 .. ipython:: python
