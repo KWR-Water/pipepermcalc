@@ -13,6 +13,8 @@ import fuzzywuzzy.process as fwp
 
 from pipepermcalc.segment import *
 from pipepermcalc.database import DATA_DIR 
+import warnings
+warnings.filterwarnings("ignore", message="divide by zero encountered in scalar divide")
 
 class Pipe:
     '''
@@ -466,6 +468,7 @@ class Pipe:
 
         # The default value for the concentration_drinking_water is the drinking water norm
         if concentration_drinking_water is None:
+            print(f'Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: ({self.Drinking_water_norm}) g/m3.')
             self.concentration_drinking_water = self.Drinking_water_norm
 
         else: 

@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 
 from pipepermcalc.pipe import * 
+import warnings
+warnings.filterwarnings("ignore", message="divide by zero encountered in scalar divide")
 
 class Segment:
     ''' 

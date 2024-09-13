@@ -8,6 +8,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/plot_directive.css?v=7f9a90b1" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=fee868cc" />
 
   
@@ -20,6 +21,8 @@
         <script src="_static/documentation_options.js?v=2709fde1"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -162,6 +165,7 @@ The name of the chemical is checked against the chemical database and the closes
 <span class="gp">   ...: </span>                            <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">   ...: </span>
 <span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
 </pre></div>
 </div>
 </section>
@@ -216,6 +220,7 @@ Both the groundwater concentration which would not exceed the peak and the mean 
 <span class="gp">   ....: </span>                        <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 <span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
 
 <span class="gp">In [14]: </span><span class="n">pipe2</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
 
@@ -311,6 +316,7 @@ Note: The model assumes no permeation in PVC pipes.</p>
 <span class="gp">   ....: </span>                            <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 <span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
 
 <span class="gp">In [33]: </span><span class="n">pipe2</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
 
@@ -346,6 +352,7 @@ Note: The model assumes no permeation in PVC pipes.</p>
 <span class="gp">   ....: </span>                                <span class="n">concentration_groundwater</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,)</span>
 <span class="gp">   ....: </span>
 <span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
 
 <span class="gp">In [41]: </span><span class="nb">print</span><span class="p">(</span><span class="n">seg1</span><span class="o">.</span><span class="n">log_Kpw</span><span class="p">,</span> <span class="n">seg1</span><span class="o">.</span><span class="n">log_Dp</span><span class="p">)</span>
 <span class="go">1.47223309968451 -12.243586769549616</span>
@@ -423,6 +430,7 @@ Note: The model assumes no permeation in PVC pipes.</p>
 <span class="gp">   ....: </span>                    <span class="n">flow_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 <span class="go">Input chemical name:  Benzeen - Matched chemical name:  Benzeen</span>
+<span class="go">Warning, no drinking water concentration was defined so the drinking water concentration has been set to the norm value: (0.001) g/m3.</span>
 
 <span class="gp">In [57]: </span><span class="n">pipe1</span><span class="o">.</span><span class="n">validate_input_parameters</span><span class="p">()</span>
 

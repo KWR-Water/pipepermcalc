@@ -65,6 +65,8 @@ The name of the chemical is checked against the chemical database and the closes
                                 concentration_groundwater=1.8, 
                                 flow_rate=0.5)
 
+The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions.
+
 Step 4: Validate the input parameters
 =====================================
 Before we proceed with any calculations we first validate the input parameters. This step ensures we chose a valid pipe material, permeation direction and input positive values for concentrations, pipe dimensions etc.
@@ -111,11 +113,10 @@ Step 1: Create pipe segments and define pipe
 
 Step 2: Calculate the allowable groundwater concentration
 =========================================================
-The drinking water concentration is given in the set_conditions() function (keyword: concentration_drinking_water), or if no concentration is specified, the default is set as the drinking water norm from the internal database.
+The drinking water concentration is given in the set_conditions() function (*concentration_drinking_water*), or if no concentration is specified, the default is set as the drinking water norm from the internal database.
 Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.
 
 .. ipython:: python
-    :okwarning:
 
     pipe2.set_conditions(chemical_name="Benzeen", 
                             temperature_groundwater=12, 
@@ -265,7 +266,6 @@ When calculating the concentration in drinking water or the allowable concentrat
 These values can be manually changed in the four concentration calculations by specifying the tolerance and/or max_iterations:
 
 .. ipython:: python
-    :okwarning:
 
     seg1 = Segment(name='seg1',
                     material='PE40',
@@ -298,7 +298,6 @@ Model Testing
 The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.
 
 .. ipython:: python
-    :okwarning:
 
     seg1 = Segment(name='seg1',
                 material= 'PE40',
