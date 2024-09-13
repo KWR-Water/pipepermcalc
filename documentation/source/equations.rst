@@ -36,7 +36,7 @@ Partitioning and diffusion coefficients (K\ :sub:`pw`, D\ :sub:`p`) are calculat
     log⁡ K_{pw} = log K_{pw}^{ref} + logf_{K_{pw}}^{temp} +  logf_{K_{pw}}^{conc} + logf_{K_{pw}}^{age}
   :label: eq:2
 
-These corrections are calculated using the following set of equations. The meanings of the symbols are shown in XX. The influence of age is disregarded for both the partitioning and diffusion coefficients. 
+These corrections are calculated using the following set of equations. The meanings of the symbols are shown in in the section Symbols, below. The influence of age is disregarded for both the partitioning and diffusion coefficients. 
 
 .. math::
     log D_p^{ref} = -0.011 \cdot log⁡M-10.688
@@ -111,24 +111,24 @@ Depending on the type of pipe segment, the permeation direction can either be pe
 #.	Permeation perpendicular to flow direction through pipe segment. 
 
 In the case of scenarios 1 and 3 permeation is perpendicular through pipe wall and the diffusion path length is equal to the wall thickness of the pipe. The surface area is given as the inner surface area of the segment. In *pipepermcalc* the default permeation direction is perpendicular and the diffusion path length equal to the wall thickness of the pipe length. 
-The area of the pipe wall is the product of the inside diameter (∅), the contact length (Lc) and pi:
+The area of the pipe wall is the product of the inside diameter (∅), the contact length (Lc) and pi (the subscript refers to the scenario from Figure 1 for the following equations):
 
 .. math::
-    d=t, V_s = π \cdot (\frac{∅} {2})^2 \cdot L_c
+    d_1=t, V_s = π \cdot (\frac{∅_{1}} {2})^2 \cdot L_{c,1}
     :label: eq:16
 
 .. math::
-    SA_p= π \cdot ∅ \cdot L_c
+    SA_p= π \cdot ∅_{1} \cdot L_{c,1}
     :label: eq:17
 
 In scenario 2 permeation is *parallel* to the flow direction through a connecting segment (in this case a rubber). For this scenario, the volume is assumed to be zero and the permeation surface area is the annular area of the rubber. The diffusion path length in this case is equal to the length of the segment.
 
 .. math::
-    d=L, V_s = 0
+    d=L_2, V_s = 0
     :label: eq:18
 
 .. math::
-    SA_p= π \cdot \frac{{(∅+d)}^2 - ∅^2)} {4}
+    SA_p= π \cdot \frac{{(∅_{2}+d_2)}^2 - ∅_2^2)} {4}
     :label: eq:19
 
 .. image:: images/pipe_schematic_no_eqs.png
@@ -165,7 +165,7 @@ The above calculations are solved iteratively in the model since the concentrati
 
 Model Testing
 -------------
-The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit. See Tutorial — pipepermcalc 0.1 documentation
+The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit. See :doc:`tutorial`.
 
 Symbols
 -------

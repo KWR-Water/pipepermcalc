@@ -1,22 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mathematical Model &mdash; pipepermcalc 0.1 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css?v=7f9a90b1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=fee868cc" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
@@ -95,9 +98,9 @@
            <div itemprop="articleBody">
              
   <section id="mathematical-model">
-<h1>Mathematical Model<a class="headerlink" href="#mathematical-model" title="Permalink to this heading"></a></h1>
+<h1>Mathematical Model<a class="headerlink" href="#mathematical-model" title="Link to this heading"></a></h1>
 <section id="conceptual-model">
-<h2>Conceptual Model<a class="headerlink" href="#conceptual-model" title="Permalink to this heading"></a></h2>
+<h2>Conceptual Model<a class="headerlink" href="#conceptual-model" title="Link to this heading"></a></h2>
 <p>Permeation of an organic chemical from soil or groundwater into a pipe involves a number of steps:</p>
 <ol class="arabic simple">
 <li><p>Transport of the chemical from the source through the soil to the pipe in question</p></li>
@@ -111,54 +114,54 @@
 The remaining steps are calculated using the permeation model described by van der Schans et al. (2016) that underlies RIVM’s risk limit values (Otte et al 2016). This model calculates the entry and exit of organic chemicals (steps 2 and 4) into the pipes based on partition coefficients (K<sub>pw</sub>) describing the concentration ratio between the pipe and groundwater. Diffusion through the pipe wall (step 3) is calculated using Fick’s First Law, where the mass flux (M) is proportional to the diffusion coefficient (D<sub>p</sub>) and concentration gradient (<span class="math notranslate nohighlight">\(\frac {\Delta C} {\Delta x}\)</span>) of the organic chemical in question</p>
 </section>
 <section id="model-equations">
-<h2>Model Equations<a class="headerlink" href="#model-equations" title="Permalink to this heading"></a></h2>
+<h2>Model Equations<a class="headerlink" href="#model-equations" title="Link to this heading"></a></h2>
 <p>The concentration of a chemical can vary throughout the day in a drinking water pipe located in contaminated soil or groundwater. When the water in the pipe is stagnant, the concentration slowly increases due to permeation until water is used and the water in the pipe is changed with clean drinking water from the distribution system. Another “recharge cycle” then begins. The longer the recharge period, the higher the concentrations. Therefore, the highest concentrations are generally reached at the end of the night.
 The model can calculate both the mean (average) concentration and the peak (concentration after a period of stagnation). The stagnation factor is only valid for a stagnation time of 8 hours. Using a different stagnation time is not advised.
 This section describes the mathematical equations solved by the permeation model (see van der Schans et al 2016). The model uses SI units g/m<sup>3</sup> for concentrations in groundwater and drinking water.</p>
 <section id="partitioning-and-diffusion-coefficients">
-<h3>Partitioning and Diffusion coefficients<a class="headerlink" href="#partitioning-and-diffusion-coefficients" title="Permalink to this heading"></a></h3>
+<h3>Partitioning and Diffusion coefficients<a class="headerlink" href="#partitioning-and-diffusion-coefficients" title="Link to this heading"></a></h3>
 <p>Partitioning and diffusion coefficients (K<sub>pw</sub>, D<sub>p</sub>) are calculated using a regression model that relates these coefficients to molecular properties of the chemical contaminant, piping material, and environmental factors. The partitioning and diffusion coefficients under laboratory conditions (K<sub>pw</sub> <sup>ref</sup> , D<sub>p</sub><sup>ref</sup>) are taken as reference to which corrections are then applied for temperature (ftemp) concentration (fconc) and age (fage) of the pipe.</p>
 <div class="math notranslate nohighlight" id="equation-eq-1">
-<span class="eqno">(1)<a class="headerlink" href="#equation-eq-1" title="Permalink to this equation"></a></span>\[log D_p = log D_p^{ref} + logf_{D_p}^{temp} +  logf_{D_p}^{conc} + logf_{D_p}^{age}\]</div>
+<span class="eqno">(1)<a class="headerlink" href="#equation-eq-1" title="Link to this equation"></a></span>\[log D_p = log D_p^{ref} + logf_{D_p}^{temp} +  logf_{D_p}^{conc} + logf_{D_p}^{age}\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-2">
-<span class="eqno">(2)<a class="headerlink" href="#equation-eq-2" title="Permalink to this equation"></a></span>\[log⁡ K_{pw} = log K_{pw}^{ref} + logf_{K_{pw}}^{temp} +  logf_{K_{pw}}^{conc} + logf_{K_{pw}}^{age}\]</div>
-<p>These corrections are calculated using the following set of equations. The meanings of the symbols are shown in XX. The influence of age is disregarded for both the partitioning and diffusion coefficients.</p>
+<span class="eqno">(2)<a class="headerlink" href="#equation-eq-2" title="Link to this equation"></a></span>\[log⁡ K_{pw} = log K_{pw}^{ref} + logf_{K_{pw}}^{temp} +  logf_{K_{pw}}^{conc} + logf_{K_{pw}}^{age}\]</div>
+<p>These corrections are calculated using the following set of equations. The meanings of the symbols are shown in in the section Symbols, below. The influence of age is disregarded for both the partitioning and diffusion coefficients.</p>
 <div class="math notranslate nohighlight" id="equation-eq-3">
-<span class="eqno">(3)<a class="headerlink" href="#equation-eq-3" title="Permalink to this equation"></a></span>\[log D_p^{ref} = -0.011 \cdot log⁡M-10.688\]</div>
+<span class="eqno">(3)<a class="headerlink" href="#equation-eq-3" title="Link to this equation"></a></span>\[log D_p^{ref} = -0.011 \cdot log⁡M-10.688\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-4">
-<span class="eqno">(4)<a class="headerlink" href="#equation-eq-4" title="Permalink to this equation"></a></span>\[logf_{D_p}^{temp} = \frac{E_D}{ln10 \cdot R} \cdot ( \frac{1}{T_{ref}} - \frac{1}{T})\]</div>
+<span class="eqno">(4)<a class="headerlink" href="#equation-eq-4" title="Link to this equation"></a></span>\[logf_{D_p}^{temp} = \frac{E_D}{ln10 \cdot R} \cdot ( \frac{1}{T_{ref}} - \frac{1}{T})\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-5">
-<span class="eqno">(5)<a class="headerlink" href="#equation-eq-5" title="Permalink to this equation"></a></span>\[E_D = 61.857 \cdot log⁡{M}-78.919\]</div>
+<span class="eqno">(5)<a class="headerlink" href="#equation-eq-5" title="Link to this equation"></a></span>\[E_D = 61.857 \cdot log⁡{M}-78.919\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-6">
-<span class="eqno">(6)<a class="headerlink" href="#equation-eq-6" title="Permalink to this equation"></a></span>\[logf_{D_p}^{conc}= a_{DC} \cdot ( \frac{C_{gw}}{C_{w}^{sat}} - \frac{C_{w}^{ref}}{C_{w}^{sat}})\]</div>
+<span class="eqno">(6)<a class="headerlink" href="#equation-eq-6" title="Link to this equation"></a></span>\[logf_{D_p}^{conc}= a_{DC} \cdot ( \frac{C_{gw}}{C_{w}^{sat}} - \frac{C_{w}^{ref}}{C_{w}^{sat}})\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-7">
-<span class="eqno">(7)<a class="headerlink" href="#equation-eq-7" title="Permalink to this equation"></a></span>\[logf_{D_p}^{age} = 0\]</div>
+<span class="eqno">(7)<a class="headerlink" href="#equation-eq-7" title="Link to this equation"></a></span>\[logf_{D_p}^{age} = 0\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-8">
-<span class="eqno">(8)<a class="headerlink" href="#equation-eq-8" title="Permalink to this equation"></a></span>\[log K_{pw}^{ref} = 1.097 \cdot logK_{ow} - 0.689\]</div>
+<span class="eqno">(8)<a class="headerlink" href="#equation-eq-8" title="Link to this equation"></a></span>\[log K_{pw}^{ref} = 1.097 \cdot logK_{ow} - 0.689\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-9">
-<span class="eqno">(9)<a class="headerlink" href="#equation-eq-9" title="Permalink to this equation"></a></span>\[logf_{K_{pw}}^{temp} = \frac{E_K}{ln10 \cdot R} \cdot  ( \frac{1}{T_{ref}} - \frac{1}{T})\]</div>
+<span class="eqno">(9)<a class="headerlink" href="#equation-eq-9" title="Link to this equation"></a></span>\[logf_{K_{pw}}^{temp} = \frac{E_K}{ln10 \cdot R} \cdot  ( \frac{1}{T_{ref}} - \frac{1}{T})\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-10">
-<span class="eqno">(10)<a class="headerlink" href="#equation-eq-10" title="Permalink to this equation"></a></span>\[E_D = 7.922 \cdot log⁡{k_{ow}}-17.188\]</div>
+<span class="eqno">(10)<a class="headerlink" href="#equation-eq-10" title="Link to this equation"></a></span>\[E_D = 7.922 \cdot log⁡{k_{ow}}-17.188\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-11">
-<span class="eqno">(11)<a class="headerlink" href="#equation-eq-11" title="Permalink to this equation"></a></span>\[logf_{K_{pw}}^{conc} = a_{KC} \cdot ( \frac{C_{gw}}{C_{w}^{sat}} - \frac{C_{w}^{ref}}{C_{w}^{sat}})\]</div>
+<span class="eqno">(11)<a class="headerlink" href="#equation-eq-11" title="Link to this equation"></a></span>\[logf_{K_{pw}}^{conc} = a_{KC} \cdot ( \frac{C_{gw}}{C_{w}^{sat}} - \frac{C_{w}^{ref}}{C_{w}^{sat}})\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-12">
-<span class="eqno">(12)<a class="headerlink" href="#equation-eq-12" title="Permalink to this equation"></a></span>\[logf_{K_{pw}}^{age} = 0\]</div>
+<span class="eqno">(12)<a class="headerlink" href="#equation-eq-12" title="Link to this equation"></a></span>\[logf_{K_{pw}}^{age} = 0\]</div>
 </section>
 <section id="mean-concentration">
-<h3>Mean concentration<a class="headerlink" href="#mean-concentration" title="Permalink to this heading"></a></h3>
+<h3>Mean concentration<a class="headerlink" href="#mean-concentration" title="Link to this heading"></a></h3>
 <p>The mean concentration in the drinking water pipe (<span class="math notranslate nohighlight">\(C_{dw}^{Mean}\)</span> in g/m<sup>3</sup>) is calculated by dividing the mass of benzene entering the house connection (<span class="math notranslate nohighlight">\(M_{segment}^{Mean}\)</span> in g) by the daily household water consumption (W, in m<sup>3</sup>)</p>
 <div class="math notranslate nohighlight" id="equation-eq-13">
-<span class="eqno">(13)<a class="headerlink" href="#equation-eq-13" title="Permalink to this equation"></a></span>\[C_{dw}^{Mean}=  \Sigma \frac {M_{segment}^{Mean}} {W}\]</div>
+<span class="eqno">(13)<a class="headerlink" href="#equation-eq-13" title="Link to this equation"></a></span>\[C_{dw}^{Mean}=  \Sigma \frac {M_{segment}^{Mean}} {W}\]</div>
 <p>This mass flux is calculated based on the partition coefficient between the pipe and water for the given chemical (K<sub>pw</sub>, -), the diffusion coefficient of the chemical in the pipe (D<sub>p</sub>, in m<sup>2</sup>/s) the area of the pipe wall in contact with the contamination (SAp, in m<sup>2</sup>), the concentration in groundwater (Cg, in g/m<sup>3</sup>) and drinking water (CdW, in g/m<sup>3</sup>), the duration over which the concentration is determined (tmean; 24 hours) the thickness of the pipe wall and an assessment factor (fas, -). The model was originally derived for permeation of benzene from groundwater into PE. Since gas leaks and water pipes are predominantly in the unsaturated zone, a partition coefficient (Kbw) was applied to translate the measured concentration in soil (mg/kg dry soil) to a concentration in the water phase (g/m<sup>3</sup>, Eq. <code class="xref eq docutils literal notranslate"><span class="pre">15</span></code>). This coefficient is different for each substance and derived through fugicity calculations by RIVM (Meerkerk &amp; van der Schans 2019).</p>
 <div class="math notranslate nohighlight" id="equation-eq-14">
-<span class="eqno">(14)<a class="headerlink" href="#equation-eq-14" title="Permalink to this equation"></a></span>\[M_{segment}^{Mean} = \frac{K_{pw} \cdot D_p \cdot SA_p (K_{bw} \cdot C_s - C_{dw}) \cdot t_{mean} } {d \cdot f_as}\]</div>
+<span class="eqno">(14)<a class="headerlink" href="#equation-eq-14" title="Link to this equation"></a></span>\[M_{segment}^{Mean} = \frac{K_{pw} \cdot D_p \cdot SA_p (K_{bw} \cdot C_s - C_{dw}) \cdot t_{mean} } {d \cdot f_as}\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-15">
-<span class="eqno">(15)<a class="headerlink" href="#equation-eq-15" title="Permalink to this equation"></a></span>\[K_{bw} = \frac {C_s} {C_{gw}} \cdot \frac {f_{gw}} {f_s}\]</div>
+<span class="eqno">(15)<a class="headerlink" href="#equation-eq-15" title="Link to this equation"></a></span>\[K_{bw} = \frac {C_s} {C_{gw}} \cdot \frac {f_{gw}} {f_s}\]</div>
 <p>Where d is the diffusion path length.</p>
 <p>The above calculations are solved iteratively in the model since the concentration in drinking water (Eq. <code class="xref eq docutils literal notranslate"><span class="pre">13</span></code>) depends on the calculated mass flux (Eq. <code class="xref eq docutils literal notranslate"><span class="pre">14</span></code>).</p>
 </section>
 <section id="permeation-direction">
-<h3>Permeation direction<a class="headerlink" href="#permeation-direction" title="Permalink to this heading"></a></h3>
+<h3>Permeation direction<a class="headerlink" href="#permeation-direction" title="Link to this heading"></a></h3>
 <p>Depending on the type of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The diffusion path length is the length of permeation through the pipe segment. Figure 1 below illustrates three permeation options:</p>
 <ol class="arabic simple">
 <li><p>Permeation perpendicular to flow direction through connecting segment (rubber).</p></li>
@@ -166,43 +169,43 @@ This section describes the mathematical equations solved by the permeation model
 <li><p>Permeation perpendicular to flow direction through pipe segment.</p></li>
 </ol>
 <p>In the case of scenarios 1 and 3 permeation is perpendicular through pipe wall and the diffusion path length is equal to the wall thickness of the pipe. The surface area is given as the inner surface area of the segment. In <em>pipepermcalc</em> the default permeation direction is perpendicular and the diffusion path length equal to the wall thickness of the pipe length.
-The area of the pipe wall is the product of the inside diameter (∅), the contact length (Lc) and pi:</p>
+The area of the pipe wall is the product of the inside diameter (∅), the contact length (Lc) and pi (the subscript refers to the scenario from Figure 1 for the following equations):</p>
 <div class="math notranslate nohighlight" id="equation-eq-16">
-<span class="eqno">(16)<a class="headerlink" href="#equation-eq-16" title="Permalink to this equation"></a></span>\[d=t, V_s = π \cdot (\frac{∅} {2})^2 \cdot L_c\]</div>
+<span class="eqno">(16)<a class="headerlink" href="#equation-eq-16" title="Link to this equation"></a></span>\[d_1=t, V_s = π \cdot (\frac{∅_{1}} {2})^2 \cdot L_{c,1}\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-17">
-<span class="eqno">(17)<a class="headerlink" href="#equation-eq-17" title="Permalink to this equation"></a></span>\[SA_p= π \cdot ∅ \cdot L_c\]</div>
+<span class="eqno">(17)<a class="headerlink" href="#equation-eq-17" title="Link to this equation"></a></span>\[SA_p= π \cdot ∅_{1} \cdot L_{c,1}\]</div>
 <p>In scenario 2 permeation is <em>parallel</em> to the flow direction through a connecting segment (in this case a rubber). For this scenario, the volume is assumed to be zero and the permeation surface area is the annular area of the rubber. The diffusion path length in this case is equal to the length of the segment.</p>
 <div class="math notranslate nohighlight" id="equation-eq-18">
-<span class="eqno">(18)<a class="headerlink" href="#equation-eq-18" title="Permalink to this equation"></a></span>\[d=L, V_s = 0\]</div>
+<span class="eqno">(18)<a class="headerlink" href="#equation-eq-18" title="Link to this equation"></a></span>\[d=L_2, V_s = 0\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-19">
-<span class="eqno">(19)<a class="headerlink" href="#equation-eq-19" title="Permalink to this equation"></a></span>\[SA_p= π \cdot \frac{{(∅+d)}^2 - ∅^2)} {4}\]</div>
+<span class="eqno">(19)<a class="headerlink" href="#equation-eq-19" title="Link to this equation"></a></span>\[SA_p= π \cdot \frac{{(∅_{2}+d_2)}^2 - ∅_2^2)} {4}\]</div>
 <a class="reference internal image-reference" href="_images/pipe_schematic_no_eqs.png"><img alt="pipe_schematic.png" src="_images/pipe_schematic_no_eqs.png" style="width: 600px;" /></a>
 <p>Figure 1 Depending on the type of pipe segment, the permeation direction can either be perpendicular (default) or parallel to the flow direction in the pipe. The different scenarios for permeation are indicated on an example pipe made up of multiple segments.</p>
 </section>
 <section id="peak-concentration">
-<h3>Peak Concentration<a class="headerlink" href="#peak-concentration" title="Permalink to this heading"></a></h3>
+<h3>Peak Concentration<a class="headerlink" href="#peak-concentration" title="Link to this heading"></a></h3>
 <p>The stagnation concentration is calculated similarly, except that the mass flux entering the pipeline during 1 night (8 hours) is divided by total volume of the pipe along the length in contact with the contamination.</p>
 <div class="math notranslate nohighlight" id="equation-eq-20">
-<span class="eqno">(20)<a class="headerlink" href="#equation-eq-20" title="Permalink to this equation"></a></span>\[C_{dw}^{peak}=  \Sigma \frac {M_{segment}^{peak}} {V}\]</div>
+<span class="eqno">(20)<a class="headerlink" href="#equation-eq-20" title="Link to this equation"></a></span>\[C_{dw}^{peak}=  \Sigma \frac {M_{segment}^{peak}} {V}\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-21">
-<span class="eqno">(21)<a class="headerlink" href="#equation-eq-21" title="Permalink to this equation"></a></span>\[V=  \Sigma V_{segment}\]</div>
+<span class="eqno">(21)<a class="headerlink" href="#equation-eq-21" title="Link to this equation"></a></span>\[V=  \Sigma V_{segment}\]</div>
 <p>When calculating the mass flux for stagnation concentrations, an 8-hour stagnation duration (tstag) is considered. The stagnation factor (fstag) is a correction for the decrease in the concentration gradient near the inner wall of the pipe during stagnation due to the increase in concentration during the night. The regression for the stagnation factor assumes a Cdw of zero.</p>
 <div class="math notranslate nohighlight" id="equation-eq-22">
-<span class="eqno">(22)<a class="headerlink" href="#equation-eq-22" title="Permalink to this equation"></a></span>\[M_{segment}^{peak} = \frac{K_{pw} \cdot D_p \cdot SA_p (K_{bw} \cdot C_s - 0) \cdot t_{stag} } {d \cdot f_as \cdot f_{stag}}\]</div>
+<span class="eqno">(22)<a class="headerlink" href="#equation-eq-22" title="Link to this equation"></a></span>\[M_{segment}^{peak} = \frac{K_{pw} \cdot D_p \cdot SA_p (K_{bw} \cdot C_s - 0) \cdot t_{stag} } {d \cdot f_as \cdot f_{stag}}\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-23">
-<span class="eqno">(23)<a class="headerlink" href="#equation-eq-23" title="Permalink to this equation"></a></span>\[f_{stag} = 10^{max ( ((\frac {log D_p + 12.5} {2} + log⁡ K_{pw}) \cdot 0.73611 - 1.03574) ,0  )}\]</div>
+<span class="eqno">(23)<a class="headerlink" href="#equation-eq-23" title="Link to this equation"></a></span>\[f_{stag} = 10^{max ( ((\frac {log D_p + 12.5} {2} + log⁡ K_{pw}) \cdot 0.73611 - 1.03574) ,0  )}\]</div>
 <p>The above calculations are solved iteratively in the model since the concentration in drinking water (Eq. <code class="xref eq docutils literal notranslate"><span class="pre">13</span></code>) depends on the calculated mass flux (Eq. <code class="xref eq docutils literal notranslate"><span class="pre">14</span></code>).</p>
 </section>
 </section>
 <section id="model-testing">
-<h2>Model Testing<a class="headerlink" href="#model-testing" title="Permalink to this heading"></a></h2>
-<p>The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit. See Tutorial — pipepermcalc 0.1 documentation</p>
+<h2>Model Testing<a class="headerlink" href="#model-testing" title="Link to this heading"></a></h2>
+<p>The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit. See <a class="reference internal" href="tutorial.html"><span class="doc">Tutorial</span></a>.</p>
 </section>
 <section id="symbols">
-<h2>Symbols<a class="headerlink" href="#symbols" title="Permalink to this heading"></a></h2>
+<h2>Symbols<a class="headerlink" href="#symbols" title="Link to this heading"></a></h2>
 <a class="reference internal image-reference" href="_images/symbols.PNG"><img alt="symbols.png" src="_images/symbols.PNG" style="width: 600px;" /></a>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
+<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
 <p>van der Schans, M., Otte, P. F., Swartjes, F. A., &amp; Meerkerk, M. (2016). Permeation of Contaminants from groundwater by polyethylene drinking water pipes KWR 2016.056. Nieuwegein, Netherlands.
 Otte, F., van der Schans, M., Meerkerk, M. A., &amp; Swartjes, F. A. (2016). Permeatie van contaminanten vanuit grondwater door polyethyleen- drinkwaterleidingen. Methodiek voor de beoordeling van risico’s voor de drinkwaterkwaliteit.</p>
 </section>

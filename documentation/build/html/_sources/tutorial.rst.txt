@@ -12,14 +12,18 @@ The following steps are needed to calculate the permeation of an organic chemica
 #. Set the groundwater contamination conditions (chemical, groundwater concentration and temperature) and mean daily flow rate.
 #. Validate the input parameters.
 
-Once a pipe has been created and the groundwater conditions and flow rate set, the following calculations are possible:
+Once a pipe has been created and the groundwater conditions and flow rate set, two types of calculations (forward and reverse) are possible:
 
-#. Calculate the maximum or mean daily concentration in drinking water from a known groundwater or soil concentration
-#. Calculate the maximum or mean daily allowable concentration in groundwater to meet a drinking water norm for a given chemical
+#. Forward - calculate the maximum or mean daily concentration in drinking water from a known groundwater or soil concentration
+#. Reverse - calculate the maximum or mean daily allowable concentration in groundwater to meet a drinking water limit value for a given chemical
 
-Example 1 - Simple Example
---------------------------
-Example for a single pipe segment.
+For the mathematical equations behind the calcualtions, see the :doc:`Mathematical Model </equations>`.
+
+.. _forward-example:
+
+Example 1 - Simple forward example
+----------------------------------
+Example forward calculation for a single pipe segment.
 
 We always start by importing pipepermcalc Pipe and Segment classes:
 
@@ -82,21 +86,48 @@ Note: the peak is often, though not necessarily, higher than the mean concentrat
 
     mean_conc = pipe1.calculate_mean_dw_concentration()
     print("The mean daily concentration is:", round(mean_conc,4), "g/m3")  
+
+.. _reverse-example:
+
+Example 2 - Simple reverse example
+----------------------------------
+Example reverse calculation for a single pipe segment. In a reverse calculation the groundwater concentration is unknown and the drinking water concentration is set to a given value, often this value will be the drinking water limit.
+
+The initial two steps are the same, defining the pipe segments and creating a pipe:
+
+Step 1: Create pipe segments and define pipe
+============================================
+
+.. ipython:: python
     
-Step 6: Calculate the allowable groundwater concentration
+    seg2 = Segment(name='seg2',
+                    material='PE40',
+                    length=25,
+                    inner_diameter=0.0196,
+                    wall_thickness=0.0027,)
+    
+    pipe2 = Pipe(segment_list=[seg2])
+
+
+Step 2: Calculate the allowable groundwater concentration
 =========================================================
-It is also possible to calculate the allowable groundwater concentration which would result in a concentration in drinking water not exceeding a given value for the chemical. Often this value will be the drinking water norm.
-The drinking water concentration is given in the set_conditions() function (keyword: concentration_drinking_water), or if no concentration is specified, the default is set as the drinking water norm.
+The drinking water concentration is given in the set_conditions() function (keyword: concentration_drinking_water), or if no concentration is specified, the default is set as the drinking water norm from the internal database.
 Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.
 
 .. ipython:: python
     :okwarning:
 
-    peak_conc = pipe1.calculate_peak_allowable_gw_concentration()    
+    pipe2.set_conditions(chemical_name="Benzeen", 
+                            temperature_groundwater=12, 
+                            flow_rate=0.5)
+    
+    pipe2.validate_input_parameters()
+
+    peak_conc = pipe2.calculate_peak_allowable_gw_concentration()    
    
     print("The peak groundwater concentration, not exceeding the norm:", round(peak_conc,4), "g/m3")
 
-    mean_conc = pipe1.calculate_mean_allowable_gw_concentration()    
+    mean_conc = pipe2.calculate_mean_allowable_gw_concentration()    
    
     print("The mean groundwater concentration, not exceeding the norm:", round(mean_conc,4), "g/m3")
 

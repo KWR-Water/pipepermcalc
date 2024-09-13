@@ -34,12 +34,12 @@ pipe1 = Pipe(segment_list=[seg1])
 
 pipe1.set_conditions(chemical_name="Benzeen",
                             temperature_groundwater=12, # deg. C
-                            concentration_groundwater=0.1, #g/m3
+                            # concentration_groundwater=0.1, #g/m3
                             flow_rate=0.5) #m3/day
 
 pipe1.validate_input_parameters()
 
-peak_conc = pipe1.calculate_peak_dw_concentration()
+peak_conc = pipe1.calculate_peak_allowable_gw_concentration()
 
 print("The peak drinking water concentration is:", round(peak_conc,4), "g/m3")
 

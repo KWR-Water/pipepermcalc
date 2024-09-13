@@ -253,7 +253,7 @@ class Pipe:
             self._validate_object(self)
 
             if self._set_permeation_direction is False:
-                raise ValueError('Error, there must be atlease one pipe segment with permeation perpendicular to the flow rate.')
+                raise ValueError('Error, a pipe must consist of a least one segment with permeation perpendicular to the flow direction. Segments with permeation parallel to the flow direction are meant to join pipe segments (e.g. o-rings) with perpendicular permeation.')
             else:
                 self._is_validated=True
 
@@ -954,6 +954,8 @@ class Pipe:
                             log_octanol_water_partitioning_coefficient=self.log_octanol_water_partitioning_coefficient)
                 
                 #stagnation factor with reference values for LogDp and LogKpw
+                # See equation 6-10 in KWR 2016.056. Note equation description in 
+                # report is given in different format. 
                 stagnation_factor = 10 ** max((((log_Dp_ref + 12.5) / 2 + 
                                     log_Kpw_ref) * 0.73611 + 
                                     -1.03574 ), 0)            

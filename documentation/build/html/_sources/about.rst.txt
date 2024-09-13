@@ -4,6 +4,10 @@ About
 Pipepermcalc is developed by KWR Water Research Institute. 
 Pipepermcalc calculates the permeation of organic chemicals into plastic drinking water pipes (PE40, PE80, SBR, EPDM).
 
+Pipepermcalc can perform two types of calculations (forward and reverse)
+
+#. Forward - calculate the maximum or mean daily concentration in drinking water from a known groundwater or soil concentration (see :ref:`forward-example`)
+#. Reverse - calculate the maximum or mean daily allowable concentration in groundwater to meet a drinking water limit value for a given chemical (see :ref:`reverse-example`)
 
 License
 -------
