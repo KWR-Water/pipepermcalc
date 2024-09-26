@@ -348,7 +348,7 @@ Model Testing
 The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.
 
 .. ipython:: python
-
+    :okwarning:
     seg1 = Segment(name='seg1',
                 material= 'PE40',
                 length=25,
