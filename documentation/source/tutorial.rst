@@ -60,9 +60,9 @@ The name of the chemical is checked against the chemical database and the closes
 
 .. ipython:: python
     
-    pipe1.set_conditions(chemical_name="Benzeen", 
-                    temperature_groundwater=12, 
-                    concentration_groundwater=1.8, 
+    pipe1.set_conditions(chemical_name="Benzeen",
+                    temperature_groundwater=12,
+                    concentration_groundwater=1.8,
                     flow_rate=0.5)
 
 
@@ -103,7 +103,7 @@ Step 1: Create pipe segments and define pipe
 
 .. ipython:: python
     
-    seg2 = Segment(name='seg2', 
+    seg2 = Segment(name='seg2',
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
@@ -184,8 +184,8 @@ The remaining calculations are done the same as for the simple example:
 
 .. ipython:: python
 
-    pipe2.set_conditions(chemical_name="Benzeen", 
-                    temperature_groundwater=12, 
+    pipe2.set_conditions(chemical_name="Benzeen",
+                    temperature_groundwater=12,
                     concentration_groundwater=1.8,
                     flow_rate=0.5)
     
