@@ -121,8 +121,8 @@ Both the groundwater concentration which would not exceed the peak and the mean 
     :okwarning:
 
     pipe2.set_conditions(chemical_name="Benzeen", 
-                            temperature_groundwater=12, 
-                            flow_rate=0.5)
+                                temperature_groundwater=12, 
+                                flow_rate=0.5)
     
     pipe2.validate_input_parameters()
 
