@@ -54,7 +54,7 @@ exclude_patterns = []
 # Don't copy the code prompts:
 #  https://sphinx-copybutton.readthedocs.io/en/latest/use.html#strip-and-configure-input-prompts-for-code-cells
 copybutton_prompt_is_regexp = True
-copybutton_prompt_text =r'In \[\d*\]: | {2,5}\.\.\.: '
+copybutton_prompt_text =r'In \[\d*\]: | {2,5}\.\.\.: | {2,5}\.\.\.\.:'
 
 # -- Options for HTML output -------------------------------------------------
 
