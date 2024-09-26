@@ -118,6 +118,7 @@ The drinking water concentration is given in the set_conditions() function (*con
 Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.
 
 .. ipython:: python
+    :okwarning:
 
     pipe2.set_conditions(chemical_name="Benzeen", 
                             temperature_groundwater=12, 
