@@ -60,10 +60,10 @@ The name of the chemical is checked against the chemical database and the closes
 
 .. ipython:: python
     
-    pipe1.set_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater=1.8, 
-                                flow_rate=0.5)
+    pipe1.set_conditions(chemical_name="Benzeen",
+                    temperature_groundwater=12,
+                    concentration_groundwater=1.8,
+                    flow_rate=0.5)
 
 
 The program gives a warning that no drinking water concentration was defined and the concentration has been set at the norm value. In the next step we will override this concentration and calculate the drinking water concentration for our defined conditions. This warning can be suppressed by setting *suppress_warning* = True. 
@@ -107,7 +107,7 @@ Step 1: Create pipe segments and define pipe
                     material='PE40',
                     length=25,
                     inner_diameter=0.0196,
-                    wall_thickness=0.0027,)
+                    wall_thickness=0.0027)
     
     pipe2 = Pipe(segment_list=[seg2])
 
@@ -118,10 +118,11 @@ The drinking water concentration is given in the set_conditions() function (*con
 Both the groundwater concentration which would not exceed the peak and the mean daily concentration can be calculated.
 
 .. ipython:: python
+    :okwarning:
 
     pipe2.set_conditions(chemical_name="Benzeen", 
-                            temperature_groundwater=12, 
-                            flow_rate=0.5)
+                    temperature_groundwater=12, 
+                    flow_rate=0.5)
     
     pipe2.validate_input_parameters()
 
@@ -153,10 +154,10 @@ In the following example we create a pipe made from two 5m PE40 pipe segments, j
 .. ipython:: python
 
     seg1 = Segment(name='seg1',
-                material='PE40',
-                length=5,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027)
+                    material='PE40',
+                    length=5,
+                    inner_diameter=0.0196,
+                    wall_thickness=0.0027)
 
     seg2 = Segment(name='seg2',
                     material = 'EPDM',
@@ -167,10 +168,10 @@ In the following example we create a pipe made from two 5m PE40 pipe segments, j
                     permeation_direction = 'parallel')
 
     seg3 = Segment(name='seg3',
-                material='PE40',
-                length=5,
-                inner_diameter=0.0196,
-                wall_thickness=0.0027)
+                    material='PE40',
+                    length=5,
+                    inner_diameter=0.0196,
+                    wall_thickness=0.0027)
 
     pipe2 = Pipe(segment_list=[seg1, seg2, seg3])
 
@@ -183,10 +184,10 @@ The remaining calculations are done the same as for the simple example:
 
 .. ipython:: python
 
-    pipe2.set_conditions(chemical_name="Benzeen", 
-                                temperature_groundwater=12, 
-                                concentration_groundwater=1.8,
-                                flow_rate=0.5)
+    pipe2.set_conditions(chemical_name="Benzeen",
+                    temperature_groundwater=12,
+                    concentration_groundwater=1.8,
+                    flow_rate=0.5)
     
     pipe2.validate_input_parameters()
 
@@ -212,17 +213,17 @@ The model contains a chemical database from which the partitioning (Kpw) and dif
     chemicals = ['benzene','ethylbenzene', 'toluene']
 
     for chemical in chemicals:
-        pipe3.set_conditions(
-                concentration_groundwater=0.1, #g/m3
-                chemical_name=chemical, 
-                temperature_groundwater=12, 
-                flow_rate=0.5, 
-                suppress_print=True, 
-                suppress_warning = True)
+                    pipe3.set_conditions(
+                                    concentration_groundwater=0.1, #g/m3
+                                    chemical_name=chemical, 
+                                    temperature_groundwater=12, 
+                                    flow_rate=0.5, 
+                                    suppress_print=True, 
+                                    suppress_warning = True)
 
-        pipe3.validate_input_parameters()
-        mean_conc = pipe3.calculate_mean_dw_concentration()
-        print("The mean drinking water concentration for", chemical, "is:", round(mean_conc,8), "g/m3")
+                    pipe3.validate_input_parameters()
+                    mean_conc = pipe3.calculate_mean_dw_concentration()
+                    print("The mean drinking water concentration for", chemical, "is:", round(mean_conc,8), "g/m3")
 
 
 Example 5 - Advanced settings
@@ -347,7 +348,7 @@ Model Testing
 The model has been tested by calculating the concentration in drinking water given a known groundwater concentration and feeding that drinking water concentration into the model again and verifying the same groundwater concentration is output. This is done for both the peak and mean concentrations for all chemicals in the database where the molecular weight, solubility and drinking water norm were known. In addition, the drinking water norm was less than the solubility limit.
 
 .. ipython:: python
-
+    :okwarning:
     seg1 = Segment(name='seg1',
                 material= 'PE40',
                 length=25,
