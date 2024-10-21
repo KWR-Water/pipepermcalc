@@ -203,7 +203,7 @@ Example 4 - Calculating in loops
 Calculate the concentration of multiple chemicals for a pipe
 ============================================================
 
-The model contains a chemical database from which the partitioning (Kpw) and diffusion (Dp) coefficients for the given plastic pipes are calculated. However, it is also possible to input a specific a partitioning and diffusion coefficient for a pipe segment. This must be done *after* setting the conditions of the pipe using .set_conditions().
+In some cases you may be interested in calculating the permeation for several differnt chemicals for the same pipe. It is possible to do this by looping over a list of chemicals and performing the calculations using the same pipe.
 
 .. ipython:: python
 

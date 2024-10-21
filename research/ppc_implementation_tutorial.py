@@ -169,3 +169,24 @@ for chemical in chemicals:
 
     print("The mean drinking water concentration for", chemical, "is:", round(mean_conc,8), "g/m3")
 #%%
+seg1 = Segment(name='seg1', material='PE40', length=25, inner_diameter=0.0196, wall_thickness=0.0027)
+
+pipe3 = Pipe(segment_list=[seg1])
+
+chemicals = ['benzene','ethylbenzene', 'toluene']
+
+for chemical in chemicals:
+                 pipe3.set_conditions(
+                                 concentration_groundwater=0.1, #g/m3
+                                 chemical_name=chemical,
+                                 temperature_groundwater=12,
+                                 flow_rate=0.5,
+                                 suppress_print=True,
+                                 suppress_warning = True)
+ 
+
+pipe3.validate_input_parameters()
+
+mean_conc = pipe3.calculate_mean_dw_concentration()
+
+print("The mean drinking water concentration for", chemical, "is:", round(mean_conc,8), "g/m3")
