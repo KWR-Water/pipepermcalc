@@ -2,7 +2,7 @@
 About
 ========
 Pipepermcalc is developed by KWR Water Research Institute. 
-Pipepermcalc calculates the permeation of organic chemicals into plastic drinking water pipes (PE40, PE80, SBR, EPDM).
+Pipepermcalc calculates the permeation of organic chemicals into plastic drinking water pipes (PE40, PE80, SBR, EPDM, PVC).
 
 Pipepermcalc can perform two types of calculations (forward and reverse)
 
